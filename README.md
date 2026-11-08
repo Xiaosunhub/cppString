@@ -12,8 +12,22 @@ and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、文本处理等一系列独立模块。
 
-当前版本：`5.4.0`（新增正则与日期时间模块）。
-Current release: **5.4.0** — regular expressions and date/time modules.
+当前版本：`5.4.1`（vcpkg 布局、小功能与原创性整改）。
+Current release: **5.4.1** — vcpkg-ready layout, small API additions and a source-provenance cleanup.
+
+> **5.4.1** — all library sources now live in `include/cppString/`; CMake
+> install/export rules and a sample vcpkg portfile were added; the export macro
+> no longer hardcodes `__declspec` (so non-MSVC toolchains work), include guards
+> use project-owned identifiers and every file carries an SPDX header. The
+> calendar conversion in `datetime.cpp` was rewritten independently.
+> New helpers, **no new modules**: `utf8::has_bom / strip_bom / add_bom`,
+> `ljust / rjust / repeat`, `validate::is_slug / is_ipv4_cidr`.
+> Source provenance: [ORIGINALITY.md](ORIGINALITY.md).
+>
+> **5.4.1**：库源码统一移入 `include/cppString/`；新增 CMake 安装/导出与 vcpkg
+> 端口示例；修正跨平台导出宏、include guard 与 SPDX 版权头；日期换算算法独立重写。
+> 新增函数（不新增模块）：UTF-8 BOM 处理、左右对齐与重复、slug / IPv4 CIDR 校验。
+> 源码来源说明见 `ORIGINALITY.md`。
 
 ## Features
 
@@ -241,19 +255,19 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 ## Quick start
 
 ```cpp
-#include "cppString.h"
-#include "method.h"
-#include "coding.h"
-#include "utf8.h"
-#include "json.h"
-#include "csv.h"
-#include "url.h"
-#include "fmt.h"
-#include "ansi.h"
-#include "binary.h"
-#include "file.h"
-#include "regex.h"
-#include "datetime.h"
+#include <cppString/cppString.h>
+#include <cppString/method.h>
+#include <cppString/coding.h>
+#include <cppString/utf8.h>
+#include <cppString/json.h>
+#include <cppString/csv.h>
+#include <cppString/url.h>
+#include <cppString/fmt.h>
+#include <cppString/ansi.h>
+#include <cppString/binary.h>
+#include <cppString/file.h>
+#include <cppString/regex.h>
+#include <cppString/datetime.h>
 
 using namespace sp;
 
@@ -302,63 +316,105 @@ cppString when  = sp::datetime::relative(sp::datetime::to_unix(*stamp),
 
 ## Building
 
-Requires a C++23 compiler (developed with MSVC v145 / VS 2026, `/std:c++latest`).
-The library is plain `.h` / `.cpp` pairs — add them to your project and go.
-No third-party dependencies; Windows targets link nothing extra.
-
-To build and run the test suite (1002 assertions) from a VS developer prompt:
+Requires a C++23 compiler and CMake 3.20+. No third-party dependencies.
 
 ```
-cl /std:c++latest /EHsc /W3 cppString.cpp method.cpp utf8.cpp coding.cpp ^
-   path.cpp checksum.cpp validate.cpp semver.cpp json.cpp table.cpp ^
-   argparse.cpp csv.cpp ini.cpp url.cpp unicode.cpp fmt.cpp ansi.cpp ^
-   binary.cpp file.cpp regex.cpp datetime.cpp testCppString.cpp
-testCppString.exe
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+cmake --install build --prefix <prefix>
 ```
 
-Or open the local `Project1.slnx` in Visual Studio and press F5
-(`testCppString.cpp` is a local-only test harness, not published).
+Consumers include headers with the package prefix and link the exported
+target:
+
+```cmake
+find_package(cppString CONFIG REQUIRED)
+target_link_libraries(my_app PRIVATE cppString::cppString)
+```
+
+```cpp
+#include <cppString/cppString.h>
+#include <cppString/json.h>
+```
+
+Install places headers in `<prefix>/include/cppString/`, the library in
+`<prefix>/lib/`, the package config in `<prefix>/lib/cmake/cppString/` and the
+license in `<prefix>/share/cppString/copyright`.
+
+### vcpkg / 提交 vcpkg
+
+An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
+
+```cmake
+vcpkg_from_github(
+    OUT_SOURCE_PATH SOURCE_PATH
+    REPO Xiaosunhub/cppString
+    REF v5.4.1
+    SHA512 <sha512 of the release tarball>
+)
+vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/cppString)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+```
+
+Port names must be lowercase (for example `cppstring`). Reviewers usually ask
+about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
+
+构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
+`#include <cppString/xxx.h>`，链接 `cppString::cppString`。
+1045 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+（不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
 
-The repository root is flat: every published source is a `.h` / `.cpp` pair at
-the top level. The local `Project1/` Visual Studio workspace (project/solution
-files, IDE settings, test harness, `release.bat`) is **never committed**; the
-release script mirrors the library sources into the root before each push.
+All library sources live in `include/cppString/` as `.h` / `.cpp` pairs. The
+headers are installed under the same `include/cppString/` prefix, so consumers
+write `#include <cppString/cppString.h>`. The local `Project1/` Visual Studio
+workspace (project/solution, IDE settings, test harness, `release.bat`) is
+**never committed**; the release script mirrors library sources into
+`include/cppString/` before each push.
 
-仓库根目录为扁平结构，只发布头文件与实现。本地 `Project1/`（VS 工程、解决方案、
-测试文件、`release.bat`）不入库，发布脚本会在每次推送前把库源码同步到根目录。
+所有库源码放在 `include/cppString/` 下，安装后保持同样的 `cppString/` 前缀。
+本地 `Project1/`（VS 工程、测试文件、`release.bat`）不入库。
 
 ```
-├── cppString.h / .cpp   # core class
-├── utf8.h / .cpp        # UTF-8 validation & manipulation, display width
-├── coding.h / .cpp      # base64/base32/base58/hex/binary/octal/url, radix, ciphers, morse
-├── method.h / .cpp      # text utilities, file I/O, json/csv/html helpers, diff
-├── path.h / .cpp        # path manipulation
-├── checksum.h / .cpp    # CRC-32, FNV-1a, Adler-32, MD5, SHA-256, HMAC-SHA-256
-├── validate.h / .cpp    # IP/email/UUID/URL/MAC/color/Luhn validation
-├── semver.h / .cpp      # semantic versioning
-├── json.h / .cpp        # JSON Value, parser, serializer, pointer, merge patch
-├── table.h / .cpp       # ASCII table rendering (CJK-aware)
-├── argparse.h / .cpp    # command-line argument parser
-├── csv.h / .cpp         # RFC 4180 CSV documents
-├── ini.h / .cpp         # INI configuration files
-├── url.h / .cpp         # RFC 3986 URI parsing and resolution
-├── unicode.h / .cpp     # case folding, width, transliteration, NFC/NFD
-├── fmt.h / .cpp         # type-safe text formatting
-├── ansi.h / .cpp        # ANSI/terminal escape helpers
-├── binary.h / .cpp      # raw byte parsing: Reader/Writer, hex dump, bit ops
-├── file.h / .cpp        # filesystem ops: metadata, dirs, text/byte I/O, hashes
-├── regex.h / .cpp       # regular expressions: match, capture, replace, split
-├── datetime.h / .cpp    # date/time: ISO 8601, Unix time, calendar arithmetic
+├── CMakeLists.txt                  # build, install, package export
+├── cmake/
+│   └── cppStringConfig.cmake.in
+├── include/cppString/
+│   ├── cppString.h / .cpp          # core class, version macros, exceptions
+│   ├── utf8.h / .cpp               # UTF-8, display width, BOM helpers
+│   ├── coding.h / .cpp             # base64/base32/base58/hex/radix, ciphers, morse
+│   ├── method.h / .cpp             # text utilities, diff, padding/repetition
+│   ├── path.h / .cpp               # path manipulation
+│   ├── checksum.h / .cpp           # CRC-32, FNV-1a, Adler-32, MD5, SHA-256, HMAC
+│   ├── validate.h / .cpp           # IP/email/UUID/URL/MAC/Luhn/slug/CIDR
+│   ├── semver.h / .cpp             # semantic versioning
+│   ├── json.h / .cpp               # JSON Value, parser, pointer, merge patch
+│   ├── table.h / .cpp              # ASCII table rendering (CJK-aware)
+│   ├── argparse.h / .cpp           # command-line argument parser
+│   ├── csv.h / .cpp                # RFC 4180 CSV documents
+│   ├── ini.h / .cpp                # INI configuration files
+│   ├── url.h / .cpp                # RFC 3986 URI parsing and resolution
+│   ├── unicode.h / .cpp            # case folding, width, transliteration, NFC/NFD
+│   ├── fmt.h / .cpp                # type-safe text formatting
+│   ├── ansi.h / .cpp               # ANSI/terminal escape helpers
+│   ├── binary.h / .cpp             # raw byte parsing: Reader/Writer, hex dump
+│   ├── file.h / .cpp               # filesystem ops, text/byte I/O, hashes
+│   ├── regex.h / .cpp              # regular expressions: match, replace, split
+│   └── datetime.h / .cpp           # ISO 8601, Unix time, calendar arithmetic
+├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1002-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1045-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
-## License
+## License / 许可
 
-[MIT](LICENSE) © 2025 Ender_
+[MIT](LICENSE) © 2025-2026 Ender_ — source provenance: [ORIGINALITY.md](ORIGINALITY.md).
+源码来源与合规说明见 `ORIGINALITY.md`。

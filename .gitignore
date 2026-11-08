@@ -13,7 +13,7 @@ x64/
 *.suo
 
 # Local-only: the entire VS project folder stays on disk, never published.
-# release.bat mirrors only the library .h/.cpp pairs to the repository root.
+# release.bat mirrors only the library .h/.cpp pairs into include/cppString.
 Project1/
 
 # Local-only: IDE project, tests, release script (only headers + impl are pushed)
@@ -24,6 +24,8 @@ cpp.hint
 testCppString.cpp
 release.bat
 build/
+cmake-build-*/
+out/
 
 # WorkBuddy AI session data
 .workbuddy/
