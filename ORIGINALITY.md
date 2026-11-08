@@ -1,12 +1,12 @@
 # Originality / 原创性声明
 
-**cppString** is an independently written library. All 42 published `.h` / `.cpp`
+**cppString** is an independently written library. All 44 published `.h` / `.cpp`
 files under `include/cppString/` were authored for this project; every one of
 them carries an `SPDX-License-Identifier: MIT` line and the same copyright
 notice (`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
 [MIT License](LICENSE).
 
-本项目的 42 个头文件与实现文件均为独立编写，统一带有 SPDX 标识与版权声明，
+本项目的 44 个头文件与实现文件均为独立编写，统一带有 SPDX 标识与版权声明，
 采用 MIT 许可。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库（Windows 下 `file` 模块通过
 条件编译调用系统 API，其他平台走 POSIX 路径）。
@@ -43,6 +43,18 @@ incorporated. The SPDX headers and authorship of all 42 files are unchanged.
 `datetime.cpp`，均依据上表公开规范或整数溢出分析独立实现，没有参考或引入
 任何第三方源码；42 个文件的 SPDX 头与作者声明保持不变。
 
+The 5.5.0 release adds two files, `exec.h` and `exec.cpp`. They are written
+from scratch against the documented Win32 and POSIX process APIs
+(CreateProcessW / anonymous pipes / job objects, fork / execvp / poll) and
+the documented PowerShell `-EncodedCommand` convention. No code from a
+third-party process or subprocess library is used; every published file
+still carries the same SPDX header and copyright notice.
+
+5.5.0 新增 `exec.h` 与 `exec.cpp` 两个文件，依据公开文档中的 Win32 / POSIX
+进程接口（CreateProcessW、匿名管道、Job Object，以及 fork / execvp / poll）
+和 PowerShell `-EncodedCommand` 约定独立编写，未使用任何第三方进程封装库；
+全部发布文件仍保持统一的 SPDX 头与版权声明。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data
@@ -61,6 +73,7 @@ independently for this project**:
 | Date and time | ISO 8601, RFC 3339, proleptic Gregorian calendar |
 | UUID v4 | RFC 4122 |
 | Regular-expression grammar | ECMA-262 / POSIX ERE via the standard library |
+| Process / command execution | Win32 CreateProcess / pipes / job objects, POSIX fork / execvp / poll, PowerShell `-EncodedCommand` |
 | UTF-8, normalization, East Asian width | The Unicode Standard |
 | INI, TOML-like helpers, tables, ANSI escapes | De-facto public formats |
 | Levenshtein, Dice, Soundex, Luhn, ROT13/Caesar, Morse | Long-standing public-domain algorithms |

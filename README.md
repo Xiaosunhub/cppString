@@ -5,16 +5,31 @@ A modern C++23 string utility library — a `std::string`-compatible core class
 encoding, data exchange (JSON / CSV / INI / URI), internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
-and everyday text work.
+external command execution, and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `sp::cppString`，
 外加 UTF-8、编解码、数据交换（JSON / CSV / INI / URI）、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
-文件系统操作、正则表达式、日期时间、文本处理等一系列独立模块。
+文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.4.2`（解析、序列化与整数溢出的缺陷修复）。
-Current release: **5.4.2** — parser/serializer correctness and overflow bug fixes.
+当前版本：`5.5.0`（新增 `exec` 命令执行模块）。
+Current release: **5.5.0** — new `exec` module for running cmd / PowerShell / shell commands.
 
+> **5.5.0** — adds `exec.h` / `exec.cpp` (`sp::exec`): execute external
+> commands and capture raw stdout, stderr and the exit code. `run` / `cmd` /
+> `powershell` go through a shell, `invoke(argv)` starts a program directly.
+> `Options` covers shell choice, working directory, timeout (on Windows a job
+> object kills the whole child process tree) and stderr merging; helpers are
+> `capture`, `exists`, `quote` and `build_command`. No third-party dependency,
+> 21 new assertions (1089 total).
+>
+> **5.5.0**：新增 `exec.h` / `exec.cpp`（`sp::exec`），用于执行 cmd / PowerShell /
+> shell 命令并捕获原始 stdout、stderr 与退出码。`run` / `cmd` / `powershell` 经
+> shell 执行，`invoke(argv)` 不经 shell 直接启动程序；`Options` 支持选择 shell、
+> 工作目录、超时（Windows 用 Job Object 终止整棵进程树）与 stderr 合并，
+> 另有 `capture` / `exists` / `quote` / `build_command`。无第三方依赖，
+> 新增 21 项断言（共 1089 项）。
+>
 > **5.4.2** — bug-fix release: no new modules and no new API. `json::dump()`
 > now rejects NaN/Infinity instead of emitting non-JSON `nan` / `inf`; a URI
 > keeps a present-but-empty authority (`file:///tmp/a`, `http:///p`);
@@ -215,6 +230,37 @@ Unix 时间戳互转（支持 1970 年以前），另有闰年、月天数、星
 日期加减与差值、`utc_now` / `local_now` / `unix_now`、相对时间与时长格式化。
 无效日期抛 `Invalid_Conversion`，越界时区偏移抛 `Invalid_Argument`。
 
+### `exec.h` — `sp::exec`
+
+Run external commands and capture raw stdout / stderr plus the exit code.
+`run` / `cmd` / `powershell` go through a shell (cmd.exe, PowerShell via
+`-EncodedCommand`, or sh / bash / pwsh on POSIX); `invoke(argv)` starts an
+executable directly without any shell. `Options` selects the shell, working
+directory, a timeout (0 = wait forever) and stderr merging; `Result` exposes
+`out` / `err` / `exit_code` / `started` / `timed_out` / `ok()` / `output()`.
+Helpers: `capture` (stdout only, throws on start failure or timeout),
+`exists` (PATH lookup), `quote` (platform shell quoting) and `build_command`
+(the exact command line, for logging). Windows uses `CreateProcessW` with
+anonymous pipes and a job object so a timeout kills the whole child tree;
+POSIX uses `fork` / `execvp` with `poll`. No third-party dependency.
+
+**Security**: never concatenate untrusted input into a shell command — use
+`invoke()` with an argv vector. Captured text is raw bytes: Windows console
+programs usually emit the system OEM code page, not UTF-8.
+
+执行外部命令并捕获原始 stdout / stderr 与退出码。`run` / `cmd` /
+`powershell` 经 shell 执行（Windows cmd.exe、PowerShell 用 `-EncodedCommand`；
+POSIX 用 sh / bash / pwsh），`invoke(argv)` 不经过 shell 直接启动程序。
+`Options` 可指定 shell、工作目录、超时（0 表示不限时）与 stderr 合并；
+`Result` 提供 `out` / `err` / `exit_code` / `started` / `timed_out` /
+`ok()` / `output()`。另有 `capture`（只取 stdout）、`exists`（PATH 查找）、
+`quote`（按平台转义参数）、`build_command`（返回实际命令行便于记录日志）。
+Windows 用 `CreateProcessW` + 匿名管道 + Job Object（超时可终止整棵进程树），
+POSIX 用 `fork` / `execvp` + `poll`，无第三方依赖。
+
+**安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
+捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
+
 ### `table.h` — `sp::table`
 
 ASCII table rendering with per-column alignment. Column widths use
@@ -362,7 +408,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.4.2
+    REF v5.5.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -377,7 +423,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1068 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1089 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -417,14 +463,15 @@ workspace (project/solution, IDE settings, test harness, `release.bat`) is
 │   ├── binary.h / .cpp             # raw byte parsing: Reader/Writer, hex dump
 │   ├── file.h / .cpp               # filesystem ops, text/byte I/O, hashes
 │   ├── regex.h / .cpp              # regular expressions: match, replace, split
-│   └── datetime.h / .cpp           # ISO 8601, Unix time, calendar arithmetic
+│   ├── datetime.h / .cpp           # ISO 8601, Unix time, calendar arithmetic
+│   └── exec.h / .cpp               # external command execution, output capture
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1068-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1089-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
