@@ -205,9 +205,10 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 	Document::Row current;
 	String field;
 	bool in_quotes = false;
-	// A quoted field may legally be empty (`""`); field/current stay empty in
-	// that case, so remember that a record was actually started.
-	bool saw_quoted = false;
+	// A completely blank line is a record with zero fields, while a line
+	// containing anything (even a single `""`) has at least one field.
+	// Track that distinction so write()->parse() round-trips empty rows.
+	bool record_started = false;
 
 	auto end_field = [&]()
 	{
@@ -217,10 +218,11 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 
 	auto end_record = [&]()
 	{
-		end_field();
+		if (record_started)
+			end_field();
 		records.push_back(std::move(current));
 		current.clear();
-		saw_quoted = false;
+		record_started = false;
 	};
 
 	for (std::size_t i = 0; i < src.size(); ++i)
@@ -243,10 +245,11 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 			}
 			else if (c == '\r')
 			{
+				// RFC 4180 keeps line breaks inside quoted fields verbatim.
+				// Folding CRLF to LF would lose data on a write/parse round trip.
+				field += '\r';
 				if (i + 1 < src.size() && src[i + 1] == '\n')
-					++i;
-
-				field += '\n';
+					field += src[++i];
 			}
 			else
 			{
@@ -258,10 +261,11 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 			if (c == '"' && field.empty())
 			{
 				in_quotes = true;
-				saw_quoted = true;
+				record_started = true;
 			}
 			else if (c == delimiter)
 			{
+				record_started = true;
 				end_field();
 			}
 			else if (c == '\r' || c == '\n')
@@ -273,6 +277,7 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 			}
 			else
 			{
+				record_started = true;
 				field += c;
 			}
 		}
@@ -282,7 +287,7 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 		throw sp::Invalid_Conversion("Unterminated quoted field in csv::parse.");
 
 	// A trailing line break already closed the last record.
-	if (!field.empty() || !current.empty() || saw_quoted)
+	if (record_started)
 		end_record();
 
 	Document doc;

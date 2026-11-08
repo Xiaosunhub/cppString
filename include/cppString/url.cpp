@@ -184,6 +184,9 @@ sp::url::Url::Url(const cppString& text)
 
 	if (rest.size() >= 2 && rest[0] == '/' && rest[1] == '/')
 	{
+		// The authority is defined even when every one of its subcomponents
+		// is empty (e.g. "file:///tmp/a"). str() must keep the leading "//".
+		m_has_authority = true;
 		const std::size_t end = rest.find('/', 2);
 		String authority = rest.substr(2, end == String::npos ? String::npos : end - 2);
 		rest = (end == String::npos) ? String{} : rest.substr(end);
@@ -353,6 +356,9 @@ sp::url::Url sp::url::Url::resolve(const cppString& reference) const
 
 	if (ref.has_authority())
 	{
+		// A reference such as "///p" defines an empty authority: clear the
+		// base host/port instead of inheriting them.
+		result.m_has_authority = true;
 		result.m_userinfo = ref.m_userinfo;
 		result.m_host = ref.m_host;
 		result.m_port = ref.m_port;
@@ -365,6 +371,9 @@ sp::url::Url sp::url::Url::resolve(const cppString& reference) const
 	result.m_userinfo = m_userinfo;
 	result.m_host = m_host;
 	result.m_port = m_port;
+	// A relative reference keeps the base authority, including the case
+	// where that authority is present but empty.
+	result.m_has_authority = has_authority();
 
 	if (ref.m_path.empty())
 	{

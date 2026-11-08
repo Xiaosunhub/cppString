@@ -217,6 +217,12 @@ namespace
 {
 	cppString number_to_string(double value)
 	{
+		// RFC 8259 has no NaN/Infinity literal. std::to_chars would emit
+		// "nan"/"inf", i.e. text that json::parse can never read back, so
+		// reject non-finite values instead of silently producing bad JSON.
+		if (!std::isfinite(value))
+			throw sp::Invalid_Conversion("Cannot serialize non-finite JSON number (NaN/Infinity).");
+
 		// Integers print without a decimal point.
 		if (fits_long_long(value))
 			return cppString{ std::to_string(static_cast<long long>(value)) };

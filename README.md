@@ -12,9 +12,22 @@ and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、文本处理等一系列独立模块。
 
-当前版本：`5.4.1`（vcpkg 布局、小功能与原创性整改）。
-Current release: **5.4.1** — vcpkg-ready layout, small API additions and a source-provenance cleanup.
+当前版本：`5.4.2`（解析、序列化与整数溢出的缺陷修复）。
+Current release: **5.4.2** — parser/serializer correctness and overflow bug fixes.
 
+> **5.4.2** — bug-fix release: no new modules and no new API. `json::dump()`
+> now rejects NaN/Infinity instead of emitting non-JSON `nan` / `inf`; a URI
+> keeps a present-but-empty authority (`file:///tmp/a`, `http:///p`);
+> `csv::parse` preserves CRLF inside quoted fields and round-trips a blank
+> line as a record with zero fields; `datetime::duration` and
+> `datetime::relative` no longer overflow on `INT64_MIN`. 23 regression
+> assertions were added (1068 total).
+>
+> **5.4.2**：缺陷修复版本，不新增模块、不新增接口。修复 JSON 把 NaN/Infinity
+> 序列化成非法 `nan` / `inf`、URL 空 authority 丢失 `//`、CSV 引号字段内
+> CRLF 被折叠成 LF、空行往返不一致，以及 `datetime::duration` /
+> `relative` 在 `INT64_MIN` 下的有符号溢出。新增 23 项回归断言（共 1068 项）。
+>
 > **5.4.1** — all library sources now live in `include/cppString/`; CMake
 > install/export rules and a sample vcpkg portfile were added; the export macro
 > no longer hardcodes `__declspec` (so non-MSVC toolchains work), include guards
@@ -349,7 +362,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.4.1
+    REF v5.4.2
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -364,7 +377,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1045 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1068 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -411,7 +424,7 @@ workspace (project/solution, IDE settings, test harness, `release.bat`) is
 └── .gitignore
 ```
 
-The 1045-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1068-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

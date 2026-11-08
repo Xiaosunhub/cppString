@@ -33,6 +33,16 @@ The 5.4.1 release includes a source audit for external authorship markers:
 5.4.1 还把日期换算算法整体重写为独立实现（不再沿用任何已公开的日期公式
 代码结构），并用跨 400 年周期边界的往返测试验证行为不变。
 
+The 5.4.2 bug-fix release touches only `json.cpp`, `url.h`, `url.cpp`,
+`csv.cpp` and `datetime.cpp`. Every change is an independent fix derived from
+the public specifications below (RFC 8259, RFC 3986, RFC 4180) or from plain
+integer-overflow reasoning; no third-party source code was consulted or
+incorporated. The SPDX headers and authorship of all 42 files are unchanged.
+
+5.4.2 的缺陷修复仅涉及 `json.cpp`、`url.h`、`url.cpp`、`csv.cpp` 与
+`datetime.cpp`，均依据上表公开规范或整数溢出分析独立实现，没有参考或引入
+任何第三方源码；42 个文件的 SPDX 头与作者声明保持不变。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data

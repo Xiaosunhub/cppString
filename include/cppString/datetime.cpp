@@ -491,11 +491,14 @@ namespace sp
 
 		cppString relative(std::int64_t timestamp, std::int64_t now)
 		{
-			const std::int64_t d = now - timestamp;
-			const std::int64_t magnitude = d < 0 ? -d : d;
-			const bool future = d < 0;
+			// Subtract as unsigned: a signed "now - timestamp" can overflow
+			// for extreme inputs, and negating INT64_MIN is undefined.
+			const bool future = now < timestamp;
+			const std::uint64_t magnitude = future
+				? static_cast<std::uint64_t>(timestamp) - static_cast<std::uint64_t>(now)
+				: static_cast<std::uint64_t>(now) - static_cast<std::uint64_t>(timestamp);
 
-			auto phrase = [&](std::int64_t n, const char* unit) -> cppString
+			auto phrase = [&](std::uint64_t n, const char* unit) -> cppString
 			{
 				String s{};
 				if (future)
@@ -525,28 +528,32 @@ namespace sp
 		cppString duration(std::int64_t seconds)
 		{
 			const bool negative = seconds < 0;
-			std::int64_t v = negative ? -seconds : seconds;
+			// -INT64_MIN overflows; the unsigned difference yields the exact
+			// magnitude (2^63) without undefined behaviour.
+			std::uint64_t v = negative
+				? 0ULL - static_cast<std::uint64_t>(seconds)
+				: static_cast<std::uint64_t>(seconds);
 			String out{};
 			if (negative)
 				out += '-';
 
-			const std::int64_t days = v / 86400;
+			const std::uint64_t days = v / 86400;
 			v %= 86400;
-			const std::int64_t hours = v / 3600;
+			const std::uint64_t hours = v / 3600;
 			v %= 3600;
-			const std::int64_t minutes = v / 60;
-			const std::int64_t secs = v % 60;
+			const std::uint64_t minutes = v / 60;
+			const std::uint64_t secs = v % 60;
 
 			if (days > 0)
 			{
 				out += std::to_string(days);
 				out += "d ";
 			}
-			append_number(out, hours, 2);
+			append_number(out, static_cast<long long>(hours), 2);
 			out += ':';
-			append_number(out, minutes, 2);
+			append_number(out, static_cast<long long>(minutes), 2);
 			out += ':';
-			append_number(out, secs, 2);
+			append_number(out, static_cast<long long>(secs), 2);
 			return cppString{ std::move(out) };
 		}
 	}

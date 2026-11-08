@@ -57,9 +57,14 @@ namespace sp
 			void set_query(const cppString& value)    { m_query = value; m_has_query = true; }
 			void set_fragment(const cppString& value) { m_fragment = value; m_has_fragment = true; }
 
+			// RFC 3986 allows an authority component that is present but empty
+			// ("file:///tmp/a", "http:///p"). Keep the component-based check
+			// for URLs assembled with set_host()/set_port(), but also remember
+			// whether "//" was actually present when parsing.
 			[[nodiscard]] bool has_authority() const noexcept
 			{
-				return !m_host.empty() || !m_userinfo.empty() || !m_port.empty();
+				return m_has_authority
+					|| !m_host.empty() || !m_userinfo.empty() || !m_port.empty();
 			}
 
 			// Decoded query parameters, in order. Empty segments are skipped;
@@ -88,9 +93,11 @@ namespace sp
 			cppString m_query{};
 			cppString m_fragment{};
 			// RFC 3986 distinguishes an undefined component from an empty one:
-			// "?" defines an empty query and "#" an empty fragment.
+			// "?" defines an empty query, "#" an empty fragment, and "//" an
+			// authority whose host/userinfo/port may all be empty.
 			bool m_has_query = false;
 			bool m_has_fragment = false;
+			bool m_has_authority = false;
 		};
 
 		[[nodiscard]] Url parse(const cppString& text);
