@@ -4,15 +4,16 @@ A modern C++23 string utility library — a `std::string`-compatible core class
 (`sp::cppString`) plus a collection of focused helper modules for UTF-8,
 encoding, data exchange (JSON / CSV / INI / URI), internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
-binary parsing, file system operations, and everyday text work.
+binary parsing, file system operations, regular expressions, date/time,
+and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `sp::cppString`，
 外加 UTF-8、编解码、数据交换（JSON / CSV / INI / URI）、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
-文件系统操作、文本处理等一系列独立模块。
+文件系统操作、正则表达式、日期时间、文本处理等一系列独立模块。
 
-当前版本：`5.3.2`（解析与边界缺陷修复）。
-Current release: **5.3.2** — parser and boundary bug fixes.
+当前版本：`5.4.0`（新增正则与日期时间模块）。
+Current release: **5.4.0** — regular expressions and date/time modules.
 
 ## Features
 
@@ -141,6 +142,52 @@ fnv1a64). Queries never throw; filesystem failures are reported as
 以及复用 checksum 模块的文件哈希。查询函数不抛异常；文件系统错误统一为
 `Invalid_Operation`（生命周期类函数返回 `false`）。
 
+### `regex.h` — `sp::regex`
+
+`cppString`-friendly ECMAScript regular expressions (POSIX ERE grammar is
+available via `Option::extended`). `escape` quotes metacharacters;
+`is_match` / `search` / `match` / `find_all` / `count` cover matching, with
+`Match` exposing the whole match, byte offset, length and numbered capture
+groups. `replace` / `replace_all` expand `$0..$9`, `${n}`, `$&`, `$$` and
+`\1`-style references, plus a callback overload; `split` preserves trailing
+empty fields. `Option::icase` enables case-insensitive matching. Use the fully
+qualified `sp::regex::` prefix if you also have `using namespace std;`.
+Invalid patterns throw `Invalid_Argument`, a bad group reference throws
+`Invalid_Format`, and a bad group index throws `Index_Out_Of_Range`.
+
+面向 `cppString` 的 ECMAScript 正则封装（也可用 `Option::extended` 切换 POSIX
+ERE 语法）：`escape` 转义元字符；`is_match` / `search` / `match` / `find_all` /
+`count` 做匹配，`Match` 提供完整匹配、字节偏移、长度与编号捕获组；`replace` /
+`replace_all` 支持 `$1`、`${1}`、`$&`、`$$`、`\1` 反向引用及回调重载；
+`split` 保留尾部空字段；`Option::icase` 忽略大小写。无效正则抛
+`Invalid_Argument`，无效组引用抛 `Invalid_Format`，组下标越界抛
+`Index_Out_Of_Range`。与 `std::regex` 同名，建议始终写 `sp::regex::` 全限定。
+
+### `datetime.h` — `sp::datetime`
+
+Timezone-aware date/time on the proleptic Gregorian calendar, with no
+time-zone database dependency. `DateTime` carries date, time, milliseconds
+and a UTC offset; `parse` accepts ISO 8601 / RFC 3339 (date only, `T` or
+space separator, fractional seconds, `Z` / `±HH:MM` / `±HHMM` / `±HH`)
+and returns `std::nullopt` on bad input. `format` implements a strftime-like
+subset (`%Y %y %m %d %H %I %M %S %p %f %j %a %A %b %B %z %%`), with
+`to_iso8601` / `to_rfc3339` shortcuts. `to_unix` / `from_unix` round-trip
+epoch seconds (including pre-1970 dates), and `days_from_civil` /
+`civil_from_days`, `is_leap_year`, `days_in_month`, `weekday`,
+`day_of_year`, `add_days` / `add_seconds`, `diff_seconds` / `diff_days` cover
+calendar arithmetic. `utc_now` / `local_now` / `unix_now` read the clock;
+`relative` and `duration` produce human-readable strings. Invalid dates
+throw `Invalid_Conversion`, out-of-range offsets `Invalid_Argument`.
+
+时区感知的日期时间模块，基于通用格里高利历算法、不依赖时区数据库：
+`DateTime` 含年月日时分秒、毫秒与 UTC 偏移；`parse` 解析 ISO 8601 / RFC 3339
+（纯日期、`T` 或空格分隔、小数秒、`Z` / `±HH:MM` / `±HHMM` / `±HH`），
+非法输入返回 `std::nullopt`；`format` 支持类 strftime 占位符，
+`to_iso8601` / `to_rfc3339` 为快捷方式；`to_unix` / `from_unix` 与
+Unix 时间戳互转（支持 1970 年以前），另有闰年、月天数、星期、年内天数、
+日期加减与差值、`utc_now` / `local_now` / `unix_now`、相对时间与时长格式化。
+无效日期抛 `Invalid_Conversion`，越界时区偏移抛 `Invalid_Argument`。
+
 ### `table.h` — `sp::table`
 
 ASCII table rendering with per-column alignment. Column widths use
@@ -205,6 +252,8 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 #include "ansi.h"
 #include "binary.h"
 #include "file.h"
+#include "regex.h"
+#include "datetime.h"
 
 using namespace sp;
 
@@ -240,6 +289,15 @@ file::write_text("notes.txt", cppString{"first\nsecond\n"});
 auto lines = file::read_lines("notes.txt");   // {"first", "second"}
 cppString digest = file::hash("notes.txt", "sha256");
 for (const auto& e : file::list(".")) { /* sorted entries with size/type */ }
+
+cppString swapped = sp::regex::replace_all("2024-02-29", R"((\d{4})-(\d{2})-(\d{2}))",
+                                            "${3}/${2}/${1}");   // "29/02/2024"
+auto fields = sp::regex::split("a, b ,  c", R"(\s*,\s*)");     // {"a", "b", "c"}
+
+auto stamp = sp::datetime::parse("2024-02-29T12:34:56+08:00");
+cppString shown = sp::datetime::format(*stamp, "%Y-%m-%d %H:%M %z");
+cppString when  = sp::datetime::relative(sp::datetime::to_unix(*stamp),
+                                         sp::datetime::unix_now());
 ```
 
 ## Building
@@ -248,13 +306,13 @@ Requires a C++23 compiler (developed with MSVC v145 / VS 2026, `/std:c++latest`)
 The library is plain `.h` / `.cpp` pairs — add them to your project and go.
 No third-party dependencies; Windows targets link nothing extra.
 
-To build and run the test suite (898 assertions) from a VS developer prompt:
+To build and run the test suite (1002 assertions) from a VS developer prompt:
 
 ```
 cl /std:c++latest /EHsc /W3 cppString.cpp method.cpp utf8.cpp coding.cpp ^
    path.cpp checksum.cpp validate.cpp semver.cpp json.cpp table.cpp ^
    argparse.cpp csv.cpp ini.cpp url.cpp unicode.cpp fmt.cpp ansi.cpp ^
-   binary.cpp file.cpp testCppString.cpp
+   binary.cpp file.cpp regex.cpp datetime.cpp testCppString.cpp
 testCppString.exe
 ```
 
@@ -291,12 +349,14 @@ release script mirrors the library sources into the root before each push.
 ├── ansi.h / .cpp        # ANSI/terminal escape helpers
 ├── binary.h / .cpp      # raw byte parsing: Reader/Writer, hex dump, bit ops
 ├── file.h / .cpp        # filesystem ops: metadata, dirs, text/byte I/O, hashes
+├── regex.h / .cpp       # regular expressions: match, capture, replace, split
+├── datetime.h / .cpp    # date/time: ISO 8601, Unix time, calendar arithmetic
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 898-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1002-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License
