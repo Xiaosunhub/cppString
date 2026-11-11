@@ -12,9 +12,25 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.5.0`（新增 `exec` 命令执行模块）。
-Current release: **5.5.0** — new `exec` module for running cmd / PowerShell / shell commands.
+当前版本：`5.6.0`（头文件与实现分目录，`exec` 新增简洁接口）。
+Current release: **5.6.0** — headers/implementations split and a short-form `exec` API.
 
+> **5.6.0** — the published tree is split into `include/cppString/*.h`
+> (headers only — the only thing users include) and `src/*.cpp`
+> (implementations, never installed). `sp::exec` gains `execute(command)` /
+> `execute(Actuator, command)`, returning a bool, and `getExecResult(command)` /
+> `getExecResult(Actuator, command)`, returning the merged execution transcript.
+> The default actuator is cmd.exe on Windows (/bin/sh on POSIX). C++ forbids a
+> defaulted parameter in front of a non-defaulted one, so two overloads keep the
+> actuator-first calling style. 14 new assertions (1103 total).
+>
+> **5.6.0**：发布目录拆分为 `include/cppString/*.h`（只放头文件，用户只需包含它）
+> 与 `src/*.cpp`（实现文件，不安装）。`sp::exec` 新增 `execute(command)` /
+> `execute(Actuator, command)` 返回 bool，以及 `getExecResult(command)` /
+> `getExecResult(Actuator, command)` 返回合并后的执行过程输出。默认执行器在
+> Windows 为 cmd.exe（POSIX 为 /bin/sh）；因 C++ 不允许默认参数位于非默认参数
+> 之前，改用两个重载保留「执行器在前」的调用方式。新增 14 项断言（共 1103 项）。
+>
 > **5.5.0** — adds `exec.h` / `exec.cpp` (`sp::exec`): execute external
 > commands and capture raw stdout, stderr and the exit code. `run` / `cmd` /
 > `powershell` go through a shell, `invoke(argv)` starts a program directly.
@@ -244,6 +260,17 @@ Helpers: `capture` (stdout only, throws on start failure or timeout),
 anonymous pipes and a job object so a timeout kills the whole child tree;
 POSIX uses `fork` / `execvp` with `poll`. No third-party dependency.
 
+Short-form API: `execute(command)` is a bool shortcut — true only when the
+process started, did not time out and exited 0; `getExecResult(command)`
+returns the full transcript with stderr merged into stdout. Both also have an
+actuator-first overload, `execute(Actuator, command)` and
+`getExecResult(Actuator, command)`. The default actuator is cmd.exe on Windows
+and /bin/sh on POSIX; explicit values are `cmd.exe`, `powershell.exe`, `pwsh`,
+`sh`, `bash` or `auto` (a path and `.exe` suffix are accepted). An unknown
+actuator throws `Invalid_Argument`. C++ does not allow a default argument
+before a non-defaulted one, so the default is provided by the one-argument
+overload rather than by `execute(Actuator = "cmd.exe", command)`.
+
 **Security**: never concatenate untrusted input into a shell command — use
 `invoke()` with an argv vector. Captured text is raw bytes: Windows console
 programs usually emit the system OEM code page, not UTF-8.
@@ -257,6 +284,15 @@ POSIX 用 sh / bash / pwsh），`invoke(argv)` 不经过 shell 直接启动程�
 `quote`（按平台转义参数）、`build_command`（返回实际命令行便于记录日志）。
 Windows 用 `CreateProcessW` + 匿名管道 + Job Object（超时可终止整棵进程树），
 POSIX 用 `fork` / `execvp` + `poll`，无第三方依赖。
+
+简洁接口：`execute(command)` 返回 bool（进程成功启动、未超时且退出码为 0 才为
+true）；`getExecResult(command)` 返回合并了 stderr 的完整执行过程输出。两者另有
+「执行器在前」的重载 `execute(Actuator, command)` 与
+`getExecResult(Actuator, command)`。默认执行器在 Windows 为 cmd.exe、POSIX 为
+/bin/sh；显式可选 `cmd.exe`、`powershell.exe`、`pwsh`、`sh`、`bash`、`auto`
+（允许带路径与 `.exe` 后缀），未知执行器抛 `Invalid_Argument`。C++ 不允许默认
+参数出现在非默认参数之前，因此用单参数重载提供默认值，而不是
+`execute(Actuator = "cmd.exe", command)`。
 
 **安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
 捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
@@ -396,9 +432,11 @@ target_link_libraries(my_app PRIVATE cppString::cppString)
 #include <cppString/json.h>
 ```
 
-Install places headers in `<prefix>/include/cppString/`, the library in
-`<prefix>/lib/`, the package config in `<prefix>/lib/cmake/cppString/` and the
-license in `<prefix>/share/cppString/copyright`.
+Install places headers in `<prefix>/include/cppString/` (and no `.cpp` files),
+the library in `<prefix>/lib/`, the package config in
+`<prefix>/lib/cmake/cppString/` and the license in
+`<prefix>/share/cppString/copyright`. The `src/` tree is used only to build the
+library and is not part of the installed package.
 
 ### vcpkg / 提交 vcpkg
 
@@ -408,7 +446,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.5.0
+    REF v5.6.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -423,55 +461,61 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1089 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1103 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
 
-All library sources live in `include/cppString/` as `.h` / `.cpp` pairs. The
-headers are installed under the same `include/cppString/` prefix, so consumers
-write `#include <cppString/cppString.h>`. The local `Project1/` Visual Studio
-workspace (project/solution, IDE settings, test harness, `release.bat`) is
-**never committed**; the release script mirrors library sources into
-`include/cppString/` before each push.
+Public headers live in `include/cppString/`, implementations in `src/`. The
+public include tree contains **only `.h` files**: consumers add just
+`<prefix>/include` and write `#include <cppString/cppString.h>`; no `.cpp` is
+installed or visible to them. The local `Project1/` Visual Studio workspace
+(project/solution, IDE settings, test harness, `release.bat`) is **never
+committed**; the release script mirrors headers into `include/cppString/` and
+implementations into `src/` before each push. The local workspace itself uses
+the same split.
 
-所有库源码放在 `include/cppString/` 下，安装后保持同样的 `cppString/` 前缀。
-本地 `Project1/`（VS 工程、测试文件、`release.bat`）不入库。
+头文件统一放在 `include/cppString/`，实现文件统一放在 `src/`。公开 include
+目录**只含 `.h`**：用户只需把 `<prefix>/include` 加入搜索路径并写
+`#include <cppString/cppString.h>`，无需（也不会）看到任何 `.cpp`。
+本地 `Project1/`（VS 工程、测试文件、`release.bat`）不入库，本地工程同样按
+头文件 / 实现分目录，`release.bat` 发布前分别镜像到两个目录。
 
 ```
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/
-│   ├── cppString.h / .cpp          # core class, version macros, exceptions
-│   ├── utf8.h / .cpp               # UTF-8, display width, BOM helpers
-│   ├── coding.h / .cpp             # base64/base32/base58/hex/radix, ciphers, morse
-│   ├── method.h / .cpp             # text utilities, diff, padding/repetition
-│   ├── path.h / .cpp               # path manipulation
-│   ├── checksum.h / .cpp           # CRC-32, FNV-1a, Adler-32, MD5, SHA-256, HMAC
-│   ├── validate.h / .cpp           # IP/email/UUID/URL/MAC/Luhn/slug/CIDR
-│   ├── semver.h / .cpp             # semantic versioning
-│   ├── json.h / .cpp               # JSON Value, parser, pointer, merge patch
-│   ├── table.h / .cpp              # ASCII table rendering (CJK-aware)
-│   ├── argparse.h / .cpp           # command-line argument parser
-│   ├── csv.h / .cpp                # RFC 4180 CSV documents
-│   ├── ini.h / .cpp                # INI configuration files
-│   ├── url.h / .cpp                # RFC 3986 URI parsing and resolution
-│   ├── unicode.h / .cpp            # case folding, width, transliteration, NFC/NFD
-│   ├── fmt.h / .cpp                # type-safe text formatting
-│   ├── ansi.h / .cpp               # ANSI/terminal escape helpers
-│   ├── binary.h / .cpp             # raw byte parsing: Reader/Writer, hex dump
-│   ├── file.h / .cpp               # filesystem ops, text/byte I/O, hashes
-│   ├── regex.h / .cpp              # regular expressions: match, replace, split
-│   ├── datetime.h / .cpp           # ISO 8601, Unix time, calendar arithmetic
-│   └── exec.h / .cpp               # external command execution, output capture
+├── include/cppString/             # public headers only (22 × .h)
+│   ├── cppString.h                # core class, version macros, exceptions
+│   ├── utf8.h                     # UTF-8, display width, BOM helpers
+│   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
+│   ├── method.h                   # text utilities, diff, padding/repetition
+│   ├── path.h                     # path manipulation
+│   ├── checksum.h                 # CRC-32, FNV-1a, Adler-32, MD5, SHA-256, HMAC
+│   ├── validate.h                 # IP/email/UUID/URL/MAC/Luhn/slug/CIDR
+│   ├── semver.h                   # semantic versioning
+│   ├── json.h                     # JSON Value, parser, pointer, merge patch
+│   ├── table.h                    # ASCII table rendering (CJK-aware)
+│   ├── argparse.h                 # command-line argument parser
+│   ├── csv.h                      # RFC 4180 CSV documents
+│   ├── ini.h                      # INI configuration files
+│   ├── url.h                      # RFC 3986 URI parsing and resolution
+│   ├── unicode.h                  # case folding, width, transliteration, NFC/NFD
+│   ├── fmt.h                      # type-safe text formatting
+│   ├── ansi.h                     # ANSI/terminal escape helpers
+│   ├── binary.h                   # raw byte parsing: Reader/Writer, hex dump
+│   ├── file.h                     # filesystem ops, text/byte I/O, hashes
+│   ├── regex.h                    # regular expressions: match, replace, split
+│   ├── datetime.h                 # ISO 8601, Unix time, calendar arithmetic
+│   └── exec.h                     # external command execution, output capture
+├── src/                           # 22 matching .cpp files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1089-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1103-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

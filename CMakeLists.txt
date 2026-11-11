@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(cppString
-    VERSION 5.5.0
+    VERSION 5.6.0
     DESCRIPTION "A modern C++23 string utility library"
     HOMEPAGE_URL "https://github.com/Xiaosunhub/cppString"
     LANGUAGES CXX)
@@ -12,16 +12,16 @@ project(cppString
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-# The library is a flat set of header/implementation pairs living together in
-# include/cppString. Only the headers are installed; the .cpp files are the
-# compilation units of the static/shared library target.
+# Public headers live in include/cppString/, implementations in src/.
+# Only the headers are installed, so consumers add just <prefix>/include to
+# their include path and write #include <cppString/xxx.h>.
 file(GLOB CPPSTRING_SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/cppString/*.cpp")
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB CPPSTRING_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/cppString/*.h")
 
 if(NOT CPPSTRING_SOURCES)
-    message(FATAL_ERROR "No cppString sources found in include/cppString")
+    message(FATAL_ERROR "No cppString sources found in src/")
 endif()
 
 add_library(cppString ${CPPSTRING_SOURCES})
@@ -31,7 +31,10 @@ target_compile_features(cppString PUBLIC cxx_std_23)
 target_include_directories(cppString
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    PRIVATE
+        # Implementation files include their own headers by bare name.
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/cppString>)
 
 if(BUILD_SHARED_LIBS)
     target_compile_definitions(cppString PUBLIC CPPSTRING_BUILD_SHARED)

@@ -106,6 +106,32 @@ namespace sp
 		// The exact command line run() would hand to the OS (for logging and
 		// auditing). PowerShell commands are passed as -EncodedCommand.
 		[[nodiscard]] cppString build_command(Shell shell, const cppString& command);
+
+		// ---- Short-form API (5.6.0) -----------------------------------------
+		//
+		// C++ forbids a defaulted parameter in front of a non-defaulted one,
+		// so `execute(Actuator = "cmd.exe", command)` cannot be declared.
+		// Two overloads keep the intended calling style instead:
+		//     execute(command)             -> default actuator
+		//     execute(Actuator, command)   -> explicit actuator
+		// The one-argument form uses cmd.exe on Windows and /bin/sh on POSIX.
+		// Recognised actuators: cmd.exe, powershell.exe, pwsh, sh, bash,
+		// "auto" (platform default), with or without a path / .exe suffix.
+		inline constexpr const char* default_actuator = "cmd.exe";
+
+		// True only if the process started, did not time out and exited with 0.
+		// A missing program or a non-zero exit code simply returns false;
+		// an unrecognised actuator throws Invalid_Argument.
+		[[nodiscard]] bool execute(const cppString& command);
+		[[nodiscard]] bool execute(const cppString& actuator, const cppString& command);
+
+		// The execution transcript: stdout with stderr merged in, in the order
+		// the process produced it. Start failures and non-zero exits are not
+		// errors here - their message / output is returned as text instead.
+		// An unrecognised actuator throws Invalid_Argument.
+		[[nodiscard]] cppString getExecResult(const cppString& command);
+		[[nodiscard]] cppString getExecResult(const cppString& actuator,
+			const cppString& command);
 	}
 }
 

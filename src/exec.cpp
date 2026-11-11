@@ -49,6 +49,50 @@ namespace sp
 	{
 		namespace
 		{
+			// Map a human-friendly actuator name to a shell. Accepts a bare
+			// name, a path and an optional .exe suffix ("C:\\...\\CMD.EXE").
+			bool resolve_actuator(const String& actuator, Shell& shell)
+			{
+				String name = actuator;
+				const std::size_t separator = name.find_last_of("\\/");
+				if (separator != String::npos)
+					name = name.substr(separator + 1);
+
+				for (char& c : name)
+				{
+					if (c >= 'A' && c <= 'Z')
+						c = static_cast<char>(c - 'A' + 'a');
+				}
+				if (name.size() > 4 && name.compare(name.size() - 4, 4, ".exe") == 0)
+					name.resize(name.size() - 4);
+
+				if (name.empty() || name == "auto" || name == "automatic"
+					|| name == "default")
+					shell = Shell::automatic;
+				else if (name == "cmd" || name == "command")
+					shell = Shell::cmd;
+				else if (name == "powershell")
+					shell = Shell::powershell;
+				else if (name == "pwsh" || name == "powershell7")
+					shell = Shell::pwsh;
+				else if (name == "sh")
+					shell = Shell::sh;
+				else if (name == "bash")
+					shell = Shell::bash;
+				else
+					return false;
+				return true;
+			}
+
+			Options options_for(Shell shell)
+			{
+				Options options{};
+				options.shell = shell;
+				// One transcript keeps stdout/stderr in their original order.
+				options.merge_stderr = true;
+				return options;
+			}
+
 #ifdef _WIN32
 			// All paths, command lines and captured text are UTF-8 in the
 			// public API; Windows entry points need UTF-16 instead.
@@ -623,6 +667,34 @@ namespace sp
 			if (result.timed_out)
 				throw sp::Invalid_Operation("sp::exec::capture: process timed out");
 			return result.out;
+		}
+
+		bool execute(const cppString& command)
+		{
+			return run(command, options_for(Shell::automatic)).ok();
+		}
+
+		bool execute(const cppString& actuator, const cppString& command)
+		{
+			Shell shell = Shell::automatic;
+			if (!resolve_actuator(actuator.s_str(), shell))
+				throw sp::Invalid_Argument(
+					"sp::exec::execute: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
+			return run(command, options_for(shell)).ok();
+		}
+
+		cppString getExecResult(const cppString& command)
+		{
+			return run(command, options_for(Shell::automatic)).output();
+		}
+
+		cppString getExecResult(const cppString& actuator, const cppString& command)
+		{
+			Shell shell = Shell::automatic;
+			if (!resolve_actuator(actuator.s_str(), shell))
+				throw sp::Invalid_Argument(
+					"sp::exec::getExecResult: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
+			return run(command, options_for(shell)).output();
 		}
 
 		bool exists(const cppString& program)

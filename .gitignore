@@ -13,7 +13,7 @@ x64/
 *.suo
 
 # Local-only: the entire VS project folder stays on disk, never published.
-# release.bat mirrors only the library .h/.cpp pairs into include/cppString.
+# release.bat mirrors headers into include/cppString/ and .cpp files into src/.
 Project1/
 
 # Local-only: IDE project, tests, release script (only headers + impl are pushed)

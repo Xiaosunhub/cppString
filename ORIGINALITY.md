@@ -1,13 +1,14 @@
 # Originality / 原创性声明
 
-**cppString** is an independently written library. All 44 published `.h` / `.cpp`
-files under `include/cppString/` were authored for this project; every one of
-them carries an `SPDX-License-Identifier: MIT` line and the same copyright
-notice (`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
+**cppString** is an independently written library. All 44 published source
+files — 22 public headers in `include/cppString/` and their 22 implementations
+in `src/` — were authored for this project; every one of them carries an
+`SPDX-License-Identifier: MIT` line and the same copyright notice
+(`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
 [MIT License](LICENSE).
 
-本项目的 44 个头文件与实现文件均为独立编写，统一带有 SPDX 标识与版权声明，
-采用 MIT 许可。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
+本项目的 44 个文件（22 个公开头文件位于 `include/cppString/`，22 个实现文件位于
+`src/`）均为独立编写，统一带有 SPDX 标识与版权声明，采用 MIT 许可。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库（Windows 下 `file` 模块通过
 条件编译调用系统 API，其他平台走 POSIX 路径）。
 
@@ -55,6 +56,22 @@ still carries the same SPDX header and copyright notice.
 和 PowerShell `-EncodedCommand` 约定独立编写，未使用任何第三方进程封装库；
 全部发布文件仍保持统一的 SPDX 头与版权声明。
 
+The 5.6.0 release only moves files and adds a small convenience layer. The
+44 existing sources were relocated from `include/cppString/` into the split
+`include/cppString/*.h` + `src/*.cpp` layout with no content rewrite; the new
+`execute` / `getExecResult` overloads in `exec.h` / `exec.cpp` are thin wrappers
+around the existing `run()` implementation, and the actuator-to-shell mapping
+is a plain name lookup written for this project (the C++ default-argument rule
+is a language constraint, not borrowed code). No file was added, no third-party
+source was consulted, and all SPDX headers are unchanged.
+
+5.6.0 只做目录拆分与少量便捷接口：44 个已有文件从 `include/cppString/`
+原样迁移到 `include/cppString/*.h` + `src/*.cpp` 的新布局，未改写内容；
+`exec.h` / `exec.cpp` 中的 `execute` / `getExecResult` 只是对现有 `run()`
+的薄封装，执行器名称到 shell 的映射是本项目自写的普通名称查表（默认参数不能
+位于非默认参数之前属于 C++ 语言规则，并非引用他人代码）。没有新增文件，
+未参考或引入任何第三方源码，全部 SPDX 头保持不变。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data
@@ -88,10 +105,10 @@ the notice intact is a condition of the license.
 
 ```
 # no third-party authorship markers
-grep -RniE "adapted from|based on|ported from|taken from|@author|copyright \(c\) (?!2025)" include/cppString
+grep -RniE "adapted from|based on|ported from|taken from|@author|copyright \(c\) (?!2025)" include/cppString src
 
 # every published file declares the same license
-grep -RL "SPDX-License-Identifier: MIT" include/cppString
+grep -RL "SPDX-License-Identifier: MIT" include/cppString src
 ```
 
 This document is a technical provenance statement, not legal advice. It
