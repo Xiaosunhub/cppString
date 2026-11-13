@@ -657,6 +657,10 @@ bool sp::validate::is_ipv4_cidr(const cppString& s) noexcept
 	const String prefix = v.substr(slash + 1);
 	if (prefix.empty() || prefix.size() > 2)
 		return false;
+	// Keep the mask canonical: "/0" is valid, "/01" and "/00" are not.
+	// The IP groups are checked for leading zeros in the same way.
+	if (prefix.size() > 1 && prefix[0] == '0')
+		return false;
 	int value = 0;
 	for (const char c : prefix)
 	{

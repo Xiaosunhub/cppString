@@ -78,10 +78,12 @@ namespace sp
 		[[nodiscard]] char sniff_delimiter(const cppString& text) noexcept;
 
 		// Parse a whole document. Handles quoted fields containing the
-		// separator, doubled quotes and embedded newlines; CRLF inside a
-		// quoted field is normalized to '\n'. A trailing line break does not
-		// produce an extra record. Throws Invalid_Conversion on an
-		// unterminated quote. Pass delimiter '\0' to auto-detect.
+		// separator, doubled quotes and embedded line breaks; CRLF / CR
+		// inside a quoted field is preserved verbatim so write()->parse()
+		// round-trips exactly. A blank line is a record with zero fields,
+		// while a trailing line break does not add an extra record. Throws
+		// Invalid_Conversion on an unterminated quote. Pass delimiter '\0'
+		// to auto-detect.
 		[[nodiscard]] Document parse(const cppString& text, char delimiter = '\0',
 			bool has_header = true);
 

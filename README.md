@@ -12,9 +12,26 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.0`（头文件与实现分目录，`exec` 新增简洁接口）。
-Current release: **5.6.0** — headers/implementations split and a short-form `exec` API.
+当前版本：`5.6.1`（解析与校验的缺陷修复）。
+Current release: **5.6.1** — parser and validator correctness fixes.
 
+> **5.6.1** — bug-fix release, no new modules and no new API:
+> `json::parse` now keeps one entry per object key (last duplicate wins)
+> instead of emitting duplicate keys; JSON Pointer rejects malformed `~`
+> escapes (`~2`, trailing `~`) as RFC 6901 requires;
+> `url::set_query_param` collapses a repeated key instead of leaving
+> several identical pairs; `validate::is_ipv4_cidr` rejects leading-zero
+> masks such as `/01` and `/00`; and the `csv::parse` header comment was
+> corrected to state that CRLF inside quoted fields is preserved.
+> 17 regression assertions were added (1120 total).
+>
+> **5.6.1**：缺陷修复版本，不新增模块、不新增接口。`json::parse` 现在对每个
+> 对象键只保留一项（重复键取最后一个），不再输出重复键；JSON Pointer 按
+> RFC 6901 拒绝非法 `~` 转义（`~2`、结尾孤立 `~`）；`url::set_query_param`
+> 会合并重复键，不再留下多条相同的 `key=value`；`validate::is_ipv4_cidr`
+> 拒绝 `/01`、`/00` 这类带前导零的掩码；同时修正 `csv::parse` 头文件注释，
+> 明确引号字段内的 CRLF 是原样保留的。新增 17 项回归断言（共 1120 项）。
+>
 > **5.6.0** — the published tree is split into `include/cppString/*.h`
 > (headers only — the only thing users include) and `src/*.cpp`
 > (implementations, never installed). `sp::exec` gains `execute(command)` /
@@ -113,8 +130,8 @@ Merge Patch (`merge`) and RFC 6902 JSON Patch (`patch`, all six operations).
 
 Full RFC 4180 documents: `Document` with an optional header row, named
 column access, `parse` (quoted separators, doubled quotes, embedded
-newlines, CRLF handling), delimiter auto-detection, and `write` with
-configurable quoting and line endings. Extends the single-line
+newlines, CRLF preserved verbatim inside quoted fields), delimiter
+auto-detection, and `write` with configurable quoting and line endings. Extends the single-line
 `csv::escape` / `csv::split` helpers in `method.h`. `to_json` / `from_json`
 convert between documents and JSON object/array forms (lossless round trip).
 
@@ -446,7 +463,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.0
+    REF v5.6.1
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -461,7 +478,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1103 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1120 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -515,7 +532,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1103-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1120-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

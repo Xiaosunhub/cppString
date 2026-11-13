@@ -274,22 +274,34 @@ bool sp::url::Url::has_query_param(const cppString& key) const
 
 void sp::url::Url::set_query_param(const cppString& key, const cppString& value)
 {
-	auto params = query_params();
+	const auto params = query_params();
+	std::vector<std::pair<cppString, cppString>> updated;
+	updated.reserve(params.size());
 	bool replaced = false;
 
-	for (auto& param : params)
+	for (const auto& param : params)
 	{
 		if (param.first == key)
 		{
-			param.second = value;
+			// A query may contain the same key more than once. Update the
+			// first occurrence and drop the rest so one set() does not leave
+			// several identical "key=value" pairs behind.
+			if (replaced)
+				continue;
+
+			updated.emplace_back(param.first, value);
 			replaced = true;
+		}
+		else
+		{
+			updated.emplace_back(param.first, param.second);
 		}
 	}
 
 	if (!replaced)
-		params.emplace_back(key, value);
+		updated.emplace_back(key, value);
 
-	set_query_params(params);
+	set_query_params(updated);
 }
 
 sp::cppString sp::url::Url::str() const

@@ -72,6 +72,18 @@ source was consulted, and all SPDX headers are unchanged.
 位于非默认参数之前属于 C++ 语言规则，并非引用他人代码）。没有新增文件，
 未参考或引入任何第三方源码，全部 SPDX 头保持不变。
 
+The 5.6.1 release changes only `json.cpp`, `url.cpp`, `validate.cpp` and the
+comment in `csv.h`. Every fix is an independent correction derived from the
+public specifications below (RFC 8259 object names, RFC 6901 escape rules,
+RFC 3986 query strings, CIDR notation) or from direct reasoning about the
+library's own data structures. No file was added, no third-party source was
+consulted, and all 44 SPDX headers remain unchanged.
+
+5.6.1 仅改动 `json.cpp`、`url.cpp`、`validate.cpp` 及 `csv.h` 的注释，全部
+依据上表公开规范（RFC 8259 对象键、RFC 6901 转义规则、RFC 3986 查询串、CIDR
+记法）或对本项目自身数据结构的直接分析独立修正；没有新增文件，未参考或引入
+任何第三方源码，44 个文件的 SPDX 头保持不变。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data

@@ -594,7 +594,24 @@ namespace
 				skip_ws();
 				expect(':');
 				skip_ws();
-				items.emplace_back(std::move(key), parse_value());
+				Value parsed = parse_value();
+
+				// RFC 8259: names SHOULD be unique. Keep one entry per key,
+				// with the last occurrence winning (the position of the first
+				// occurrence is preserved), as mainstream JSON readers do.
+				bool replaced = false;
+				for (auto& entry : items)
+				{
+					if (entry.first == key)
+					{
+						entry.second = std::move(parsed);
+						replaced = true;
+						break;
+					}
+				}
+				if (!replaced)
+					items.emplace_back(std::move(key), std::move(parsed));
+
 				skip_ws();
 
 				if (consume('}'))
@@ -640,14 +657,18 @@ namespace
 
 			for (std::size_t i = 0; i < raw.size(); ++i)
 			{
-				if (raw[i] == '~' && i + 1 < raw.size() && raw[i + 1] == '1')
+				if (raw[i] == '~')
 				{
-					token += '/';
-					++i;
-				}
-				else if (raw[i] == '~' && i + 1 < raw.size() && raw[i + 1] == '0')
-				{
-					token += '~';
+					// RFC 6901: '~' may only introduce the escapes ~0 and ~1.
+					// A trailing '~' or '~2' is malformed, not a literal '~'.
+					if (i + 1 >= raw.size()
+						|| (raw[i + 1] != '0' && raw[i + 1] != '1'))
+					{
+						throw sp::Invalid_Conversion(
+							"Invalid JSON Pointer escape sequence: " + raw);
+					}
+
+					token += (raw[i + 1] == '0') ? '~' : '/';
 					++i;
 				}
 				else
