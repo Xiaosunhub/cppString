@@ -241,6 +241,14 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 				else
 				{
 					in_quotes = false;
+					// RFC 4180: a closing quote may only be followed by the
+					// delimiter, a line break or the end of the input.
+					if (i + 1 < src.size())
+					{
+						const char next = src[i + 1];
+						if (next != delimiter && next != '\r' && next != '\n')
+							throw sp::Invalid_Conversion("Unexpected character after closing quote in csv::parse.");
+					}
 				}
 			}
 			else if (c == '\r')
