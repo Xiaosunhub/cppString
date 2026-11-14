@@ -12,9 +12,14 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.7`（边界缺陷修复）。
-Current release: **5.6.7** — boundary and overflow defect fixes.
+当前版本：`5.6.8`（边界缺陷修复）。
+Current release: **5.6.8** — boundary and overflow defect fixes.
 
+> **5.6.8** — fixes inherited from 5.6.7: `file::read_lines` stripped a trailing CR even from the final line of a file that has no newline, so a CR that is part of the data was silently lost on a write/read round trip.
+> 1 regression assertions were added (1144 total).
+>
+> **5.6.8**：修复 5.6.7 遗留缺陷：`file::read_lines` 会剥离文件末行（无换行符）结尾的 CR，导致数据中本应保留的 CR 在写入/读取往返时丢失。 新增 1 项回归断言（共 1144 项）。
+>
 > **5.6.7** — fixes inherited from 5.6.6: `startsWith` / `endsWith` threw `Invalid_Argument` when the prefix or suffix was longer than the string (and on empty strings for the char overloads), the opposite of standard string semantics and a common crash source in callers.
 > 8 regression assertions were added (1143 total).
 >
@@ -493,7 +498,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.7
+    REF v5.6.8
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -508,7 +513,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1143 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1144 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -562,7 +567,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1143-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1144-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

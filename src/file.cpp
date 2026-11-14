@@ -428,7 +428,9 @@ namespace sp
 					? data.substr(cursor)
 					: data.substr(cursor, hit - cursor);
 
-				if (!line.empty() && line.back() == '\r')
+				// Only a CR that belongs to a CRLF terminator is stripped. A CR at
+				// the end of a final line without a newline is data and must survive.
+				if (hit != ::String::npos && !line.empty() && line.back() == '\r')
 					line.pop_back();
 				if (keep_empty || !line.empty())
 					lines.push_back(cppString{ std::move(line) });
