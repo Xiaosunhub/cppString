@@ -416,8 +416,18 @@ sp::cppString& sp::cppString::operator^=(const sp::cppString& rhs)
     return m_data[pos]; 
 }
 
-char& sp::cppString::at(sp::cppString::size_type pos) { return m_data.at(pos); }
-const char& sp::cppString::at(sp::cppString::size_type pos) const { return m_data.at(pos); }
+char& sp::cppString::at(sp::cppString::size_type pos)
+{
+    if (pos >= m_data.size())
+        throw sp::Index_Out_Of_Range("Index out of range in cppString::at.");
+    return m_data.at(pos);
+}
+const char& sp::cppString::at(sp::cppString::size_type pos) const
+{
+    if (pos >= m_data.size())
+        throw sp::Index_Out_Of_Range("Index out of range in cppString::at.");
+    return m_data.at(pos);
+}
 
 char& sp::cppString::front() { return m_data.front(); }
 const char& sp::cppString::front() const { return m_data.front(); }
@@ -443,6 +453,8 @@ sp::cppString sp::cppString::substr(
     sp::cppString::pos_type count
 ) const
 {
+    if (pos > m_data.size())
+        throw sp::Index_Out_Of_Range("Start index out of range in cppString::substr.");
     return sp::cppString(m_data.substr(pos, count));
 }
 
