@@ -681,7 +681,7 @@ sp::cppString sp::cppString::copyReplaceAll(const cppString& from, const cppStri
  bool sp::cppString::startsWith(const cppString& prefix) const
 {
 	if (prefix.length() > m_data.length())
-		throw sp::Invalid_Argument("The prefix string cannot be longer than the original string in startsWith.");
+		return false;
 
 	return m_data.compare(0, prefix.length(), prefix.m_data) == 0;
 }
@@ -692,28 +692,28 @@ sp::cppString sp::cppString::copyReplaceAll(const cppString& from, const cppStri
 		throw sp::Invalid_Argument("The prefix string cannot be null in startsWith.");
 	size_type prefix_length = std::strlen(prefix);
 	if (prefix_length > m_data.length())
-		throw sp::Invalid_Argument("The prefix string cannot be longer than the original string in startsWith.");
+		return false;
 	return m_data.compare(0, prefix_length, prefix) == 0;
 }
 
  bool sp::cppString::startsWith(const String& prefix) const
 {
 	if (prefix.length() > m_data.length())
-		throw sp::Invalid_Argument("The prefix string cannot be longer than the original string in startsWith.");
+		return false;
 	return m_data.compare(0, prefix.length(), prefix) == 0;
 }
 
  bool sp::cppString::startsWith(char ch) const
 {
 	if (m_data.empty())
-		throw sp::Invalid_Argument("The original string cannot be empty in startsWith.");
+		return false;
 	return m_data[0] == ch;
 }
 
  bool sp::cppString::endsWith(const cppString& suffix) const
 {
 	if (suffix.length() > m_data.length())
-		throw sp::Invalid_Argument("The suffix string cannot be longer than the original string in endsWith.");
+		return false;
 
 	return m_data.compare(m_data.length() - suffix.length(), suffix.length(), suffix.m_data) == 0;
 }
@@ -724,14 +724,14 @@ bool sp::cppString::endsWith(const char* suffix) const
 		throw sp::Invalid_Argument("The suffix string cannot be null in endsWith.");
 	size_type suffix_length = std::strlen(suffix);
 	if (suffix_length > m_data.length())
-		throw sp::Invalid_Argument("The suffix string cannot be longer than the original string in endsWith.");
+		return false;
 	return m_data.compare(m_data.length() - suffix_length, suffix_length, suffix) == 0;
 }
 
  bool sp::cppString::endsWith(const String& suffix) const
 {
 	if (suffix.length() > m_data.length())
-		throw sp::Invalid_Argument("The suffix string cannot be longer than the original string in endsWith.");
+		return false;
 	return m_data.compare(m_data.length() - suffix.length(), suffix.length(), suffix) == 0;
 
 }
@@ -739,7 +739,7 @@ bool sp::cppString::endsWith(const char* suffix) const
  bool sp::cppString::endsWith(char ch) const
 {
 	if (m_data.empty())
-		throw sp::Invalid_Argument("The original string cannot be empty in endsWith.");
+		return false;
 	return m_data[m_data.length() - 1] == ch;
 }
 

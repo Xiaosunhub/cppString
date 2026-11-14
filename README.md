@@ -12,9 +12,14 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.6`（边界缺陷修复）。
-Current release: **5.6.6** — boundary and overflow defect fixes.
+当前版本：`5.6.7`（边界缺陷修复）。
+Current release: **5.6.7** — boundary and overflow defect fixes.
 
+> **5.6.7** — fixes inherited from 5.6.6: `startsWith` / `endsWith` threw `Invalid_Argument` when the prefix or suffix was longer than the string (and on empty strings for the char overloads), the opposite of standard string semantics and a common crash source in callers.
+> 8 regression assertions were added (1143 total).
+>
+> **5.6.7**：修复 5.6.6 遗留缺陷：`startsWith` / `endsWith` 在前缀或后缀长于原串时抛 `Invalid_Argument`（char 重载对空串也抛异常），与标准字符串语义相反，调用方极易误触发。 新增 8 项回归断言（共 1143 项）。
+>
 > **5.6.6** — fixes inherited from 5.6.5: `cppString::at` / `substr` leaked `std::out_of_range` from the underlying string while every other range-checked API in the library throws `sp::Index_Out_Of_Range`.
 > 3 regression assertions were added (1135 total).
 >
@@ -488,7 +493,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.6
+    REF v5.6.7
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -503,7 +508,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1135 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1143 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -557,7 +562,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1135-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1143-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
