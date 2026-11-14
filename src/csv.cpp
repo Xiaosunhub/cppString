@@ -442,8 +442,9 @@ sp::csv::Document sp::csv::from_json(const sp::json::Value& value, bool named)
 		return doc;
 	}
 
-	bool first = true;
-
+	// to_json emits the header as the first array when the document has one.
+	// Promoting that array to a header here drops a data row on headerless
+	// documents, so keep every array as a row: the pair stays inverse.
 	for (const auto& row_value : value.as_array())
 	{
 		if (!row_value.is_array())
@@ -454,15 +455,7 @@ sp::csv::Document sp::csv::from_json(const sp::json::Value& value, bool named)
 		for (const auto& cell : row_value.as_array())
 			row.push_back(cell_of(cell));
 
-		if (first)
-		{
-			doc.set_header(std::move(row));
-			first = false;
-		}
-		else
-		{
-			doc.add_row(std::move(row));
-		}
+		doc.add_row(std::move(row));
 	}
 
 	return doc;

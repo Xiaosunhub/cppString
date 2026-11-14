@@ -12,9 +12,14 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.3`（边界缺陷修复）。
-Current release: **5.6.3** — boundary and overflow defect fixes.
+当前版本：`5.6.4`（边界缺陷修复）。
+Current release: **5.6.4** — boundary and overflow defect fixes.
 
+> **5.6.4** — fixes inherited from 5.6.3: `csv::from_json(v, false)` always promoted the first JSON array to a header, so a headerless document lost its first data row and `to_json`/`from_json` were not inverse as documented.
+> 3 regression assertions were added (1129 total).
+>
+> **5.6.4**：修复 5.6.3 遗留缺陷：`csv::from_json(v, false)` 总把第一个 JSON 数组当作表头，导致无表头文档丢失首行数据，`to_json`/`from_json` 不符合文档承诺的互逆关系。 新增 3 项回归断言（共 1129 项）。
+>
 > **5.6.3** — fixes inherited from 5.6.2: `csv::parse` silently appended characters that follow a closing quote to the field (`"a"x` became `ax`), which violates RFC 4180 and hides malformed input.
 > 2 regression assertions were added (1126 total).
 >
@@ -473,7 +478,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.3
+    REF v5.6.4
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -488,7 +493,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1126 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1129 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -542,7 +547,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1126-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1129-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
