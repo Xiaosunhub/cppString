@@ -467,26 +467,19 @@ sp::cppString sp::cppString::substr_between(
     using pos_t = sp::cppString::pos_type;
     const pos_t data_len = m_data.size();
 
-    if (m_data.size() == 0 || start_pos >= end_pos || start_pos > m_data.size() || end_pos > m_data.size())
-        throw sp::Invalid_Operation("You cannot call substr on an empty string.");
+    if (start_pos > data_len || end_pos > data_len || start_pos > end_pos)
+        throw sp::Index_Out_Of_Range("Range out of bounds in cppString::substr_between.");
 
-    pos_t real_start = (start_pos >= data_len) ? data_len : start_pos;
-    pos_t real_end = (end_pos > data_len) ? data_len : end_pos;
-
-    pos_t take_len;
-    if (count != npos) 
-    {
-        take_len = count;
-    }
-    else 
-    {
-        take_len = real_end - real_start;
-    }
-    
-    if (take_len <= 0)
+    if (data_len == 0 || start_pos == end_pos)
         return sp::cppString{};
 
-    return sp::cppString(m_data.substr(real_start, take_len));
+    const pos_t limit = end_pos - start_pos;
+    const pos_t take_len = (count == npos || count > limit) ? limit : count;
+
+    if (take_len == 0)
+        return sp::cppString{};
+
+    return sp::cppString(m_data.substr(start_pos, take_len));
 }
 
 sp::cppString::pos_type sp::cppString::find(const sp::cppString& s, sp::cppString::pos_type pos) const noexcept
