@@ -128,7 +128,8 @@ sp::cppString sp::utf8::sub(const cppString& s, std::size_t start, std::size_t l
 	if (len == 0)
 		return cppString{};
 
-	if (start + len > count)
+	// Compare without adding: start + len can wrap for very large lengths.
+	if (len > count - start)
 		throw sp::Index_Out_Of_Range("Length exceeds string bounds in utf8::sub.");
 
 	const std::size_t start_byte = offset(s, start);
