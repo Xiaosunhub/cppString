@@ -84,6 +84,14 @@ consulted, and all 44 SPDX headers remain unchanged.
 记法）或对本项目自身数据结构的直接分析独立修正；没有新增文件，未参考或引入
 任何第三方源码，44 个文件的 SPDX 头保持不变。
 
+The 5.6.2 release changes only `coding.cpp`. The correction follows from the
+library's own documented contract and the public specifications below;
+no file was added, no third-party source was consulted, and all 44 SPDX
+headers remain unchanged.
+
+5.6.2 仅改动 `coding.cpp`，依据本项目自身文档契约与上表公开规范独立修正；
+没有新增文件，未参考或引入任何第三方源码，44 个文件的 SPDX 头保持不变。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data

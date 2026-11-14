@@ -282,10 +282,12 @@ sp::cppString sp::coding::fromBinary(const cppString& text)
 {
 	const String& src = text.s_str();
 
-	if (src.empty() || src.size() % 8 != 0)
-		throw sp::Invalid_Conversion("Binary text length must be a non-zero multiple of 8 in fromBinary.");
+	if (src.size() % 8 != 0)
+		throw sp::Invalid_Conversion("Binary text length must be a multiple of 8 in fromBinary.");
 
-	if (!all_digits_in(src, "01"))
+	// An empty text is a valid empty payload (0 bytes), so the digit check
+	// applies only when there is at least one digit to validate.
+	if (!src.empty() && !all_digits_in(src, "01"))
 		throw sp::Invalid_Conversion("Binary text may only contain '0' and '1' in fromBinary.");
 
 	String bytes;
@@ -330,10 +332,12 @@ sp::cppString sp::coding::fromOctal(const cppString& text)
 {
 	const String& src = text.s_str();
 
-	if (src.empty() || src.size() % 3 != 0)
-		throw sp::Invalid_Conversion("Octal text length must be a non-zero multiple of 3 in fromOctal.");
+	if (src.size() % 3 != 0)
+		throw sp::Invalid_Conversion("Octal text length must be a multiple of 3 in fromOctal.");
 
-	if (!all_digits_in(src, "01234567"))
+	// An empty text is a valid empty payload (0 bytes), so the digit check
+	// applies only when there is at least one digit to validate.
+	if (!src.empty() && !all_digits_in(src, "01234567"))
 		throw sp::Invalid_Conversion("Octal text may only contain digits 0-7 in fromOctal.");
 
 	String bytes;
