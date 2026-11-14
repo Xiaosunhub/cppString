@@ -2,6 +2,7 @@
 // Copyright (c) 2025-2026 Ender_
 
 #include "semver.h"
+#include <limits>
 
 namespace
 {
@@ -213,6 +214,16 @@ namespace
 
 		if (!parse(s.s_str(), v))
 			throw sp::Invalid_Format("Not valid semver in bump: " + s.s_str());
+
+		// Parsed components are capped at LLONG_MAX by std::stoll; bumping
+		// that value would be a signed overflow (undefined behaviour).
+		constexpr long long limit = (std::numeric_limits<long long>::max)();
+		if ((component == 0 && v.major == limit)
+			|| (component == 1 && v.minor == limit)
+			|| (component == 2 && v.patch == limit))
+		{
+			throw sp::Invalid_Operation("Version component overflow in semver bump.");
+		}
 
 		switch (component)
 		{

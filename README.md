@@ -12,9 +12,14 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.9`（边界缺陷修复）。
-Current release: **5.6.9** — boundary and overflow defect fixes.
+当前版本：`5.6.10`（边界缺陷修复）。
+Current release: **5.6.10** — boundary and overflow defect fixes.
 
+> **5.6.10** — fixes inherited from 5.6.9: `semver::bump_major` / `bump_minor` / `bump_patch` incremented a parsed `long long` component without a guard; a version at LLONG_MAX overflowed (undefined behaviour) and produced a smaller version instead of being rejected.
+> 3 regression assertions were added (1152 total).
+>
+> **5.6.10**：修复 5.6.9 遗留缺陷：`semver::bump_major` / `bump_minor` / `bump_patch` 直接自增解析后的 `long long` 分量且无保护；分量取到 LLONG_MAX 时发生有符号溢出（未定义行为），还会产出更小的版本号而不是拒绝。 新增 3 项回归断言（共 1152 项）。
+>
 > **5.6.9** — fixes inherited from 5.6.8: `cppString::substr_between` threw a misleading "empty string" error for empty inputs and equal bounds, used the wrong exception type for real out-of-range bounds, and let an explicit count read past end_pos.
 > 5 regression assertions were added (1149 total).
 >
@@ -503,7 +508,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.9
+    REF v5.6.10
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -518,7 +523,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1149 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1152 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -572,7 +577,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1149-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1152-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
