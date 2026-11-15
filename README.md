@@ -2,19 +2,35 @@
 
 A modern C++23 string utility library — a `std::string`-compatible core class
 (`sp::cppString`) plus a collection of focused helper modules for UTF-8,
-encoding, data exchange (JSON / CSV / INI / URI), internationalization,
+encoding, data exchange (JSON / CSV / INI / TOML / URI), internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
 external command execution, and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `sp::cppString`，
-外加 UTF-8、编解码、数据交换（JSON / CSV / INI / URI）、国际化处理、
+外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.6.10`（边界缺陷修复）。
-Current release: **5.6.10** — boundary and overflow defect fixes.
+当前版本：`5.7.0`（新增 TOML 模块）。
+Current release: **5.7.0** — adds the TOML reader/writer module.
 
+> **5.7.0** — adds `toml.h` / `toml.cpp` (`sp::toml`), a TOML 1.0 core-subset
+> reader and deterministic writer built on the existing `sp::json::Value` tree.
+> It handles comments, bare / quoted / dotted keys, `[table]` headers, basic /
+> literal / multiline strings (including unicode escapes), decimal / hex /
+> octal / binary integers, floats, `inf` / `nan`, booleans, arrays and inline
+> tables. Date-time literals are kept as strings, array-of-tables is rejected,
+> and integers beyond double precision are refused rather than silently rounded.
+> 57 new assertions (1209 total).
+>
+> **5.7.0**：新增 `toml.h` / `toml.cpp`（`sp::toml`），基于已有 `sp::json::Value`
+> 数据模型实现 TOML 1.0 核心子集的解析与确定性序列化。支持注释、裸键 /
+> 引号键 / 点分键、`[table]` 表头、基本 / 字面 / 多行字符串（含 unicode 转义）、
+> 十进制 / 十六进制 / 八进制 / 二进制整数、浮点数、`inf` / `nan`、布尔、
+> 数组与内联表。日期时间字面量按字符串保留，`[[数组表]]` 明确拒绝，超出
+> double 精确表示范围的整数直接拒绝而非静默丢精度。新增 57 项断言（共 1209 项）。
+>
 > **5.6.10** — fixes inherited from 5.6.9: `semver::bump_major` / `bump_minor` / `bump_patch` incremented a parsed `long long` component without a guard; a version at LLONG_MAX overflowed (undefined behaviour) and produced a smaller version instead of being rejected.
 > 3 regression assertions were added (1152 total).
 >
@@ -186,6 +202,16 @@ INI / configuration files: ordered sections and keys, `;` / `#` comments
 (including inline), quoted values with escapes, typed getters
 (`get_int` / `get_double` / `get_bool`), `set` / `erase` / `erase_section`,
 and a `dump` serializer. The unnamed global section uses `*_global` helpers.
+
+### `toml.h` — `sp::toml`
+
+TOML 1.0 core subset on top of `sp::json::Value`: `parse` reads comments,
+bare / quoted / dotted keys, `[table]` headers, basic / literal / multiline
+strings, decimal / hex / octal / binary integers, floats, booleans, arrays
+and inline tables; `dump` emits a deterministic document that preserves key
+insertion order across a round trip. Malformed input throws `Invalid_Format`
+with line and byte position, out-of-range numbers throw `Invalid_Conversion`.
+Date-time literals are preserved as strings and array-of-tables is rejected.
 
 ### `url.h` — `sp::url`
 
@@ -425,6 +451,7 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 #include <cppString/file.h>
 #include <cppString/regex.h>
 #include <cppString/datetime.h>
+#include <cppString/toml.h>
 
 using namespace sp;
 
@@ -508,7 +535,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.6.10
+    REF v5.7.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -523,7 +550,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1152 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1209 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -547,7 +574,7 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (22 × .h)
+├── include/cppString/             # public headers only (23 × .h)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
 │   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
@@ -569,15 +596,16 @@ the same split.
 │   ├── file.h                     # filesystem ops, text/byte I/O, hashes
 │   ├── regex.h                    # regular expressions: match, replace, split
 │   ├── datetime.h                 # ISO 8601, Unix time, calendar arithmetic
-│   └── exec.h                     # external command execution, output capture
-├── src/                           # 22 matching .cpp files (never installed)
+│   ├── exec.h                     # external command execution, output capture
+│   └── toml.h                     # TOML 1.0 core subset reader/writer
+├── src/                           # 23 matching .cpp files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1152-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1209-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

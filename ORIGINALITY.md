@@ -1,13 +1,13 @@
 # Originality / 原创性声明
 
-**cppString** is an independently written library. All 44 published source
-files — 22 public headers in `include/cppString/` and their 22 implementations
+**cppString** is an independently written library. All 46 published source
+files — 23 public headers in `include/cppString/` and their 23 implementations
 in `src/` — were authored for this project; every one of them carries an
 `SPDX-License-Identifier: MIT` line and the same copyright notice
 (`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
 [MIT License](LICENSE).
 
-本项目的 44 个文件（22 个公开头文件位于 `include/cppString/`，22 个实现文件位于
+本项目的 46 个文件（23 个公开头文件位于 `include/cppString/`，23 个实现文件位于
 `src/`）均为独立编写，统一带有 SPDX 标识与版权声明，采用 MIT 许可。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库（Windows 下 `file` 模块通过
 条件编译调用系统 API，其他平台走 POSIX 路径）。
@@ -156,6 +156,18 @@ headers remain unchanged.
 5.6.10 仅改动 `semver.cpp`，依据本项目自身文档契约与上表公开规范独立修正；
 没有新增文件，未参考或引入任何第三方源码，44 个文件的 SPDX 头保持不变。
 
+The 5.7.0 release adds two files, `toml.h` and `toml.cpp`. The reader is an
+independent recursive-descent implementation of the TOML 1.0 core subset; the
+writer and the shared `json::Value` document model are part of this project.
+Only the published TOML 1.0 specification (toml.io) was consulted for the
+grammar, and no third-party parser source was copied. All 46 published files
+carry the same SPDX header and copyright notice.
+
+5.7.0 新增 `toml.h` 与 `toml.cpp` 两个文件。解析器依据 TOML 1.0 公开规范
+（toml.io）独立实现递归下降解析，序列化器与共用的 `json::Value` 数据模型
+均为本项目自有代码；未参考或引入任何第三方解析器源码。全部 46 个发布文件
+保持统一的 SPDX 头与版权声明。
+
 ## Public standards, not copied code / 依据的公开标准
 
 Some functions implement well-known, publicly documented algorithms and data
@@ -176,7 +188,7 @@ independently for this project**:
 | Regular-expression grammar | ECMA-262 / POSIX ERE via the standard library |
 | Process / command execution | Win32 CreateProcess / pipes / job objects, POSIX fork / execvp / poll, PowerShell `-EncodedCommand` |
 | UTF-8, normalization, East Asian width | The Unicode Standard |
-| INI, TOML-like helpers, tables, ANSI escapes | De-facto public formats |
+| INI, TOML, tables, ANSI escapes | INI: de-facto format; TOML 1.0 specification (toml.io) |
 | Levenshtein, Dice, Soundex, Luhn, ROT13/Caesar, Morse | Long-standing public-domain algorithms |
 
 The only text reproduced verbatim is the **MIT license template** itself (in
