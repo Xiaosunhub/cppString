@@ -37,9 +37,9 @@
 #define CPPSTRING_CPPSTRING_H_
 
 #define CPPSTRING_VERSION_MAJOR 6
-#define CPPSTRING_VERSION_MINOR 0
+#define CPPSTRING_VERSION_MINOR 1
 #define CPPSTRING_VERSION_PATCH 0
-#define CPPSTRING_VERSION "6.0.0"
+#define CPPSTRING_VERSION "6.1.0"
 
 // Export control. A static library (the vcpkg default) needs no decoration;
 // shared builds opt in with CPPSTRING_BUILD_SHARED / CPPSTRING_EXPORTS.

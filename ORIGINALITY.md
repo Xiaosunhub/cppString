@@ -1,13 +1,13 @@
 # Originality / 原创性声明
 
-**cppString** is an independently written library. All 47 published source
-files — 24 public headers in `include/cppString/` and 23 implementations
+**cppString** is an independently written library. All 49 published source
+files — 25 public headers in `include/cppString/` and 24 implementations
 in `src/` — were authored for this project; every one of them carries an
 `SPDX-License-Identifier: MIT` line and the same copyright notice
 (`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
 [MIT License](LICENSE).
 
-本项目的 47 个文件（24 个公开头文件位于 `include/cppString/`，23 个实现文件位于
+本项目的 49 个文件（25 个公开头文件位于 `include/cppString/`，24 个实现文件位于
 `src/`）均为独立编写，统一带有 SPDX 标识与版权声明，采用 MIT 许可。其中
 `macro.h` 是 header-only 模块，没有对应的实现文件。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库（Windows 下 `file` 模块通过
@@ -183,6 +183,18 @@ collection was copied or adapted. The version macros are shared with
 标准规定的预处理器与属性规则从零编写，未复制或改写任何第三方头文件、框架
 或宏集合。版本宏与 `cppString.h` 共用；发布文件总数增至 47 个（24 头文件、
 23 实现文件），保持统一的 SPDX 头与版权声明。
+
+The 6.1.0 release adds two files, `csurl.h` and `csurl.cpp`: a small
+synchronous HTTP client written against the WinHTTP system API on Windows and
+POSIX sockets elsewhere. No curl, libcurl, or any third-party HTTP code was
+used or copied. URL parsing reuses this project's own `sp::url` module. Only
+publicly documented WinHTTP / BSD socket APIs were consulted. All 49 published
+files keep the same SPDX header and copyright notice.
+
+6.1.0 新增 `csurl.h` 与 `csurl.cpp` 两个文件：基于 Windows 系统 WinHTTP API
+与 POSIX socket 独立编写的轻量同步 HTTP 客户端，未使用或复制 curl、libcurl
+或任何第三方 HTTP 代码，URL 解析复用本项目自有 `sp::url` 模块。仅参考公开的
+WinHTTP / BSD socket 文档。全部 49 个发布文件保持统一的 SPDX 头与版权声明。
 
 ## Public standards, not copied code / 依据的公开标准
 

@@ -2,19 +2,35 @@
 
 A modern C++23 string utility library — a `std::string`-compatible core class
 (`sp::cppString`) plus a collection of focused helper modules for UTF-8,
-encoding, data exchange (JSON / CSV / INI / TOML / URI), internationalization,
+encoding, data exchange (JSON / CSV / INI / TOML / URI), HTTP web reading, internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
 external command execution, and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `sp::cppString`，
-外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、国际化处理、
+外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、网页读取、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`6.0.0`（新增编译期宏工具层）。
-Current release: **6.0.0** — adds a compile-time macro layer.
+当前版本：`6.1.0`（新增网页读取模块）。
+Current release: **6.1.0** — adds a web page reader.
 
+> **6.1.0** — adds `csurl.h` / `csurl.cpp` (`sp::csurl`), a small synchronous
+> HTTP/HTTPS client for reading web pages and APIs. Windows uses the built-in
+> WinHTTP API (HTTP + HTTPS); other platforms use a compact POSIX socket client
+> over HTTP. There is no curl and no third-party dependency. URL parsing reuses
+> `sp::url`; `get()` returns a `Response` (status / body / content-type / final
+> URL / error) and never throws on transport failure, while `fetch()` returns
+> the body on 2xx or throws. Redirects, timeouts, a body cap and a custom
+> user-agent are supported. 21 new assertions (1279 total).
+>
+> **6.1.0**：新增 `csurl.h` / `csurl.cpp`（`sp::csurl`），用于读取网页与调用 API
+> 的轻量同步 HTTP/HTTPS 客户端。Windows 使用系统内置 WinHTTP（HTTP + HTTPS），
+> 其他平台使用精简的 POSIX socket 客户端（HTTP）。不依赖 curl 或任何第三方库。
+> URL 解析复用 `sp::url`；`get()` 返回 `Response`（状态码 / 正文 / Content-Type /
+> 最终 URL / 错误），传输失败不抛异常；`fetch()` 在 2xx 时返回正文，否则抛异常。
+> 支持重定向、超时、正文大小上限与自定义 User-Agent。新增 21 项断言（共 1279 项）。
+>
 > **6.0.0** — a major release introducing `macro.h`, a header-only macro
 > layer built on the library version macros. It provides two-stage stringizing
 > and token pasting (`STR` / `XSTR` / `CAT` / `XCAT` / `CAT3` / `XCAT3`), an
@@ -222,6 +238,19 @@ INI / configuration files: ordered sections and keys, `;` / `#` comments
 (including inline), quoted values with escapes, typed getters
 (`get_int` / `get_double` / `get_bool`), `set` / `erase` / `erase_section`,
 and a `dump` serializer. The unnamed global section uses `*_global` helpers.
+
+### `csurl.h` — `sp::csurl`
+
+Small synchronous web reader with no curl and no third-party dependency.
+`get(url, options)` returns a `Response` with `status`, `body`, `content_type`,
+`final_url` and `error`; transport problems produce `status == 0` and a
+non-empty `error()` rather than an exception. `fetch(url, options)` returns
+the body for 2xx responses and throws `Invalid_Operation` otherwise. URLs are
+parsed with `sp::url`; only http/https are accepted, malformed URLs or options
+throw `Invalid_Argument`. Redirects, per-operation timeout, a body byte cap
+and a custom user-agent are configurable via `Options`. Windows uses the
+system WinHTTP API (HTTP + HTTPS, https detected by `supports_https()`);
+POSIX builds use a small HTTP/1.0 socket client and reject https explicitly.
 
 ### `macro.h` — compile-time macro layer (header-only)
 
@@ -487,6 +516,7 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 #include <cppString/datetime.h>
 #include <cppString/toml.h>
 #include <cppString/macro.h>
+#include <cppString/csurl.h>
 
 using namespace sp;
 
@@ -570,7 +600,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v6.0.0
+    REF v6.1.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -585,7 +615,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1258 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1279 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -609,7 +639,7 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (24 × .h)
+├── include/cppString/             # public headers only (25 × .h)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
 │   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
@@ -633,15 +663,16 @@ the same split.
 │   ├── datetime.h                 # ISO 8601, Unix time, calendar arithmetic
 │   ├── exec.h                     # external command execution, output capture
 │   ├── toml.h                     # TOML 1.0 core subset reader/writer
-│   └── macro.h                    # header-only compile-time macro layer
-├── src/                           # 23 implementation files (never installed)
+│   ├── macro.h                    # header-only compile-time macro layer
+│   └── csurl.h                    # HTTP/HTTPS web page reader (WinHTTP / POSIX)
+├── src/                           # 24 implementation files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1258-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1279-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

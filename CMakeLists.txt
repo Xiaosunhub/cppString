@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(cppString
-    VERSION 6.0.0
+    VERSION 6.1.0
     DESCRIPTION "A modern C++23 string utility library"
     HOMEPAGE_URL "https://github.com/Xiaosunhub/cppString"
     LANGUAGES CXX)
@@ -58,6 +58,12 @@ endif()
 # GCC before 9 keeps std::filesystem in a separate library.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
     target_link_libraries(cppString PUBLIC stdc++fs)
+endif()
+
+# csurl.cpp uses WinHTTP on Windows (no curl / third-party dependency).
+# PUBLIC so consumers linking the static library also pick up the system lib.
+if(WIN32)
+    target_link_libraries(cppString PUBLIC winhttp)
 endif()
 
 # ---- installation / package config (vcpkg friendly) ----
