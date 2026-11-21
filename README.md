@@ -12,9 +12,29 @@ external command execution, and everyday text work.
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`5.7.0`（新增 TOML 模块）。
-Current release: **5.7.0** — adds the TOML reader/writer module.
+当前版本：`6.0.0`（新增编译期宏工具层）。
+Current release: **6.0.0** — adds a compile-time macro layer.
 
+> **6.0.0** — a major release introducing `macro.h`, a header-only macro
+> layer built on the library version macros. It provides two-stage stringizing
+> and token pasting (`STR` / `XSTR` / `CAT` / `XCAT` / `CAT3` / `XCAT3`), an
+> integer `CPPSTRING_VERSION_CODE` with `AT_LEAST` / `LESS_THAN` / `EQ` gates,
+> compiler / platform / build-mode detection, portable attributes (`NODISCARD`,
+> `DEPRECATED`, `LIKELY` / `UNLIKELY`, `FALLTHROUGH`, `FORCEINLINE`, ...),
+> source-location diagnostics (`FUNC` / `HERE` / `FILE_LINE` / `VARSTR`), and
+> release-active assertion / helper macros. All macros are self-contained —
+> there is no `macro.cpp` and no extra link dependency. 49 new assertions
+> (1258 total).
+>
+> **6.0.0**：major 版本，新增纯头文件 `macro.h` 编译期宏工具层，与库版本宏打通。
+> 提供两阶段字符串化与 token 连接（`STR` / `XSTR` / `CAT` / `XCAT` / `CAT3` /
+> `XCAT3`）、整数版本码 `CPPSTRING_VERSION_CODE` 与 `AT_LEAST` / `LESS_THAN` /
+> `EQ` 门控、编译器 / 平台 / 构建模式探测、可移植属性（`NODISCARD`、`DEPRECATED`、
+> `LIKELY` / `UNLIKELY`、`FALLTHROUGH`、`FORCEINLINE` 等）、源码位置诊断
+> （`FUNC` / `HERE` / `FILE_LINE` / `VARSTR`）以及在 release 构建仍生效的
+> 断言与辅助宏。所有宏自包含，无 `macro.cpp`、无额外链接依赖。新增 49 项断言
+> （共 1258 项）。
+>
 > **5.7.0** — adds `toml.h` / `toml.cpp` (`sp::toml`), a TOML 1.0 core-subset
 > reader and deterministic writer built on the existing `sp::json::Value` tree.
 > It handles comments, bare / quoted / dotted keys, `[table]` headers, basic /
@@ -202,6 +222,20 @@ INI / configuration files: ordered sections and keys, `;` / `#` comments
 (including inline), quoted values with escapes, typed getters
 (`get_int` / `get_double` / `get_bool`), `set` / `erase` / `erase_section`,
 and a `dump` serializer. The unnamed global section uses `*_global` helpers.
+
+### `macro.h` — compile-time macro layer (header-only)
+
+Built on the version macros in `cppString.h`. Two-stage stringizing
+(`CPPSTRING_STR` / `CPPSTRING_XSTR`) and token pasting (`CPPSTRING_CAT` /
+`CPPSTRING_XCAT` plus three-token `CAT3` / `XCAT3`); `CPPSTRING_VERSION_CODE`
+and `CPPSTRING_VERSION_AT_LEAST` / `LESS_THAN` / `EQ` for `#if` and
+`static_assert`; compiler / platform / build-mode flags; portable attributes
+(`CPPSTRING_NODISCARD`, `CPPSTRING_DEPRECATED`, `CPPSTRING_LIKELY` /
+`CPPSTRING_UNLIKELY`, `CPPSTRING_FALLTHROUGH`, `CPPSTRING_FORCEINLINE`,
+`CPPSTRING_NOINLINE`, `CPPSTRING_UNUSED`); source location (`CPPSTRING_FUNC`,
+`CPPSTRING_FILE_LINE`, `CPPSTRING_HERE`, `CPPSTRING_VARSTR`); and helpers
+(`CPPSTRING_COUNT_OF`, `CPPSTRING_STATIC_ASSERT`, `CPPSTRING_ASSERT_ALWAYS`,
+`CPPSTRING_LIT`). No `macro.cpp` exists — include the header and go.
 
 ### `toml.h` — `sp::toml`
 
@@ -452,6 +486,7 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 #include <cppString/regex.h>
 #include <cppString/datetime.h>
 #include <cppString/toml.h>
+#include <cppString/macro.h>
 
 using namespace sp;
 
@@ -535,7 +570,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v5.7.0
+    REF v6.0.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -550,7 +585,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1209 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1258 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -574,7 +609,7 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (23 × .h)
+├── include/cppString/             # public headers only (24 × .h)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
 │   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
@@ -597,15 +632,16 @@ the same split.
 │   ├── regex.h                    # regular expressions: match, replace, split
 │   ├── datetime.h                 # ISO 8601, Unix time, calendar arithmetic
 │   ├── exec.h                     # external command execution, output capture
-│   └── toml.h                     # TOML 1.0 core subset reader/writer
-├── src/                           # 23 matching .cpp files (never installed)
+│   ├── toml.h                     # TOML 1.0 core subset reader/writer
+│   └── macro.h                    # header-only compile-time macro layer
+├── src/                           # 23 implementation files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1209-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1258-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
