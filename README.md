@@ -5,16 +5,31 @@ A modern C++23 string utility library — a `std::string`-compatible core class
 encoding, data exchange (JSON / CSV / INI / TOML / URI), HTTP web reading, internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
-external command execution, and everyday text work.
+external command execution, cross-language code execution, and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `cppstr::cppString`，
 外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、网页读取、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
-文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
+文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、文本处理等一系列独立模块。
 
-当前版本：`7.0.0`（公开命名空间统一为 `cppstr`）。
-Current release: **7.0.0** — public API now lives in `cppstr`.
+当前版本：`7.1.0`（新增 `langcvt` 多语言代码执行模块）。
+Current release: **7.1.0** — adds the `langcvt` code-execution adapters.
 
+> **7.1.0** — adds a new public header group `langcvt/` with `langcvt.h`,
+> `pycvt.h`, `Javacvt.h` and `jscvt.h`. `cppstr::pycvt`, `cppstr::javacvt` and
+> `cppstr::jscvt` execute Python, Java and JavaScript source code, returning a
+> `cppstr::langcvt::Result` with exit code, stdout, stderr, `started` and
+> `timed_out`. Source text is passed to `exec::invoke()` as an argv element —
+> never through a shell — and Java uses the Java 11+ single-file source
+> launcher. 12 new assertions (1291 total).
+>
+> **7.1.0**：新增公开头文件组 `langcvt/`，包含 `langcvt.h`、`pycvt.h`、
+> `Javacvt.h` 与 `jscvt.h`。`cppstr::pycvt`、`cppstr::javacvt` 与
+> `cppstr::jscvt` 可执行 Python、Java 与 JavaScript 源码，返回包含退出码、
+> 标准输出、标准错误、`started` 与 `timed_out` 的
+> `cppstr::langcvt::Result`。源码通过 `exec::invoke()` 作为 argv 参数传递，
+> 不经过 shell；Java 使用 Java 11+ 单文件源码启动方式。新增 12 项断言（共 1291 项）。
+>
 > **7.0.0** — breaking API change: every public symbol now lives in `cppstr`;
 > the former short namespace and any compatibility alias are gone. Headers,
 > implementations, the test harness, examples and documentation were updated
@@ -458,6 +473,49 @@ true）；`getExecResult(command)` 返回合并了 stderr 的完整执行过程�
 **安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
 捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
 
+### `langcvt/` — `cppstr::pycvt` / `cppstr::javacvt` / `cppstr::jscvt`
+
+Public headers: `<langcvt/langcvt.h>`, `<langcvt/pycvt.h>`,
+`<langcvt/Javacvt.h>` and `<langcvt/jscvt.h>`. All adapters return
+`cppstr::langcvt::Result`, an alias of `cppstr::exec::Result`, so callers get
+`exit_code`, `out`, `err`, `started`, `timed_out`, `ok()` and `output()`.
+`eval()` is the throw-on-failure variant that returns stdout only.
+
+- `pycvt`: `run(code, Options)` executes `<interpreter> -c <code>` with optional
+  trailing arguments. `default_interpreter()` picks `python3` or `python`.
+- `jscvt`: `run(code, Options)` executes `node -e <code>` (or `nodejs`).
+- `javacvt`: writes the source to a unique temporary `.java` file and invokes
+  the Java 11+ single-file source launcher (`java File.java`). The class name
+  is detected from the `class` declaration or supplied via `Options::class_name`;
+  the temporary directory is removed before returning.
+
+Source text is always passed as an argv element through `exec::invoke()`, never
+interpolated into a shell command, so quotes and newlines survive unchanged.
+A missing interpreter is reported through `Result`, not by throwing.
+
+```cpp
+#include <langcvt/pycvt.h>
+
+cppstr::pycvt::Options options;
+options.timeout = std::chrono::seconds{ 5 };
+const auto result = cppstr::pycvt::run("print(6 * 7)", options);
+if (result.ok())
+    std::cout << result.out;
+```
+
+公开头文件为 `<langcvt/langcvt.h>`、`<langcvt/pycvt.h>`、`<langcvt/Javacvt.h>`
+与 `<langcvt/jscvt.h>`。适配器统一返回 `cppstr::langcvt::Result`（即
+`cppstr::exec::Result` 的别名），可读取退出码、stdout、stderr、`started`、
+`timed_out`，并调用 `ok()` / `output()`；`eval()` 只返回 stdout，失败时抛异常。
+
+- `pycvt`：执行 `<interpreter> -c <code>`，可附加参数；自动选择 `python3` / `python`。
+- `jscvt`：执行 `node -e <code>`（或 `nodejs`）。
+- `javacvt`：把源码写入唯一临时 `.java` 文件，调用 Java 11+ 单文件源码启动器
+  （`java File.java`）；类名自动识别，也可用 `Options::class_name` 指定；返回前删除临时目录。
+
+源码始终作为 argv 参数经 `exec::invoke()` 传递，不拼接进 shell 命令，引号与换行
+不会被破坏。解释器缺失通过 `Result` 报告，不抛异常。
+
 ### `table.h` — `cppstr::table`
 
 ASCII table rendering with per-column alignment. Column widths use
@@ -610,7 +668,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.0.0
+    REF v7.1.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -625,7 +683,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1279 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1291 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -675,14 +733,19 @@ the same split.
 │   ├── toml.h                     # TOML 1.0 core subset reader/writer
 │   ├── macro.h                    # header-only compile-time macro layer
 │   └── csurl.h                    # HTTP/HTTPS web page reader (WinHTTP / POSIX)
-├── src/                           # 24 implementation files (never installed)
+├── include/langcvt/               # public headers only (4 × .h)
+│   ├── langcvt.h                  # shared Result / Options / argv runner
+│   ├── pycvt.h                    # Python code execution
+│   ├── Javacvt.h                  # Java single-file source execution
+│   └── jscvt.h                    # JavaScript (Node.js) code execution
+├── src/                           # 28 implementation files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1279-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1291-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
