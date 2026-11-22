@@ -5,16 +5,33 @@ A modern C++23 string utility library — a `std::string`-compatible core class
 encoding, data exchange (JSON / CSV / INI / TOML / URI), HTTP web reading, internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
-external command execution, cross-language code execution, and everyday text work.
+external command execution, cross-language code execution, classic string
+algorithms, and everyday text work.
 
 一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `cppstr::cppString`，
 外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、网页读取、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
-文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、文本处理等一系列独立模块。
+文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、
+经典字符串算法、文本处理等一系列独立模块。
 
-当前版本：`7.2.0`（`langcvt` 多语言代码执行模块后的首个正式版）。
-Current release: **7.2.0** — the first official release of the 7.2.0 line.
+当前版本：`7.3.0`（新增 `algorithm` 经典算法模块）。
+Current release: **7.3.0** — adds the `algorithm` module of classic
+string/sequence algorithms.
 
+> **7.3.0** — adds `algorithm.h` / `algorithm.cpp` (`cppstr::algorithm`):
+> Knuth-Morris-Pratt and Rabin-Karp substring search, std-style
+> next/prev permutation and anagram test, UTF-8-aware longest common
+> subsequence and common prefix/suffix, sliding-window longest unique run,
+> line sorting (case-insensitive / descending / unique), byte rotation,
+> Roman numerals, run-length encoding and a Boyer-Moore majority vote.
+> 47 new assertions (1339 total).
+>
+> **7.3.0**：新增 `algorithm.h` / `algorithm.cpp`（`cppstr::algorithm`）：
+> KMP 与 Rabin-Karp 子串搜索、std 风格的下一个/上一个排列与变位词判断、
+> UTF-8 感知的最长公共子序列与公共前缀/后缀、滑动窗口最长无重复段、
+> 行排序（忽略大小写/降序/去重）、字节循环左移、罗马数字、游程编码与
+> Boyer-Moore 多数投票。新增 47 项断言（共 1339 项）。
+>
 > **7.2.0** — promotes `7.2.0-snapshot` to the official release. The public
 > API is unchanged from the snapshot: no new modules or behavior changes
 > (1292 total assertions). `CPPSTRING_VERSION` is now the plain semver string
@@ -599,6 +616,30 @@ Strict semver 2.0.0 validation and precedence comparison
 (numeric identifiers, prerelease rules, build metadata ignored),
 plus `bump_major` / `bump_minor` / `bump_patch`.
 
+### `algorithm.h` — `cppstr::algorithm`
+
+Classic string & sequence algorithms (byte-level unless noted; nothing here
+duplicates `method.h`):
+
+- Search: `kmp_find`, `kmp_find_all(overlapping)` (Knuth-Morris-Pratt) and
+  `rabin_karp_find` (rolling hash; every hit is verified byte by byte).
+- Permutations: `next_permutation` / `prev_permutation` (std-style, wrap
+  around) and the anagram test `is_permutation_of`.
+- Common sequences (UTF-8 aware per code point): `longest_common_subsequence`,
+  `longest_common_prefix`, `longest_common_suffix`.
+- Sliding window: `longest_unique_run` — longest run of non-repeating bytes.
+- Lines: `sort_lines` with `{ case_insensitive, descending, unique }` options
+  and byte `rotate`.
+- Reductions: `to_roman` / `from_roman` (1..3999), `run_length_encode` /
+  `run_length_decode`, and the Boyer-Moore `majority_byte` vote.
+
+```cpp
+#include <cppString/algorithm.h>
+
+const auto hits = cppstr::algorithm::kmp_find_all("aabaab", "aab");
+// hits == { 0, 3 }
+```
+
 ## Quick start
 
 ```cpp
@@ -701,7 +742,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.2.0
+    REF v7.3.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -716,7 +757,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1292 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1339 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -740,9 +781,10 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (29 × .h, 4 in langcvt/)
+├── include/cppString/             # public headers only (30 × .h, 4 in langcvt/)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
+│   ├── algorithm.h                # KMP/Rabin-Karp search, LCS, permutations, RLE
 │   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
 │   ├── method.h                   # text utilities, diff, padding/repetition
 │   ├── path.h                     # path manipulation
@@ -778,7 +820,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1292-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1339-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

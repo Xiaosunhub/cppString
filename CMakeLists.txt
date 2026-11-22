@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(cppString
-    VERSION 7.2.0
+    VERSION 7.3.0
     DESCRIPTION "A modern C++23 string utility library"
     HOMEPAGE_URL "https://github.com/Xiaosunhub/cppString"
     LANGUAGES CXX)

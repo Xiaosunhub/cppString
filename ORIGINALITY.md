@@ -1,14 +1,14 @@
 # Originality / 原创性声明
 
-**cppString** is an independently written library. All 57 published source
-files — 25 public headers in `include/cppString/`, 4 more in
-`include/cppString/langcvt/` and 28 implementations in `src/` — were authored
+**cppString** is an independently written library. All 59 published source
+files — 26 public headers in `include/cppString/`, 4 more in
+`include/cppString/langcvt/` and 29 implementations in `src/` — were authored
 for this project; every one of them carries an `SPDX-License-Identifier: MIT`
 line and the same copyright notice (`Copyright (c) 2025-2026 Ender_`). The
 project is distributed under the [MIT License](LICENSE).
 
-本项目的 57 个文件（25 个公开头文件位于 `include/cppString/`，4 个位于
-`include/cppString/langcvt/`，28 个实现文件位于 `src/`）均为独立编写，统一带有 SPDX
+本项目的 59 个文件（26 个公开头文件位于 `include/cppString/`，4 个位于
+`include/cppString/langcvt/`，29 个实现文件位于 `src/`）均为独立编写，统一带有 SPDX
 标识与版权声明，采用 MIT 许可。其中 `macro.h` 是 header-only 模块，没有对应的
 实现文件。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库与系统 API（Windows 下 `file` 模块通过
@@ -207,6 +207,21 @@ harness was updated in lockstep but remains outside the published repository.
 7.0.0 仅做命名空间迁移：全部 49 个发布源文件（25 个头文件、24 个实现文件）
 统一使用 `cppstr` 作为唯一公开命名空间。没有增删源文件，未参考或引入任何
 第三方代码，所有 SPDX 头与版权声明保持不变。测试文件同步更新但仍不入库。
+
+The 7.3.0 release adds `algorithm.h` / `algorithm.cpp`
+(`cppstr::algorithm`): Knuth-Morris-Pratt and Rabin-Karp search,
+std-style permutations, UTF-8-aware LCS and common prefix/suffix helpers,
+a sliding-window longest unique run, line sorting, byte rotation,
+Roman numerals, run-length encoding and a Boyer-Moore majority vote.
+Everything is written from scratch against the standard library and this
+project's own `cppstr::utf8` helpers; the published source total is now
+59 files, all with the same SPDX header and copyright notice.
+
+7.3.0 新增 `algorithm.h` / `algorithm.cpp`（`cppstr::algorithm`）：KMP 与
+Rabin-Karp 搜索、std 风格排列、UTF-8 感知的最长公共子序列与公共前缀/后缀、
+滑动窗口最长无重复段、行排序、字节循环左移、罗马数字、游程编码与
+Boyer-Moore 多数投票。全部基于标准库与本项目自有的 `cppstr::utf8` 辅助函数
+从零编写，发布源文件总数现为 59 个，全部保持统一的 SPDX 头与版权声明。
 
 The 7.2.0 release promotes the previous `7.2.0-snapshot` to an official
 release. It only finalizes version metadata: `CPPSTRING_VERSION` is the plain
