@@ -81,7 +81,7 @@ namespace
 
 	std::size_t chunk_width(const String& chunk)
 	{
-		return sp::utf8::display_width(sp::cppString{ chunk });
+		return cppstr::utf8::display_width(cppstr::cppString{ chunk });
 	}
 
 	String sgr_prefix(const std::vector<int>& codes)
@@ -103,12 +103,12 @@ namespace
 	}
 }
 
-sp::cppString sp::ansi::reset()
+cppstr::cppString cppstr::ansi::reset()
 {
 	return cppString{ "\x1b[0m" };
 }
 
-sp::cppString sp::ansi::strip(const cppString& s)
+cppstr::cppString cppstr::ansi::strip(const cppString& s)
 {
 	const String& src = s.s_str();
 	String out;
@@ -132,7 +132,7 @@ sp::cppString sp::ansi::strip(const cppString& s)
 	return cppString(std::move(out));
 }
 
-bool sp::ansi::has_ansi(const cppString& s) noexcept
+bool cppstr::ansi::has_ansi(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -145,12 +145,12 @@ bool sp::ansi::has_ansi(const cppString& s) noexcept
 	return false;
 }
 
-std::size_t sp::ansi::visible_width(const cppString& s)
+std::size_t cppstr::ansi::visible_width(const cppString& s)
 {
 	return utf8::display_width(strip(s));
 }
 
-sp::cppString sp::ansi::truncate(const cppString& s, std::size_t max_width,
+cppstr::cppString cppstr::ansi::truncate(const cppString& s, std::size_t max_width,
 	const cppString& suffix)
 {
 	const String& src = s.s_str();
@@ -204,7 +204,7 @@ sp::cppString sp::ansi::truncate(const cppString& s, std::size_t max_width,
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::ansi::pad(const cppString& s, std::size_t width, Align align, char fill)
+cppstr::cppString cppstr::ansi::pad(const cppString& s, std::size_t width, Align align, char fill)
 {
 	const std::size_t current = visible_width(s);
 
@@ -235,7 +235,7 @@ sp::cppString sp::ansi::pad(const cppString& s, std::size_t width, Align align, 
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::ansi::style(const cppString& s, const std::vector<int>& codes)
+cppstr::cppString cppstr::ansi::style(const cppString& s, const std::vector<int>& codes)
 {
 	String out = sgr_prefix(codes);
 	out += s.s_str();
@@ -243,27 +243,27 @@ sp::cppString sp::ansi::style(const cppString& s, const std::vector<int>& codes)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::ansi::fg(const cppString& s, int color256)
+cppstr::cppString cppstr::ansi::fg(const cppString& s, int color256)
 {
 	return style(s, { 38, 5, color256 });
 }
 
-sp::cppString sp::ansi::rgb(const cppString& s, int r, int g, int b)
+cppstr::cppString cppstr::ansi::rgb(const cppString& s, int r, int g, int b)
 {
 	return style(s, { 38, 2, r, g, b });
 }
 
-sp::cppString sp::ansi::bold(const cppString& s)
+cppstr::cppString cppstr::ansi::bold(const cppString& s)
 {
 	return style(s, { 1 });
 }
 
-sp::cppString sp::ansi::underline(const cppString& s)
+cppstr::cppString cppstr::ansi::underline(const cppString& s)
 {
 	return style(s, { 4 });
 }
 
-sp::cppString sp::ansi::inverse(const cppString& s)
+cppstr::cppString cppstr::ansi::inverse(const cppString& s)
 {
 	return style(s, { 7 });
 }

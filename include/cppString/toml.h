@@ -25,11 +25,11 @@
 #include "cppString.h"
 #include "json.h"
 
-namespace sp
+namespace cppstr
 {
 	// TOML 1.0 core subset reader/writer.
 	//
-	// The document model is sp::json::Value, so TOML shares one tree with the
+	// The document model is cppstr::json::Value, so TOML shares one tree with the
 	// JSON module. A document always parses to an Object. Supported constructs:
 	// comments, bare / quoted / dotted keys, [table] headers, basic / literal /
 	// multiline strings (with \\u and \\U escapes), decimal / hex / octal /
@@ -45,8 +45,8 @@ namespace sp
 	//     dump() emits integral numbers without a decimal point.
 	//   * TOML has no null; dump() rejects Null values.
 	//
-	// Malformed input throws sp::Invalid_Format with line and byte position;
-	// out-of-range numbers throw sp::Invalid_Conversion.
+	// Malformed input throws cppstr::Invalid_Format with line and byte position;
+	// out-of-range numbers throw cppstr::Invalid_Conversion.
 	namespace toml
 	{
 		// Parse a TOML document. Trailing content other than a comment is an

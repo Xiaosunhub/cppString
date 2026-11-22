@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// A minimal but strict JSON document model (RFC 8259).
 	namespace json

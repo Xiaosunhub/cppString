@@ -31,7 +31,7 @@ namespace
 	}
 }
 
-bool sp::path::is_absolute(const cppString& p) noexcept
+bool cppstr::path::is_absolute(const cppString& p) noexcept
 {
 	const String& s = p.s_str();
 
@@ -44,7 +44,7 @@ bool sp::path::is_absolute(const cppString& p) noexcept
 	return is_drive_prefix(s);
 }
 
-sp::cppString sp::path::join(const cppString& base, const cppString& child)
+cppstr::cppString cppstr::path::join(const cppString& base, const cppString& child)
 {
 	if (child.empty())
 		return normalize(base);
@@ -62,7 +62,7 @@ sp::cppString sp::path::join(const cppString& base, const cppString& child)
 	return normalize(result);
 }
 
-sp::cppString sp::path::normalize(const cppString& p)
+cppstr::cppString cppstr::path::normalize(const cppString& p)
 {
 	String s = slashify(p.s_str());
 
@@ -150,7 +150,7 @@ sp::cppString sp::path::normalize(const cppString& p)
 	return cppString{ prefix + body };
 }
 
-sp::cppString sp::path::filename(const cppString& p)
+cppstr::cppString cppstr::path::filename(const cppString& p)
 {
 	String s = slashify(p.s_str());
 
@@ -162,7 +162,7 @@ sp::cppString sp::path::filename(const cppString& p)
 	return cppString{ sep == String::npos ? s : s.substr(sep + 1) };
 }
 
-sp::cppString sp::path::extension(const cppString& p)
+cppstr::cppString cppstr::path::extension(const cppString& p)
 {
 	const String name = filename(p).s_str();
 	const std::size_t dot = name.find_last_of('.');
@@ -173,7 +173,7 @@ sp::cppString sp::path::extension(const cppString& p)
 	return cppString{ name.substr(dot) };
 }
 
-sp::cppString sp::path::stem(const cppString& p)
+cppstr::cppString cppstr::path::stem(const cppString& p)
 {
 	const String name = filename(p).s_str();
 	const std::size_t dot = name.find_last_of('.');
@@ -184,7 +184,7 @@ sp::cppString sp::path::stem(const cppString& p)
 	return cppString{ name.substr(0, dot) };
 }
 
-sp::cppString sp::path::parent(const cppString& p)
+cppstr::cppString cppstr::path::parent(const cppString& p)
 {
 	cppString normalized{ normalize(p) };
 	const String& s = normalized.s_str();
@@ -303,7 +303,7 @@ namespace
 	}
 }
 
-sp::cppString sp::path::relative(const cppString& from, const cppString& to)
+cppstr::cppString cppstr::path::relative(const cppString& from, const cppString& to)
 {
 	const String f = normalize(from).s_str();
 	const String t = normalize(to).s_str();

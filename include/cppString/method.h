@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	void reverse_string(cppString& str);
 

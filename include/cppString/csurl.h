@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Minimal synchronous HTTP/HTTPS client for reading web pages and APIs.
 	//
@@ -33,7 +33,7 @@ namespace sp
 	// client over plain HTTP. TLS on POSIX is intentionally out of scope and
 	// an https:// URL there throws Invalid_Argument with an explicit message.
 	//
-	// URL parsing reuses sp::url. Only the http and https schemes are accepted.
+	// URL parsing reuses cppstr::url. Only the http and https schemes are accepted.
 	namespace csurl
 	{
 		struct Options

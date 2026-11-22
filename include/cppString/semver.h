@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Semantic Versioning 2.0.0 (semver.org): "MAJOR.MINOR.PATCH[-prerelease][+build]".
 	namespace semver

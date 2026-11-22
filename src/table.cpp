@@ -22,19 +22,19 @@
 #include "table.h"
 #include "utf8.h"
 
-using sp::cppString;
-using sp::table::Align;
+using cppstr::cppString;
+using cppstr::table::Align;
 
 namespace
 {
-	std::size_t width_of(const sp::cppString& cell)
+	std::size_t width_of(const cppstr::cppString& cell)
 	{
-		return sp::utf8::display_width(cell);
+		return cppstr::utf8::display_width(cell);
 	}
 
 	String pad_cell(const String& text, std::size_t width, Align align)
 	{
-		const std::size_t w = width_of(sp::cppString{ text });
+		const std::size_t w = width_of(cppstr::cppString{ text });
 
 		if (w >= width)
 			return text;
@@ -82,7 +82,7 @@ namespace
 	}
 }
 
-cppString sp::table::render(const std::vector<std::vector<cppString>>& rows,
+cppString cppstr::table::render(const std::vector<std::vector<cppString>>& rows,
 	const std::vector<cppString>& header,
 	const std::vector<Align>& aligns)
 {

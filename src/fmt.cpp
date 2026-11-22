@@ -110,7 +110,7 @@ namespace
 		if (pos < text.size())
 		{
 			if (!is_type(text[pos]) || pos + 1 != text.size())
-				throw sp::Invalid_Format("Invalid format specifier: " + text);
+				throw cppstr::Invalid_Format("Invalid format specifier: " + text);
 
 			spec.type = text[pos];
 			++pos;
@@ -146,9 +146,9 @@ namespace
 		return out;
 	}
 
-	String render_integer(const sp::fmt::detail::Arg& arg, const Spec& spec)
+	String render_integer(const cppstr::fmt::detail::Arg& arg, const Spec& spec)
 	{
-		const bool signed_kind = arg.kind == sp::fmt::detail::Arg::Kind::Signed;
+		const bool signed_kind = arg.kind == cppstr::fmt::detail::Arg::Kind::Signed;
 		const bool negative = signed_kind && arg.signed_value < 0;
 
 		const unsigned long long magnitude = negative
@@ -169,7 +169,7 @@ namespace
 		case 'b': base = 2;  prefix = spec.alternate ? "0b" : ""; break;
 		case 'o': base = 8;  prefix = spec.alternate ? "0o" : ""; break;
 		default:
-			throw sp::Invalid_Argument("Numeric format type incompatible with an integer.");
+			throw cppstr::Invalid_Argument("Numeric format type incompatible with an integer.");
 		}
 
 		String out;
@@ -186,12 +186,12 @@ namespace
 		return out;
 	}
 
-	String render_float(const sp::fmt::detail::Arg& arg, const Spec& spec)
+	String render_float(const cppstr::fmt::detail::Arg& arg, const Spec& spec)
 	{
 		const char type = spec.type == 0 ? 'g' : spec.type;
 
 		if (type != 'f' && type != 'e' && type != 'g')
-			throw sp::Invalid_Argument("String or integer format type incompatible with a float.");
+			throw cppstr::Invalid_Argument("String or integer format type incompatible with a float.");
 
 		std::ostringstream stream;
 		stream.imbue(std::locale::classic());
@@ -210,15 +210,15 @@ namespace
 		return stream.str();
 	}
 
-	String render_string(const sp::fmt::detail::Arg& arg, const Spec& spec)
+	String render_string(const cppstr::fmt::detail::Arg& arg, const Spec& spec)
 	{
 		if (spec.type != 0 && spec.type != 's')
-			throw sp::Invalid_Argument("Numeric format type incompatible with a string.");
+			throw cppstr::Invalid_Argument("Numeric format type incompatible with a string.");
 
 		if (spec.precision < 0)
 			return arg.text;
 
-		const auto characters = sp::utf8::chars(sp::cppString{ arg.text });
+		const auto characters = cppstr::utf8::chars(cppstr::cppString{ arg.text });
 		const std::size_t limit = static_cast<std::size_t>(spec.precision);
 		String out;
 
@@ -230,7 +230,7 @@ namespace
 
 	String apply_width(const String& content, const Spec& spec, bool numeric)
 	{
-		const std::size_t visible = sp::utf8::display_width(sp::cppString{ content });
+		const std::size_t visible = cppstr::utf8::display_width(cppstr::cppString{ content });
 
 		if (visible >= spec.width)
 			return content;
@@ -258,9 +258,9 @@ namespace
 		return String(left, spec.fill) + content + String(right, spec.fill);
 	}
 
-	String render_arg(const sp::fmt::detail::Arg& arg, const Spec& spec)
+	String render_arg(const cppstr::fmt::detail::Arg& arg, const Spec& spec)
 	{
-		using Kind = sp::fmt::detail::Arg::Kind;
+		using Kind = cppstr::fmt::detail::Arg::Kind;
 
 		switch (arg.kind)
 		{
@@ -278,7 +278,7 @@ namespace
 	}
 }
 
-namespace sp::fmt::detail
+namespace cppstr::fmt::detail
 {
 	Arg Arg::from_string(String value)
 	{

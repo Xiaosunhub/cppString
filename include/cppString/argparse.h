@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Small command-line parser: long options (--name / --name=value),
 	// short options (-n), combined short flags (-abc), "--" terminator

@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Practical validators: strict on format, not on whether the address actually exists.
 	namespace validate

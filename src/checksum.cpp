@@ -39,7 +39,7 @@ namespace
 	}
 }
 
-std::uint32_t sp::checksum::crc32(const cppString& data) noexcept
+std::uint32_t cppstr::checksum::crc32(const cppString& data) noexcept
 {
 	std::uint32_t crc = 0xFFFFFFFFu;
 
@@ -52,12 +52,12 @@ std::uint32_t sp::checksum::crc32(const cppString& data) noexcept
 	return crc ^ 0xFFFFFFFFu;
 }
 
-sp::cppString sp::checksum::crc32_hex(const cppString& data)
+cppstr::cppString cppstr::checksum::crc32_hex(const cppString& data)
 {
 	return cppString{ hex_string(crc32(data), 8) };
 }
 
-std::uint64_t sp::checksum::fnv1a64(const cppString& data) noexcept
+std::uint64_t cppstr::checksum::fnv1a64(const cppString& data) noexcept
 {
 	std::uint64_t hash = 0xCBF29CE484222325ull;
 
@@ -70,12 +70,12 @@ std::uint64_t sp::checksum::fnv1a64(const cppString& data) noexcept
 	return hash;
 }
 
-sp::cppString sp::checksum::fnv1a64_hex(const cppString& data)
+cppstr::cppString cppstr::checksum::fnv1a64_hex(const cppString& data)
 {
 	return cppString{ hex_string(fnv1a64(data), 16) };
 }
 
-std::uint32_t sp::checksum::adler32(const cppString& data) noexcept
+std::uint32_t cppstr::checksum::adler32(const cppString& data) noexcept
 {
 	constexpr std::uint32_t MOD_ADLER = 65521u;
 
@@ -91,7 +91,7 @@ std::uint32_t sp::checksum::adler32(const cppString& data) noexcept
 	return (b << 16) | a;
 }
 
-sp::cppString sp::checksum::adler32_hex(const cppString& data)
+cppstr::cppString cppstr::checksum::adler32_hex(const cppString& data)
 {
 	return cppString{ hex_string(adler32(data), 8) };
 }
@@ -134,7 +134,7 @@ namespace
 	}
 }
 
-sp::cppString sp::checksum::md5(const cppString& data)
+cppstr::cppString cppstr::checksum::md5(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -203,7 +203,7 @@ sp::cppString sp::checksum::md5(const cppString& data)
 	return cppString(std::move(digest));
 }
 
-sp::cppString sp::checksum::md5_hex(const cppString& data)
+cppstr::cppString cppstr::checksum::md5_hex(const cppString& data)
 {
 	const String digest = md5(data).s_str();
 
@@ -248,7 +248,7 @@ namespace
 	}
 }
 
-sp::cppString sp::checksum::sha256(const cppString& data)
+cppstr::cppString cppstr::checksum::sha256(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -326,7 +326,7 @@ sp::cppString sp::checksum::sha256(const cppString& data)
 	return cppString(std::move(digest));
 }
 
-sp::cppString sp::checksum::sha256_hex(const cppString& data)
+cppstr::cppString cppstr::checksum::sha256_hex(const cppString& data)
 {
 	const String digest = sha256(data).s_str();
 
@@ -345,7 +345,7 @@ sp::cppString sp::checksum::sha256_hex(const cppString& data)
 
 // ---- HMAC-SHA-256 (RFC 2104) ----
 
-sp::cppString sp::checksum::hmac_sha256(const cppString& key, const cppString& message)
+cppstr::cppString cppstr::checksum::hmac_sha256(const cppString& key, const cppString& message)
 {
 	String k = key.s_str();
 
@@ -372,7 +372,7 @@ sp::cppString sp::checksum::hmac_sha256(const cppString& key, const cppString& m
 	return sha256(cppString{ outer });
 }
 
-sp::cppString sp::checksum::hmac_sha256_hex(const cppString& key, const cppString& message)
+cppstr::cppString cppstr::checksum::hmac_sha256_hex(const cppString& key, const cppString& message)
 {
 	const String digest = hmac_sha256(key, message).s_str();
 

@@ -26,7 +26,7 @@
 #include <vector>
 #include <utility>
 
-namespace sp
+namespace cppstr
 {
 	// RFC 3986 URI parsing and construction. Components are stored exactly
 	// as written (percent escapes are NOT decoded); use query_params() and

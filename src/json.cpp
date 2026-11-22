@@ -25,9 +25,9 @@
 #include <charconv>
 #include <cmath>
 
-using sp::cppString;
-using sp::json::Type;
-using sp::json::Value;
+using cppstr::cppString;
+using cppstr::json::Type;
+using cppstr::json::Value;
 
 namespace
 {
@@ -70,7 +70,7 @@ bool Value::is_integer() const noexcept
 bool Value::as_bool() const
 {
 	if (m_type != Type::Bool)
-		throw sp::Invalid_Operation("json::Value is not a bool.");
+		throw cppstr::Invalid_Operation("json::Value is not a bool.");
 
 	return m_bool;
 }
@@ -78,7 +78,7 @@ bool Value::as_bool() const
 double Value::as_number() const
 {
 	if (m_type != Type::Number)
-		throw sp::Invalid_Operation("json::Value is not a number.");
+		throw cppstr::Invalid_Operation("json::Value is not a number.");
 
 	return m_number;
 }
@@ -86,7 +86,7 @@ double Value::as_number() const
 long long Value::as_int() const
 {
 	if (!is_integer())
-		throw sp::Invalid_Operation("json::Value is not an integer.");
+		throw cppstr::Invalid_Operation("json::Value is not an integer.");
 
 	return static_cast<long long>(m_number);
 }
@@ -94,7 +94,7 @@ long long Value::as_int() const
 const cppString& Value::as_string() const
 {
 	if (m_type != Type::String)
-		throw sp::Invalid_Operation("json::Value is not a string.");
+		throw cppstr::Invalid_Operation("json::Value is not a string.");
 
 	return m_string;
 }
@@ -102,7 +102,7 @@ const cppString& Value::as_string() const
 const Value::array_t& Value::as_array() const
 {
 	if (m_type != Type::Array)
-		throw sp::Invalid_Operation("json::Value is not an array.");
+		throw cppstr::Invalid_Operation("json::Value is not an array.");
 
 	return m_array;
 }
@@ -110,7 +110,7 @@ const Value::array_t& Value::as_array() const
 const Value::object_t& Value::as_object() const
 {
 	if (m_type != Type::Object)
-		throw sp::Invalid_Operation("json::Value is not an object.");
+		throw cppstr::Invalid_Operation("json::Value is not an object.");
 
 	return m_object;
 }
@@ -124,7 +124,7 @@ Value::array_t& Value::array_items()
 	}
 
 	if (m_type != Type::Array)
-		throw sp::Invalid_Operation("json::Value is not an array.");
+		throw cppstr::Invalid_Operation("json::Value is not an array.");
 
 	return m_array;
 }
@@ -138,7 +138,7 @@ Value::object_t& Value::object_items()
 	}
 
 	if (m_type != Type::Object)
-		throw sp::Invalid_Operation("json::Value is not an object.");
+		throw cppstr::Invalid_Operation("json::Value is not an object.");
 
 	return m_object;
 }
@@ -146,10 +146,10 @@ Value::object_t& Value::object_items()
 const Value& Value::operator[](std::size_t index) const
 {
 	if (m_type != Type::Array)
-		throw sp::Invalid_Operation("json::Value is not an array.");
+		throw cppstr::Invalid_Operation("json::Value is not an array.");
 
 	if (index >= m_array.size())
-		throw sp::Index_Out_Of_Range("json::Value array index out of range.");
+		throw cppstr::Index_Out_Of_Range("json::Value array index out of range.");
 
 	return m_array[index];
 }
@@ -159,7 +159,7 @@ const Value& Value::operator[](const cppString& key) const
 	static const Value NULL_VALUE{};
 
 	if (m_type != Type::Object)
-		throw sp::Invalid_Operation("json::Value is not an object.");
+		throw cppstr::Invalid_Operation("json::Value is not an object.");
 
 	for (const auto& [k, v] : m_object)
 	{
@@ -190,7 +190,7 @@ std::size_t Value::size() const
 	{
 	case Type::Array:  return m_array.size();
 	case Type::Object: return m_object.size();
-	case Type::String: return sp::utf8::length(m_string);
+	case Type::String: return cppstr::utf8::length(m_string);
 	default:           return 0;
 	}
 }
@@ -221,7 +221,7 @@ namespace
 		// "nan"/"inf", i.e. text that json::parse can never read back, so
 		// reject non-finite values instead of silently producing bad JSON.
 		if (!std::isfinite(value))
-			throw sp::Invalid_Conversion("Cannot serialize non-finite JSON number (NaN/Infinity).");
+			throw cppstr::Invalid_Conversion("Cannot serialize non-finite JSON number (NaN/Infinity).");
 
 		// Integers print without a decimal point.
 		if (fits_long_long(value))
@@ -231,7 +231,7 @@ namespace
 		const auto [ptr, ec] = std::to_chars(buf, buf + sizeof(buf), value);
 
 		if (ec != std::errc())
-			throw sp::Invalid_Conversion("Cannot serialize JSON number.");
+			throw cppstr::Invalid_Conversion("Cannot serialize JSON number.");
 
 		return cppString{ String(buf, static_cast<std::size_t>(ptr - buf)) };
 	}
@@ -257,7 +257,7 @@ namespace
 			return;
 		case Type::String:
 			out += '"';
-			out += sp::json::escape(v.as_string()).s_str();
+			out += cppstr::json::escape(v.as_string()).s_str();
 			out += '"';
 			return;
 		case Type::Array:
@@ -319,7 +319,7 @@ namespace
 				}
 
 				out += '"';
-				out += sp::json::escape(items[i].first).s_str();
+				out += cppstr::json::escape(items[i].first).s_str();
 				out += "\":";
 				out += indent >= 0 ? " " : "";
 
@@ -372,7 +372,7 @@ namespace
 
 		[[noreturn]] void fail(const String& what) const
 		{
-			throw sp::Invalid_Conversion(
+			throw cppstr::Invalid_Conversion(
 				"JSON parse error at byte " + std::to_string(m_pos) + ": " + what);
 		}
 
@@ -545,7 +545,7 @@ namespace
 				++m_pos;
 			}
 
-			return sp::json::unescape(cppString(std::move(raw))).s_str();
+			return cppstr::json::unescape(cppString(std::move(raw))).s_str();
 		}
 
 		Value parse_array()
@@ -625,7 +625,7 @@ namespace
 	};
 }
 
-Value sp::json::parse(const cppString& text)
+Value cppstr::json::parse(const cppString& text)
 {
 	return Parser(text.s_str()).run();
 }
@@ -642,7 +642,7 @@ namespace
 			return tokens;
 
 		if (path.front() != '/')
-			throw sp::Invalid_Conversion("JSON Pointer must be empty or start with '/'.");
+			throw cppstr::Invalid_Conversion("JSON Pointer must be empty or start with '/'.");
 
 		std::size_t pos = 0;
 
@@ -664,7 +664,7 @@ namespace
 					if (i + 1 >= raw.size()
 						|| (raw[i + 1] != '0' && raw[i + 1] != '1'))
 					{
-						throw sp::Invalid_Conversion(
+						throw cppstr::Invalid_Conversion(
 							"Invalid JSON Pointer escape sequence: " + raw);
 					}
 
@@ -715,7 +715,7 @@ namespace
 	}
 }
 
-const sp::json::Value& sp::json::pointer(const Value& root, const cppString& path)
+const cppstr::json::Value& cppstr::json::pointer(const Value& root, const cppString& path)
 {
 	const auto tokens = pointer_tokens(path.s_str());
 	const Value* current = &root;
@@ -727,10 +727,10 @@ const sp::json::Value& sp::json::pointer(const Value& root, const cppString& pat
 			std::size_t index = 0;
 
 			if (!parse_index(token, index))
-				throw sp::Invalid_Conversion("Non-numeric JSON Pointer array token: " + token);
+				throw cppstr::Invalid_Conversion("Non-numeric JSON Pointer array token: " + token);
 
 			if (index >= current->as_array().size())
-				throw sp::Index_Out_Of_Range("JSON Pointer array index out of range.");
+				throw cppstr::Index_Out_Of_Range("JSON Pointer array index out of range.");
 
 			current = &(*current)[index];
 		}
@@ -748,20 +748,20 @@ const sp::json::Value& sp::json::pointer(const Value& root, const cppString& pat
 			}
 
 			if (!found)
-				throw sp::Invalid_Operation("JSON Pointer key not found: " + token);
+				throw cppstr::Invalid_Operation("JSON Pointer key not found: " + token);
 
 			current = found;
 		}
 		else
 		{
-			throw sp::Invalid_Operation("JSON Pointer traverses a scalar value.");
+			throw cppstr::Invalid_Operation("JSON Pointer traverses a scalar value.");
 		}
 	}
 
 	return *current;
 }
 
-void sp::json::set_pointer(Value& root, const cppString& path, Value value)
+void cppstr::json::set_pointer(Value& root, const cppString& path, Value value)
 {
 	const auto tokens = pointer_tokens(path.s_str());
 
@@ -802,7 +802,7 @@ void sp::json::set_pointer(Value& root, const cppString& path, Value value)
 			std::size_t index = 0;
 
 			if (!parse_index(token, index))
-				throw sp::Invalid_Conversion("Non-numeric JSON Pointer array token: " + token);
+				throw cppstr::Invalid_Conversion("Non-numeric JSON Pointer array token: " + token);
 
 			while (array.size() <= index)
 				array.emplace_back();
@@ -846,7 +846,7 @@ void sp::json::set_pointer(Value& root, const cppString& path, Value value)
 	}
 }
 
-sp::json::Value sp::json::merge(Value target, const Value& patch)
+cppstr::json::Value cppstr::json::merge(Value target, const Value& patch)
 {
 	if (!patch.is_object())
 		return patch;
@@ -895,7 +895,7 @@ sp::json::Value sp::json::merge(Value target, const Value& patch)
 
 namespace
 {
-	using sp::json::Value;
+	using cppstr::json::Value;
 
 	Value& descend(Value& node, const String& token)
 	{
@@ -904,7 +904,7 @@ namespace
 			std::size_t index = 0;
 
 			if (!parse_index(token, index) || index >= node.as_array().size())
-				throw sp::Invalid_Operation("JSON Patch: array token not found: " + token);
+				throw cppstr::Invalid_Operation("JSON Patch: array token not found: " + token);
 
 			return node.array_items()[index];
 		}
@@ -913,14 +913,14 @@ namespace
 		{
 			for (auto& entry : node.object_items())
 			{
-				if (entry.first == sp::cppString{ token })
+				if (entry.first == cppstr::cppString{ token })
 					return entry.second;
 			}
 
-			throw sp::Invalid_Operation("JSON Patch: object key not found: " + token);
+			throw cppstr::Invalid_Operation("JSON Patch: object key not found: " + token);
 		}
 
-		throw sp::Invalid_Operation("JSON Patch: cannot traverse a scalar value.");
+		throw cppstr::Invalid_Operation("JSON Patch: cannot traverse a scalar value.");
 	}
 
 	struct Location
@@ -968,27 +968,27 @@ namespace
 			std::size_t index = 0;
 
 			if (!parse_index(loc.token, index) || index > array.size())
-				throw sp::Invalid_Operation("JSON Patch add: invalid array index.");
+				throw cppstr::Invalid_Operation("JSON Patch add: invalid array index.");
 
 			array.insert(array.begin() + static_cast<std::ptrdiff_t>(index), std::move(value));
 			return;
 		}
 
 		if (!parent.is_object() && !parent.is_null())
-			throw sp::Invalid_Operation("JSON Patch add: parent is not an object.");
+			throw cppstr::Invalid_Operation("JSON Patch add: parent is not an object.");
 
 		auto& object = parent.object_items();
 
 		for (auto& entry : object)
 		{
-			if (entry.first == sp::cppString{ loc.token })
+			if (entry.first == cppstr::cppString{ loc.token })
 			{
 				entry.second = std::move(value);
 				return;
 			}
 		}
 
-		object.emplace_back(sp::cppString{ loc.token }, std::move(value));
+		object.emplace_back(cppstr::cppString{ loc.token }, std::move(value));
 	}
 
 	void remove_at(Value& root, const String& path)
@@ -1007,32 +1007,32 @@ namespace
 			std::size_t index = 0;
 
 			if (!parse_index(loc.token, index))
-				throw sp::Invalid_Operation("JSON Patch remove: non-numeric array token.");
+				throw cppstr::Invalid_Operation("JSON Patch remove: non-numeric array token.");
 
 			auto& array = parent.array_items();
 
 			if (index >= array.size())
-				throw sp::Index_Out_Of_Range("JSON Patch remove: array index out of range.");
+				throw cppstr::Index_Out_Of_Range("JSON Patch remove: array index out of range.");
 
 			array.erase(array.begin() + static_cast<std::ptrdiff_t>(index));
 			return;
 		}
 
 		if (!parent.is_object())
-			throw sp::Invalid_Operation("JSON Patch remove: parent is not an object.");
+			throw cppstr::Invalid_Operation("JSON Patch remove: parent is not an object.");
 
 		auto& object = parent.object_items();
 
 		for (std::size_t i = 0; i < object.size(); ++i)
 		{
-			if (object[i].first == sp::cppString{ loc.token })
+			if (object[i].first == cppstr::cppString{ loc.token })
 			{
 				object.erase(object.begin() + static_cast<std::ptrdiff_t>(i));
 				return;
 			}
 		}
 
-		throw sp::Invalid_Operation("JSON Patch remove: path not found.");
+		throw cppstr::Invalid_Operation("JSON Patch remove: path not found.");
 	}
 
 	bool is_descendant_path(const String& path, const String& from) noexcept
@@ -1043,7 +1043,7 @@ namespace
 	}
 }
 
-sp::json::Value sp::json::patch(Value document, const Value& operations)
+cppstr::json::Value cppstr::json::patch(Value document, const Value& operations)
 {
 	if (!operations.is_array())
 		throw Invalid_Conversion("JSON Patch must be an array of operation objects.");
@@ -1069,15 +1069,15 @@ sp::json::Value sp::json::patch(Value document, const Value& operations)
 
 			if (name == "test")
 			{
-				const Value& actual = pointer(document, sp::cppString{ path });
+				const Value& actual = pointer(document, cppstr::cppString{ path });
 
 				if (!(actual == op["value"]))
 					throw Invalid_Operation("JSON Patch test failed at " + path);
 			}
 			else if (name == "replace")
 			{
-				(void)pointer(document, sp::cppString{ path }); // must already exist
-				set_pointer(document, sp::cppString{ path }, op["value"]);
+				(void)pointer(document, cppstr::cppString{ path }); // must already exist
+				set_pointer(document, cppstr::cppString{ path }, op["value"]);
 			}
 			else
 			{
@@ -1086,7 +1086,7 @@ sp::json::Value sp::json::patch(Value document, const Value& operations)
 		}
 		else if (name == "remove")
 		{
-			(void)pointer(document, sp::cppString{ path }); // must already exist
+			(void)pointer(document, cppstr::cppString{ path }); // must already exist
 			remove_at(document, path);
 		}
 		else if (name == "move" || name == "copy")
@@ -1095,7 +1095,7 @@ sp::json::Value sp::json::patch(Value document, const Value& operations)
 				throw Invalid_Conversion("JSON Patch '" + name + "' needs a 'from' path.");
 
 			const String from = op["from"].as_string().s_str();
-			Value taken = pointer(document, sp::cppString{ from });
+			Value taken = pointer(document, cppstr::cppString{ from });
 
 			if (name == "move")
 			{

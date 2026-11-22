@@ -218,13 +218,13 @@
     do {                                                                      \
         if (!(cond))                                                          \
         {                                                                     \
-            throw sp::Invalid_Operation(                                      \
+            throw cppstr::Invalid_Operation(                                      \
                 "assertion failed: " #cond " at " __FILE__ ":"                \
                 CPPSTRING_XSTR(__LINE__));                                    \
         }                                                                     \
     } while (false)
 
 // Construct a cppString from a string literal with one token.
-#define CPPSTRING_LIT(text) sp::cppString{text}
+#define CPPSTRING_LIT(text) cppstr::cppString{text}
 
 #endif // CPPSTRING_MACRO_H_

@@ -25,7 +25,7 @@
 #include "cppString.h"
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
 	// Helpers for ANSI/VT100 escape sequences (CSI and OSC). Widths are
 	// measured with utf8::display_width, so CJK text keeps its columns

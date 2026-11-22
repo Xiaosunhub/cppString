@@ -26,7 +26,7 @@
 #include <string>
 #include <utility>
 
-namespace sp
+namespace cppstr
 {
 	namespace datetime
 	{
@@ -91,7 +91,7 @@ namespace sp
 			void require_valid(const DateTime& dt, const char* where)
 			{
 				if (!is_valid(dt))
-					throw sp::Invalid_Conversion(String{ where } + ": invalid date/time");
+					throw cppstr::Invalid_Conversion(String{ where } + ": invalid date/time");
 			}
 
 			cppString offset_suffix(const DateTime& dt, bool force)
@@ -215,14 +215,14 @@ namespace sp
 
 		std::int64_t to_unix(const DateTime& dt)
 		{
-			require_valid(dt, "sp::datetime::to_unix");
+			require_valid(dt, "cppstr::datetime::to_unix");
 			return to_unix_raw(dt);
 		}
 
 		DateTime from_unix(std::int64_t seconds, int offset_minutes)
 		{
 			if (offset_minutes < -14 * 60 || offset_minutes > 14 * 60)
-				throw sp::Invalid_Argument("sp::datetime::from_unix: UTC offset out of range");
+				throw cppstr::Invalid_Argument("cppstr::datetime::from_unix: UTC offset out of range");
 
 			const std::int64_t local = seconds + static_cast<std::int64_t>(offset_minutes) * 60;
 			const std::int64_t days = floor_div(local, 86400);
@@ -330,7 +330,7 @@ namespace sp
 
 		cppString format(const DateTime& dt, const cppString& pattern)
 		{
-			require_valid(dt, "sp::datetime::format");
+			require_valid(dt, "cppstr::datetime::format");
 			const String& p = pattern.s_str();
 			const int wd = weekday(dt);
 			String out{};
@@ -374,7 +374,7 @@ namespace sp
 
 		cppString to_iso8601(const DateTime& dt)
 		{
-			require_valid(dt, "sp::datetime::to_iso8601");
+			require_valid(dt, "cppstr::datetime::to_iso8601");
 			const cppString base = format(dt, "%Y-%m-%dT%H:%M:%S");
 			String out = base.s_str();
 			if (dt.millisecond != 0)
@@ -388,7 +388,7 @@ namespace sp
 
 		cppString to_rfc3339(const DateTime& dt)
 		{
-			require_valid(dt, "sp::datetime::to_rfc3339");
+			require_valid(dt, "cppstr::datetime::to_rfc3339");
 			const cppString base = format(dt, "%Y-%m-%dT%H:%M:%S");
 			String out = base.s_str();
 			if (dt.millisecond != 0)
@@ -417,7 +417,7 @@ namespace sp
 
 		DateTime add_days(DateTime dt, int days)
 		{
-			require_valid(dt, "sp::datetime::add_days");
+			require_valid(dt, "cppstr::datetime::add_days");
 			DateTime out = civil_from_days(days_from_civil(dt.year, dt.month, dt.day) + days);
 			out.hour = dt.hour;
 			out.minute = dt.minute;

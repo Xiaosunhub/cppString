@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Pure string-level path handling: no filesystem access, no throw on missing files.
 	// Accepts both '/' and '\\' as separators; every result uses '/'.

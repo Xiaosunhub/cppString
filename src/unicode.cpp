@@ -217,13 +217,13 @@ namespace
 		}
 	}
 
-	std::vector<char32_t> points(const sp::cppString& s)
+	std::vector<char32_t> points(const cppstr::cppString& s)
 	{
-		return sp::utf8::codepoints(s);
+		return cppstr::utf8::codepoints(s);
 	}
 }
 
-sp::cppString sp::unicode::fold_case(const cppString& s)
+cppstr::cppString cppstr::unicode::fold_case(const cppString& s)
 {
 	String out;
 
@@ -233,7 +233,7 @@ sp::cppString sp::unicode::fold_case(const cppString& s)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::unicode::to_fullwidth(const cppString& s)
+cppstr::cppString cppstr::unicode::to_fullwidth(const cppString& s)
 {
 	String out;
 
@@ -250,7 +250,7 @@ sp::cppString sp::unicode::to_fullwidth(const cppString& s)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::unicode::to_halfwidth(const cppString& s)
+cppstr::cppString cppstr::unicode::to_halfwidth(const cppString& s)
 {
 	String out;
 
@@ -267,7 +267,7 @@ sp::cppString sp::unicode::to_halfwidth(const cppString& s)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::unicode::transliterate(const cppString& s)
+cppstr::cppString cppstr::unicode::transliterate(const cppString& s)
 {
 	String out;
 
@@ -315,7 +315,7 @@ sp::cppString sp::unicode::transliterate(const cppString& s)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::unicode::decompose(const cppString& s)
+cppstr::cppString cppstr::unicode::decompose(const cppString& s)
 {
 	String out;
 
@@ -337,7 +337,7 @@ sp::cppString sp::unicode::decompose(const cppString& s)
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::unicode::compose(const cppString& s)
+cppstr::cppString cppstr::unicode::compose(const cppString& s)
 {
 	const auto cps = points(s);
 	String out;

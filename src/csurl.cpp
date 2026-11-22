@@ -53,10 +53,10 @@
 
 namespace
 {
-	using sp::cppString;
+	using cppstr::cppString;
 	using ::String;
-	using sp::csurl::Options;
-	using sp::csurl::Response;
+	using cppstr::csurl::Options;
+	using cppstr::csurl::Response;
 
 	std::string lower_ascii(const std::string& s)
 	{
@@ -69,31 +69,31 @@ namespace
 
 	// Validate the URL and options before any platform code runs. The returned
 	// Url owns the parsed components; scheme/host are guaranteed present.
-	sp::url::Url validate(const cppString& url, const Options& opt)
+	cppstr::url::Url validate(const cppString& url, const Options& opt)
 	{
 		if (url.empty())
-			throw sp::Invalid_Argument("csurl: URL must not be empty.");
+			throw cppstr::Invalid_Argument("csurl: URL must not be empty.");
 		if (opt.timeout_ms <= 0)
-			throw sp::Invalid_Argument("csurl: timeout_ms must be positive.");
+			throw cppstr::Invalid_Argument("csurl: timeout_ms must be positive.");
 		if (opt.max_redirects < 0)
-			throw sp::Invalid_Argument("csurl: max_redirects must not be negative.");
+			throw cppstr::Invalid_Argument("csurl: max_redirects must not be negative.");
 
-		sp::url::Url parsed = sp::url::parse(url);
+		cppstr::url::Url parsed = cppstr::url::parse(url);
 		const std::string scheme = lower_ascii(parsed.scheme().s_str());
 #ifndef _WIN32
 		if (scheme == "https")
-			throw sp::Invalid_Argument(
+			throw cppstr::Invalid_Argument(
 				"csurl: HTTPS requires WinHTTP and is unavailable on this platform.");
 #endif
 		if (scheme != "http" && scheme != "https")
-			throw sp::Invalid_Argument("csurl: only http and https URLs are supported.");
+			throw cppstr::Invalid_Argument("csurl: only http and https URLs are supported.");
 		if (parsed.host().empty())
-			throw sp::Invalid_Argument("csurl: URL must contain a host.");
+			throw cppstr::Invalid_Argument("csurl: URL must contain a host.");
 		return parsed;
 	}
 
 	// Build the origin-form request target: path (or "/") plus the query.
-	std::string request_target(const sp::url::Url& u)
+	std::string request_target(const cppstr::url::Url& u)
 	{
 		std::string target = u.path().s_str();
 		if (target.empty() || target[0] != '/')
@@ -103,7 +103,7 @@ namespace
 		return target;
 	}
 
-	std::string port_or_default(const sp::url::Url& u, const std::string& scheme)
+	std::string port_or_default(const cppstr::url::Url& u, const std::string& scheme)
 	{
 		if (u.port().empty() == false)
 			return u.port().s_str();
@@ -207,7 +207,7 @@ namespace
 		return out;
 	}
 
-	Response win_get(const sp::url::Url& parsed, const Options& opt,
+	Response win_get(const cppstr::url::Url& parsed, const Options& opt,
 	                 const std::string& scheme, const std::string& host,
 	                 const std::string& port, const std::string& target,
 	                 int redirects)
@@ -256,7 +256,7 @@ namespace
 			const std::string location = query_header(request.get(), WINHTTP_QUERY_LOCATION);
 			if (!location.empty())
 			{
-				const sp::url::Url next = parsed.resolve(cppString{ location });
+				const cppstr::url::Url next = parsed.resolve(cppString{ location });
 				const std::string next_scheme = lower_ascii(next.scheme().s_str());
 				return win_get(next, opt, next_scheme, next.host().s_str(),
 				               port_or_default(next, next_scheme),
@@ -278,7 +278,7 @@ namespace
 			if (!WinHttpReadData(request.get(), chunk.data(), available, &read))
 				return transport_error(win_error(GetLastError()));
 			if (opt.max_bytes > 0 && body.size() + read > opt.max_bytes)
-				throw sp::Invalid_Operation("csurl: response body exceeds max_bytes.");
+				throw cppstr::Invalid_Operation("csurl: response body exceeds max_bytes.");
 			body.append(chunk.data(), static_cast<std::size_t>(read));
 		}
 		result.body = cppString{ body };
@@ -290,7 +290,7 @@ namespace
 		return what + ": " + std::strerror(errno);
 	}
 
-	Response posix_get(const sp::url::Url& parsed, const Options& opt,
+	Response posix_get(const cppstr::url::Url& parsed, const Options& opt,
 	                   const std::string& host, const std::string& port,
 	                   const std::string& target)
 	{
@@ -345,7 +345,7 @@ namespace
 				    opt.max_bytes + 65536)
 				{
 					close(fd);
-					throw sp::Invalid_Operation("csurl: response exceeds max_bytes.");
+					throw cppstr::Invalid_Operation("csurl: response exceeds max_bytes.");
 				}
 				raw.append(buffer, static_cast<std::size_t>(n));
 			}
@@ -386,14 +386,14 @@ namespace
 			std::size_t e = head.find("\r\n", ct);
 			std::string value = head.substr(ct + 13, e == std::string::npos
 			                                ? std::string::npos : e - ct - 13);
-			result.content_type = cppString{ sp::method::trim(cppString{ value }).s_str() };
+			result.content_type = cppString{ cppstr::method::trim(cppString{ value }).s_str() };
 		}
 		return result;
 	}
 #endif
 }
 
-namespace sp
+namespace cppstr
 {
 	namespace csurl
 	{
@@ -408,7 +408,7 @@ namespace sp
 
 		Response get(const cppString& url, const Options& options)
 		{
-			const sp::url::Url parsed = validate(url, options);
+			const cppstr::url::Url parsed = validate(url, options);
 			const std::string scheme = lower_ascii(parsed.scheme().s_str());
 			const std::string host = parsed.host().s_str();
 			const std::string port = port_or_default(parsed, scheme);
@@ -437,7 +437,7 @@ namespace sp
 				const String detail = response.status == 0
 					? response.error.s_str()
 					: String("HTTP status ") + std::to_string(response.status);
-				throw sp::Invalid_Operation(
+				throw cppstr::Invalid_Operation(
 					"csurl: request failed for " + url.s_str() + " (" + detail + ").");
 			}
 			return response.body;

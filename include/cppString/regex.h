@@ -28,7 +28,7 @@
 #include <optional>
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
 	// ECMAScript-flavoured regular expressions with cppString-friendly types.
 	// Offsets are byte offsets (UTF-8 safe as long as the pattern itself does
@@ -36,7 +36,7 @@ namespace sp
 	// a replacement that references a non-existent group throws Invalid_Format.
 	//
 	// Replacement templates understand $0..$9, ${0}..${n}, $&, $$ and \0..\9.
-	// All functions are fully qualified as sp::regex:: in the docs on purpose:
+	// All functions are fully qualified as cppstr::regex:: in the docs on purpose:
 	// the name would otherwise collide with std::regex for users doing
 	// `using namespace std;` as well.
 	namespace regex

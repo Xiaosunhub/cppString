@@ -142,12 +142,12 @@ namespace
 	}
 }
 
-sp::ini::Document::Document()
+cppstr::ini::Document::Document()
 {
 	m_sections.emplace_back(cppString{}, Section{});
 }
 
-sp::ini::Document::Section* sp::ini::Document::find_section(const cppString& name) noexcept
+cppstr::ini::Document::Section* cppstr::ini::Document::find_section(const cppString& name) noexcept
 {
 	for (auto& entry : m_sections)
 	{
@@ -158,7 +158,7 @@ sp::ini::Document::Section* sp::ini::Document::find_section(const cppString& nam
 	return nullptr;
 }
 
-const sp::ini::Document::Section* sp::ini::Document::find_section(const cppString& name) const noexcept
+const cppstr::ini::Document::Section* cppstr::ini::Document::find_section(const cppString& name) const noexcept
 {
 	for (const auto& entry : m_sections)
 	{
@@ -169,7 +169,7 @@ const sp::ini::Document::Section* sp::ini::Document::find_section(const cppStrin
 	return nullptr;
 }
 
-sp::ini::Document::Section& sp::ini::Document::make_section(const cppString& name)
+cppstr::ini::Document::Section& cppstr::ini::Document::make_section(const cppString& name)
 {
 	if (Section* existing = find_section(name))
 		return *existing;
@@ -178,7 +178,7 @@ sp::ini::Document::Section& sp::ini::Document::make_section(const cppString& nam
 	return m_sections.back().second;
 }
 
-std::vector<sp::cppString> sp::ini::Document::sections() const
+std::vector<cppstr::cppString> cppstr::ini::Document::sections() const
 {
 	std::vector<cppString> result;
 
@@ -191,27 +191,27 @@ std::vector<sp::cppString> sp::ini::Document::sections() const
 	return result;
 }
 
-bool sp::ini::Document::has_section(const cppString& name) const noexcept
+bool cppstr::ini::Document::has_section(const cppString& name) const noexcept
 {
 	return find_section(name) != nullptr;
 }
 
-sp::ini::Document::Section sp::ini::Document::entries(const cppString& name) const
+cppstr::ini::Document::Section cppstr::ini::Document::entries(const cppString& name) const
 {
 	const Section* section = find_section(name);
 
 	if (!section)
-		throw sp::Invalid_Argument("Unknown INI section in Document::entries: " + name.s_str());
+		throw cppstr::Invalid_Argument("Unknown INI section in Document::entries: " + name.s_str());
 
 	return *section;
 }
 
-bool sp::ini::Document::has(const cppString& key) const noexcept
+bool cppstr::ini::Document::has(const cppString& key) const noexcept
 {
 	return has(cppString{}, key);
 }
 
-bool sp::ini::Document::has(const cppString& section, const cppString& key) const noexcept
+bool cppstr::ini::Document::has(const cppString& section, const cppString& key) const noexcept
 {
 	const Section* s = find_section(section);
 
@@ -227,12 +227,12 @@ bool sp::ini::Document::has(const cppString& section, const cppString& key) cons
 	return false;
 }
 
-sp::cppString sp::ini::Document::get_global(const cppString& key, const cppString& fallback) const
+cppstr::cppString cppstr::ini::Document::get_global(const cppString& key, const cppString& fallback) const
 {
 	return get(cppString{}, key, fallback);
 }
 
-sp::cppString sp::ini::Document::get(const cppString& section, const cppString& key,
+cppstr::cppString cppstr::ini::Document::get(const cppString& section, const cppString& key,
 	const cppString& fallback) const
 {
 	const Section* s = find_section(section);
@@ -249,12 +249,12 @@ sp::cppString sp::ini::Document::get(const cppString& section, const cppString& 
 	return fallback;
 }
 
-long long sp::ini::Document::get_int_global(const cppString& key, long long fallback) const
+long long cppstr::ini::Document::get_int_global(const cppString& key, long long fallback) const
 {
 	return get_int(cppString{}, key, fallback);
 }
 
-long long sp::ini::Document::get_int(const cppString& section, const cppString& key,
+long long cppstr::ini::Document::get_int(const cppString& section, const cppString& key,
 	long long fallback) const
 {
 	const cppString value = get(section, key, cppString{});
@@ -268,17 +268,17 @@ long long sp::ini::Document::get_int(const cppString& section, const cppString& 
 	const long long result = std::strtoll(s.c_str(), &end, 10);
 
 	if (errno == ERANGE || end != s.c_str() + s.size())
-		throw sp::Invalid_Conversion("Not an integer in INI value: " + s);
+		throw cppstr::Invalid_Conversion("Not an integer in INI value: " + s);
 
 	return result;
 }
 
-double sp::ini::Document::get_double_global(const cppString& key, double fallback) const
+double cppstr::ini::Document::get_double_global(const cppString& key, double fallback) const
 {
 	return get_double(cppString{}, key, fallback);
 }
 
-double sp::ini::Document::get_double(const cppString& section, const cppString& key,
+double cppstr::ini::Document::get_double(const cppString& section, const cppString& key,
 	double fallback) const
 {
 	const cppString value = get(section, key, cppString{});
@@ -292,17 +292,17 @@ double sp::ini::Document::get_double(const cppString& section, const cppString& 
 	const double result = std::strtod(s.c_str(), &end);
 
 	if (errno == ERANGE || end != s.c_str() + s.size())
-		throw sp::Invalid_Conversion("Not a number in INI value: " + s);
+		throw cppstr::Invalid_Conversion("Not a number in INI value: " + s);
 
 	return result;
 }
 
-bool sp::ini::Document::get_bool_global(const cppString& key, bool fallback) const
+bool cppstr::ini::Document::get_bool_global(const cppString& key, bool fallback) const
 {
 	return get_bool(cppString{}, key, fallback);
 }
 
-bool sp::ini::Document::get_bool(const cppString& section, const cppString& key,
+bool cppstr::ini::Document::get_bool(const cppString& section, const cppString& key,
 	bool fallback) const
 {
 	const cppString value = get(section, key, cppString{});
@@ -318,15 +318,15 @@ bool sp::ini::Document::get_bool(const cppString& section, const cppString& key,
 	if (s == "0" || s == "false" || s == "no" || s == "off" || s == "n" || s == "f")
 		return false;
 
-	throw sp::Invalid_Conversion("Not a boolean in INI value: " + s);
+	throw cppstr::Invalid_Conversion("Not a boolean in INI value: " + s);
 }
 
-void sp::ini::Document::set(const cppString& key, const cppString& value)
+void cppstr::ini::Document::set(const cppString& key, const cppString& value)
 {
 	set(cppString{}, key, value);
 }
 
-void sp::ini::Document::set(const cppString& section, const cppString& key,
+void cppstr::ini::Document::set(const cppString& section, const cppString& key,
 	const cppString& value)
 {
 	Section& s = make_section(section);
@@ -343,12 +343,12 @@ void sp::ini::Document::set(const cppString& section, const cppString& key,
 	s.emplace_back(key, value);
 }
 
-bool sp::ini::Document::erase(const cppString& key)
+bool cppstr::ini::Document::erase(const cppString& key)
 {
 	return erase(cppString{}, key);
 }
 
-bool sp::ini::Document::erase(const cppString& section, const cppString& key)
+bool cppstr::ini::Document::erase(const cppString& section, const cppString& key)
 {
 	Section* s = find_section(section);
 
@@ -363,7 +363,7 @@ bool sp::ini::Document::erase(const cppString& section, const cppString& key)
 	return s->size() != old_size;
 }
 
-bool sp::ini::Document::erase_section(const cppString& name)
+bool cppstr::ini::Document::erase_section(const cppString& name)
 {
 	if (name.empty())
 		return false; // the global section always exists
@@ -377,7 +377,7 @@ bool sp::ini::Document::erase_section(const cppString& name)
 	return m_sections.size() != old_size;
 }
 
-sp::cppString sp::ini::Document::dump() const
+cppstr::cppString cppstr::ini::Document::dump() const
 {
 	String out;
 
@@ -405,7 +405,7 @@ sp::cppString sp::ini::Document::dump() const
 	return cppString(std::move(out));
 }
 
-sp::ini::Document sp::ini::parse(const cppString& text)
+cppstr::ini::Document cppstr::ini::parse(const cppString& text)
 {
 	Document doc;
 	const String& src = text.s_str();
@@ -432,7 +432,7 @@ sp::ini::Document sp::ini::parse(const cppString& text)
 				const std::size_t close = trimmed.find(']');
 
 				if (close == String::npos)
-					throw sp::Invalid_Format("Unterminated INI section at line "
+					throw cppstr::Invalid_Format("Unterminated INI section at line "
 						+ std::to_string(line_no));
 
 				current_section = cppString{ trim(trimmed.substr(1, close - 1)) };
@@ -449,7 +449,7 @@ sp::ini::Document sp::ini::parse(const cppString& text)
 					sep = colon;
 
 				if (sep == String::npos)
-					throw sp::Invalid_Format("INI line without '=' or ':' at line "
+					throw cppstr::Invalid_Format("INI line without '=' or ':' at line "
 						+ std::to_string(line_no));
 
 				const String key = trim(trimmed.substr(0, sep));

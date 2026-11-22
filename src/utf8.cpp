@@ -16,7 +16,7 @@ namespace
 	}
 }
 
-bool sp::utf8::is_valid(const cppString& s)
+bool cppstr::utf8::is_valid(const cppString& s)
 {
 	const auto* bytes = reinterpret_cast<const unsigned char*>(s.data());
 	const std::size_t len = s.size();
@@ -64,7 +64,7 @@ bool sp::utf8::is_valid(const cppString& s)
 	return true;
 }
 
-std::size_t sp::utf8::length(const cppString& s)
+std::size_t cppstr::utf8::length(const cppString& s)
 {
 	const auto* bytes = reinterpret_cast<const unsigned char*>(s.data());
 	const std::size_t len = s.size();
@@ -79,7 +79,7 @@ std::size_t sp::utf8::length(const cppString& s)
 	return count;
 }
 
-std::size_t sp::utf8::offset(const cppString& s, std::size_t char_index)
+std::size_t cppstr::utf8::offset(const cppString& s, std::size_t char_index)
 {
 	const auto* bytes = reinterpret_cast<const unsigned char*>(s.data());
 	const std::size_t len = s.size();
@@ -99,15 +99,15 @@ std::size_t sp::utf8::offset(const cppString& s, std::size_t char_index)
 	return (count == char_index) ? len : cppString::npos;
 }
 
-sp::cppString sp::utf8::sub(const cppString& s, std::size_t start)
+cppstr::cppString cppstr::utf8::sub(const cppString& s, std::size_t start)
 {
 	if (s.is_empty())
-		throw sp::Empty_String("Cannot call utf8::sub on an empty string.");
+		throw cppstr::Empty_String("Cannot call utf8::sub on an empty string.");
 
 	const std::size_t count = length(s);
 
 	if (start >= count)
-		throw sp::Index_Out_Of_Range("Start index out of range in utf8::sub.");
+		throw cppstr::Index_Out_Of_Range("Start index out of range in utf8::sub.");
 
 	if (start == 0)
 		return s;
@@ -115,22 +115,22 @@ sp::cppString sp::utf8::sub(const cppString& s, std::size_t start)
 	return cppString(s.s_str().substr(offset(s, start)));
 }
 
-sp::cppString sp::utf8::sub(const cppString& s, std::size_t start, std::size_t len)
+cppstr::cppString cppstr::utf8::sub(const cppString& s, std::size_t start, std::size_t len)
 {
 	if (s.is_empty())
-		throw sp::Empty_String("Cannot call utf8::sub on an empty string.");
+		throw cppstr::Empty_String("Cannot call utf8::sub on an empty string.");
 
 	const std::size_t count = length(s);
 
 	if (start >= count)
-		throw sp::Index_Out_Of_Range("Start index out of range in utf8::sub.");
+		throw cppstr::Index_Out_Of_Range("Start index out of range in utf8::sub.");
 
 	if (len == 0)
 		return cppString{};
 
 	// Compare without adding: start + len can wrap for very large lengths.
 	if (len > count - start)
-		throw sp::Index_Out_Of_Range("Length exceeds string bounds in utf8::sub.");
+		throw cppstr::Index_Out_Of_Range("Length exceeds string bounds in utf8::sub.");
 
 	const std::size_t start_byte = offset(s, start);
 	const std::size_t end_byte = offset(s, start + len);
@@ -138,7 +138,7 @@ sp::cppString sp::utf8::sub(const cppString& s, std::size_t start, std::size_t l
 	return cppString(s.s_str().substr(start_byte, end_byte - start_byte));
 }
 
-std::vector<sp::cppString> sp::utf8::chars(const cppString& s)
+std::vector<cppstr::cppString> cppstr::utf8::chars(const cppString& s)
 {
 	std::vector<cppString> result;
 
@@ -158,7 +158,7 @@ std::vector<sp::cppString> sp::utf8::chars(const cppString& s)
 	return result;
 }
 
-std::vector<char32_t> sp::utf8::codepoints(const cppString& s)
+std::vector<char32_t> cppstr::utf8::codepoints(const cppString& s)
 {
 	std::vector<char32_t> result;
 
@@ -171,10 +171,10 @@ std::vector<char32_t> sp::utf8::codepoints(const cppString& s)
 		const std::size_t step = sequence_length(lead);
 
 		if (step == 1 && lead > 0x7F)
-			throw sp::Invalid_Conversion("Invalid UTF-8 lead byte in utf8::codepoints.");
+			throw cppstr::Invalid_Conversion("Invalid UTF-8 lead byte in utf8::codepoints.");
 
 		if (i + step > str.size())
-			throw sp::Invalid_Conversion("Truncated UTF-8 sequence in utf8::codepoints.");
+			throw cppstr::Invalid_Conversion("Truncated UTF-8 sequence in utf8::codepoints.");
 
 		char32_t cp = 0;
 		switch (step)
@@ -189,7 +189,7 @@ std::vector<char32_t> sp::utf8::codepoints(const cppString& s)
 		{
 			const unsigned char c = static_cast<unsigned char>(str[i + j]);
 			if ((c & 0xC0) != 0x80)
-				throw sp::Invalid_Conversion("Invalid UTF-8 continuation byte in utf8::codepoints.");
+				throw cppstr::Invalid_Conversion("Invalid UTF-8 continuation byte in utf8::codepoints.");
 
 			cp = (cp << 6) | (c & 0x3F);
 		}
@@ -201,7 +201,7 @@ std::vector<char32_t> sp::utf8::codepoints(const cppString& s)
 	return result;
 }
 
-sp::cppString sp::utf8::from_codepoint(char32_t cp)
+cppstr::cppString cppstr::utf8::from_codepoint(char32_t cp)
 {
 	String out;
 
@@ -217,7 +217,7 @@ sp::cppString sp::utf8::from_codepoint(char32_t cp)
 	else if (cp <= 0xFFFF)
 	{
 		if (cp >= 0xD800 && cp <= 0xDFFF)
-			throw sp::Invalid_Argument("Surrogate code points cannot be encoded.");
+			throw cppstr::Invalid_Argument("Surrogate code points cannot be encoded.");
 
 		out += static_cast<char>(0xE0 | (cp >> 12));
 		out += static_cast<char>(0x80 | ((cp >> 6) & 0x3F));
@@ -232,13 +232,13 @@ sp::cppString sp::utf8::from_codepoint(char32_t cp)
 	}
 	else
 	{
-		throw sp::Invalid_Argument("Code point out of Unicode range.");
+		throw cppstr::Invalid_Argument("Code point out of Unicode range.");
 	}
 
 	return cppString(out);
 }
 
-sp::cppString sp::utf8::reverse(const cppString& s)
+cppstr::cppString cppstr::utf8::reverse(const cppString& s)
 {
 	auto parts = chars(s);
 	std::reverse(parts.begin(), parts.end());
@@ -280,7 +280,7 @@ namespace
 	}
 }
 
-std::size_t sp::utf8::display_width(const cppString& s)
+std::size_t cppstr::utf8::display_width(const cppString& s)
 {
 	std::size_t width = 0;
 
@@ -297,7 +297,7 @@ std::size_t sp::utf8::display_width(const cppString& s)
 
 // ---- display-width helpers (5.1) ----
 
-sp::cppString sp::utf8::truncate_by_width(const cppString& s, std::size_t max_width,
+cppstr::cppString cppstr::utf8::truncate_by_width(const cppString& s, std::size_t max_width,
 	const cppString& suffix)
 {
 	const auto characters = chars(s);
@@ -329,7 +329,7 @@ sp::cppString sp::utf8::truncate_by_width(const cppString& s, std::size_t max_wi
 	return cppString(std::move(out));
 }
 
-sp::cppString sp::utf8::pad_by_width(const cppString& s, std::size_t width,
+cppstr::cppString cppstr::utf8::pad_by_width(const cppString& s, std::size_t width,
 	Alignment align, char fill)
 {
 	const std::size_t current = display_width(s);
@@ -362,7 +362,7 @@ sp::cppString sp::utf8::pad_by_width(const cppString& s, std::size_t width,
 }
 
 
-bool sp::utf8::has_bom(const cppString& s) noexcept
+bool cppstr::utf8::has_bom(const cppString& s) noexcept
 {
 	const String& data = s.s_str();
 	return data.size() >= 3
@@ -371,14 +371,14 @@ bool sp::utf8::has_bom(const cppString& s) noexcept
 		&& static_cast<unsigned char>(data[2]) == 0xBF;
 }
 
-sp::cppString sp::utf8::strip_bom(const cppString& s)
+cppstr::cppString cppstr::utf8::strip_bom(const cppString& s)
 {
 	if (!has_bom(s))
 		return s;
 	return cppString{ s.s_str().substr(3) };
 }
 
-sp::cppString sp::utf8::add_bom(const cppString& s)
+cppstr::cppString cppstr::utf8::add_bom(const cppString& s)
 {
 	if (has_bom(s))
 		return s;

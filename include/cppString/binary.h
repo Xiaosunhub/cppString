@@ -28,9 +28,9 @@
 #include <type_traits>
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
-	// Raw byte helpers. A byte buffer is a `sp::String` (std::string): it may
+	// Raw byte helpers. A byte buffer is a `cppstr::String` (std::string): it may
 	// contain embedded NUL bytes, so no C string assumption is ever made.
 	// Textual representations use `cppString`. Reads that run past the end of
 	// a buffer throw Index_Out_Of_Range; malformed text throws

@@ -49,17 +49,17 @@ namespace
 {
 	// std::filesystem::path uses UTF-8 char8_t sources/outputs on every C++20
 	// implementation, so non-ASCII paths survive the round trip on Windows.
-	fs::path to_path(const sp::cppString& value)
+	fs::path to_path(const cppstr::cppString& value)
 	{
 		const ::String& text = value.s_str();
 		return fs::path{ std::u8string_view{
 			reinterpret_cast<const char8_t*>(text.data()), text.size() } };
 	}
 
-	sp::cppString from_path(const fs::path& value)
+	cppstr::cppString from_path(const fs::path& value)
 	{
 		const std::u8string text = value.u8string();
-		return sp::cppString{ ::String{
+		return cppstr::cppString{ ::String{
 			reinterpret_cast<const char*>(text.data()), text.size() } };
 	}
 
@@ -72,45 +72,45 @@ namespace
 		{
 			return fn();
 		}
-		catch (const sp::String_Error&)
+		catch (const cppstr::String_Error&)
 		{
 			throw;
 		}
 		catch (...)
 		{
-			throw sp::Invalid_Operation(message);
+			throw cppstr::Invalid_Operation(message);
 		}
 	}
 
-	::String read_all(const sp::cppString& path)
+	::String read_all(const cppstr::cppString& path)
 	{
 		std::ifstream input{ to_path(path), std::ios::binary };
 		if (!input)
-			throw sp::Invalid_Operation("sp::file: cannot open file for reading");
+			throw cppstr::Invalid_Operation("cppstr::file: cannot open file for reading");
 
 		::String data{ std::istreambuf_iterator<char>{ input }, std::istreambuf_iterator<char>{} };
 		if (input.bad())
-			throw sp::Invalid_Operation("sp::file: read failed");
+			throw cppstr::Invalid_Operation("cppstr::file: read failed");
 		return data;
 	}
 
-	void write_all(const sp::cppString& path, const ::String& bytes, bool append)
+	void write_all(const cppstr::cppString& path, const ::String& bytes, bool append)
 	{
 		const auto mode = std::ios::binary | (append ? std::ios::app : std::ios::trunc);
 		std::ofstream output{ to_path(path), mode };
 		if (!output)
-			throw sp::Invalid_Operation("sp::file: cannot open file for writing");
+			throw cppstr::Invalid_Operation("cppstr::file: cannot open file for writing");
 
 		if (!bytes.empty())
 			output.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
 		output.flush();
 
 		if (!output)
-			throw sp::Invalid_Operation("sp::file: write failed");
+			throw cppstr::Invalid_Operation("cppstr::file: write failed");
 	}
 }
 
-namespace sp
+namespace cppstr
 {
 	namespace file
 	{
@@ -148,15 +148,15 @@ namespace sp
 
 		bool equals(const cppString& lhs, const cppString& rhs)
 		{
-			return guarded("sp::file::equals: cannot compare files", [&]() -> bool
+			return guarded("cppstr::file::equals: cannot compare files", [&]() -> bool
 				{
-					if (sp::file::size(lhs) != sp::file::size(rhs))
+					if (cppstr::file::size(lhs) != cppstr::file::size(rhs))
 						return false;
 
 					std::ifstream a{ to_path(lhs), std::ios::binary };
 					std::ifstream b{ to_path(rhs), std::ios::binary };
 					if (!a || !b)
-						throw sp::Invalid_Operation("sp::file::equals: cannot open file");
+						throw cppstr::Invalid_Operation("cppstr::file::equals: cannot open file");
 
 					std::array<char, 65536> left{};
 					std::array<char, 65536> right{};
@@ -184,24 +184,24 @@ namespace sp
 
 		std::uintmax_t size(const cppString& path)
 		{
-			return guarded("sp::file::size: cannot stat file", [&]() -> std::uintmax_t
+			return guarded("cppstr::file::size: cannot stat file", [&]() -> std::uintmax_t
 				{
 					std::error_code ec;
 					const auto value = fs::file_size(to_path(path), ec);
 					if (ec)
-						throw sp::Invalid_Operation("sp::file::size: cannot stat file");
+						throw cppstr::Invalid_Operation("cppstr::file::size: cannot stat file");
 					return value;
 				});
 		}
 
 		std::int64_t last_modified(const cppString& path)
 		{
-			return guarded("sp::file::last_modified: cannot read timestamp", [&]() -> std::int64_t
+			return guarded("cppstr::file::last_modified: cannot read timestamp", [&]() -> std::int64_t
 				{
 					std::error_code ec;
 					const auto stamp = fs::last_write_time(to_path(path), ec);
 					if (ec)
-						throw sp::Invalid_Operation("sp::file::last_modified: cannot read timestamp");
+						throw cppstr::Invalid_Operation("cppstr::file::last_modified: cannot read timestamp");
 
 					// Convert file_clock to system_clock without relying on an
 					// implementation-specific epoch offset.
@@ -215,59 +215,59 @@ namespace sp
 
 		cppString size_string(const cppString& path)
 		{
-			return sp::human_size(static_cast<unsigned long long>(sp::file::size(path)));
+			return cppstr::human_size(static_cast<unsigned long long>(cppstr::file::size(path)));
 		}
 
 		cppString filename(const cppString& path)
 		{
-			return guarded("sp::file::filename: bad path", [&]() { return from_path(to_path(path).filename()); });
+			return guarded("cppstr::file::filename: bad path", [&]() { return from_path(to_path(path).filename()); });
 		}
 
 		cppString stem(const cppString& path)
 		{
-			return guarded("sp::file::stem: bad path", [&]() { return from_path(to_path(path).stem()); });
+			return guarded("cppstr::file::stem: bad path", [&]() { return from_path(to_path(path).stem()); });
 		}
 
 		cppString extension(const cppString& path)
 		{
-			return guarded("sp::file::extension: bad path", [&]() { return from_path(to_path(path).extension()); });
+			return guarded("cppstr::file::extension: bad path", [&]() { return from_path(to_path(path).extension()); });
 		}
 
 		// ---- path resolution / working directory ----------------------------
 
 		cppString absolute(const cppString& path)
 		{
-			return guarded("sp::file::absolute: cannot resolve path", [&]() { return from_path(fs::absolute(to_path(path))); });
+			return guarded("cppstr::file::absolute: cannot resolve path", [&]() { return from_path(fs::absolute(to_path(path))); });
 		}
 
 		cppString canonical(const cppString& path)
 		{
-			return guarded("sp::file::canonical: path does not exist", [&]() { return from_path(fs::canonical(to_path(path))); });
+			return guarded("cppstr::file::canonical: path does not exist", [&]() { return from_path(fs::canonical(to_path(path))); });
 		}
 
 		cppString weakly_canonical(const cppString& path)
 		{
-			return guarded("sp::file::weakly_canonical: cannot resolve path", [&]() { return from_path(fs::weakly_canonical(to_path(path))); });
+			return guarded("cppstr::file::weakly_canonical: cannot resolve path", [&]() { return from_path(fs::weakly_canonical(to_path(path))); });
 		}
 
 		cppString relative(const cppString& path, const cppString& base)
 		{
-			return guarded("sp::file::relative: cannot resolve path", [&]() { return from_path(fs::relative(to_path(path), to_path(base))); });
+			return guarded("cppstr::file::relative: cannot resolve path", [&]() { return from_path(fs::relative(to_path(path), to_path(base))); });
 		}
 
 		cppString current_path()
 		{
-			return guarded("sp::file::current_path: cannot query cwd", []() { return from_path(fs::current_path()); });
+			return guarded("cppstr::file::current_path: cannot query cwd", []() { return from_path(fs::current_path()); });
 		}
 
 		void set_current_path(const cppString& path)
 		{
-			guarded("sp::file::set_current_path: cannot change cwd", [&]() { fs::current_path(to_path(path)); });
+			guarded("cppstr::file::set_current_path: cannot change cwd", [&]() { fs::current_path(to_path(path)); });
 		}
 
 		cppString temp_directory()
 		{
-			return guarded("sp::file::temp_directory: cannot query temp path", []() { return from_path(fs::temp_directory_path()); });
+			return guarded("cppstr::file::temp_directory: cannot query temp path", []() { return from_path(fs::temp_directory_path()); });
 		}
 
 		cppString home_directory()
@@ -389,12 +389,12 @@ namespace sp
 
 		void truncate(const cppString& path, std::uintmax_t new_size)
 		{
-			guarded("sp::file::truncate: cannot resize file", [&]()
+			guarded("cppstr::file::truncate: cannot resize file", [&]()
 				{
 					std::error_code ec;
 					fs::resize_file(to_path(path), new_size, ec);
 					if (ec)
-						throw sp::Invalid_Operation("sp::file::truncate: cannot resize file");
+						throw cppstr::Invalid_Operation("cppstr::file::truncate: cannot resize file");
 				});
 		}
 
@@ -468,19 +468,19 @@ namespace sp
 
 		String read_chunk(const cppString& path, std::uintmax_t offset, std::size_t length)
 		{
-			return guarded("sp::file::read_chunk: cannot read file", [&]() -> String
+			return guarded("cppstr::file::read_chunk: cannot read file", [&]() -> String
 				{
 					std::ifstream input{ to_path(path), std::ios::binary };
 					if (!input)
-						throw sp::Invalid_Operation("sp::file::read_chunk: cannot open file");
+						throw cppstr::Invalid_Operation("cppstr::file::read_chunk: cannot open file");
 
 					input.seekg(0, std::ios::end);
 					const auto end = input.tellg();
 					if (end < 0)
-						throw sp::Invalid_Operation("sp::file::read_chunk: cannot determine file size");
+						throw cppstr::Invalid_Operation("cppstr::file::read_chunk: cannot determine file size");
 					const auto total = static_cast<std::uintmax_t>(end);
 					if (offset > total)
-						throw sp::Index_Out_Of_Range("sp::file::read_chunk: offset past end of file");
+						throw cppstr::Index_Out_Of_Range("cppstr::file::read_chunk: offset past end of file");
 
 					const auto available = total - offset;
 					const std::size_t count = static_cast<std::size_t>(
@@ -500,7 +500,7 @@ namespace sp
 			const std::function<bool(const cppString&, std::size_t)>& visitor)
 		{
 			if (!visitor)
-				throw sp::Invalid_Argument("sp::file::for_each_line: visitor must not be empty");
+				throw cppstr::Invalid_Argument("cppstr::file::for_each_line: visitor must not be empty");
 
 			const auto lines = read_lines(path, true);
 			std::size_t visited = 0;
@@ -531,12 +531,12 @@ namespace sp
 				// original content. MoveFileExW swaps in one atomic step.
 				if (!MoveFileExW(source.c_str(), target.c_str(),
 					MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH))
-					throw sp::Invalid_Operation("sp::file::write_text_atomic: rename failed");
+					throw cppstr::Invalid_Operation("cppstr::file::write_text_atomic: rename failed");
 #else
 				std::error_code ec;
 				fs::rename(source, target, ec);
 				if (ec)
-					throw sp::Invalid_Operation("sp::file::write_text_atomic: rename failed");
+					throw cppstr::Invalid_Operation("cppstr::file::write_text_atomic: rename failed");
 #endif
 			}
 			catch (...)
@@ -551,11 +551,11 @@ namespace sp
 
 		std::vector<Entry> list(const cppString& directory, bool recursive)
 		{
-			return guarded("sp::file::list: cannot read directory", [&]() -> std::vector<Entry>
+			return guarded("cppstr::file::list: cannot read directory", [&]() -> std::vector<Entry>
 				{
 					const auto root = to_path(directory);
 					if (!fs::is_directory(root))
-						throw sp::Invalid_Operation("sp::file::list: not a directory");
+						throw cppstr::Invalid_Operation("cppstr::file::list: not a directory");
 
 					std::vector<Entry> entries;
 					auto add = [&](const fs::directory_entry& item)
@@ -594,13 +594,13 @@ namespace sp
 			if (!wanted.empty() && !wanted.startsWith("."))
 				wanted = cppString{ "." } + wanted;
 
-			const auto entries = sp::file::list(directory, recursive);
+			const auto entries = cppstr::file::list(directory, recursive);
 			std::vector<cppString> matches;
 			for (const auto& entry : entries)
 			{
 				if (!entry.is_regular)
 					continue;
-				if (wanted.empty() || sp::file::extension(entry.path) == wanted)
+				if (wanted.empty() || cppstr::file::extension(entry.path) == wanted)
 					matches.push_back(entry.path);
 			}
 			return matches;
@@ -616,15 +616,15 @@ namespace sp
 			// must report Invalid_Argument even when the file does not exist.
 			if (name != "md5" && name != "sha256" && name != "crc32"
 				&& name != "adler32" && name != "fnv1a64")
-				throw sp::Invalid_Argument("sp::file::hash: unknown algorithm");
+				throw cppstr::Invalid_Argument("cppstr::file::hash: unknown algorithm");
 
 			const cppString data{ read_bytes(path) };
 
-			if (name == "md5")      return sp::checksum::md5_hex(data);
-			if (name == "sha256")   return sp::checksum::sha256_hex(data);
-			if (name == "crc32")    return sp::checksum::crc32_hex(data);
-			if (name == "adler32")  return sp::checksum::adler32_hex(data);
-			return sp::checksum::fnv1a64_hex(data);
+			if (name == "md5")      return cppstr::checksum::md5_hex(data);
+			if (name == "sha256")   return cppstr::checksum::sha256_hex(data);
+			if (name == "crc32")    return cppstr::checksum::crc32_hex(data);
+			if (name == "adler32")  return cppstr::checksum::adler32_hex(data);
+			return cppstr::checksum::fnv1a64_hex(data);
 		}
 	}
 }

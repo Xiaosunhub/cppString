@@ -43,7 +43,7 @@
 #   include <cerrno>
 #endif
 
-namespace sp
+namespace cppstr
 {
 	namespace exec
 	{
@@ -172,7 +172,7 @@ namespace sp
 
 			String encoded_command(const String& text)
 			{
-				return sp::coding::toBase64(cppString{ utf16le_bytes(text) }).s_str();
+				return cppstr::coding::toBase64(cppString{ utf16le_bytes(text) }).s_str();
 			}
 
 			String make_command_line(Shell shell, const String& command)
@@ -306,7 +306,7 @@ namespace sp
 				if (!created)
 				{
 					close_all();
-					result.err = cppString{ "sp::exec: could not start the process" };
+					result.err = cppString{ "cppstr::exec: could not start the process" };
 					return result;
 				}
 
@@ -448,7 +448,7 @@ namespace sp
 				Result result{};
 				if (argv.empty() || argv[0].empty())
 				{
-					result.err = cppString{ "sp::exec: empty argument vector" };
+					result.err = cppString{ "cppstr::exec: empty argument vector" };
 					return result;
 				}
 
@@ -615,7 +615,7 @@ namespace sp
 			if (argv.empty())
 			{
 				Result result{};
-				result.err = cppString{ "sp::exec: cmd.exe is unavailable on this platform" };
+				result.err = cppString{ "cppstr::exec: cmd.exe is unavailable on this platform" };
 				return result;
 			}
 			return launch_argv(argv, options.working_directory.s_str(),
@@ -663,9 +663,9 @@ namespace sp
 		{
 			const Result result = run(command, options);
 			if (!result.started)
-				throw sp::Invalid_Operation("sp::exec::capture: process could not be started");
+				throw cppstr::Invalid_Operation("cppstr::exec::capture: process could not be started");
 			if (result.timed_out)
-				throw sp::Invalid_Operation("sp::exec::capture: process timed out");
+				throw cppstr::Invalid_Operation("cppstr::exec::capture: process timed out");
 			return result.out;
 		}
 
@@ -678,8 +678,8 @@ namespace sp
 		{
 			Shell shell = Shell::automatic;
 			if (!resolve_actuator(actuator.s_str(), shell))
-				throw sp::Invalid_Argument(
-					"sp::exec::execute: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
+				throw cppstr::Invalid_Argument(
+					"cppstr::exec::execute: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
 			return run(command, options_for(shell)).ok();
 		}
 
@@ -692,8 +692,8 @@ namespace sp
 		{
 			Shell shell = Shell::automatic;
 			if (!resolve_actuator(actuator.s_str(), shell))
-				throw sp::Invalid_Argument(
-					"sp::exec::getExecResult: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
+				throw cppstr::Invalid_Argument(
+					"cppstr::exec::getExecResult: unsupported actuator (use cmd.exe, powershell.exe, pwsh, sh or bash)");
 			return run(command, options_for(shell)).output();
 		}
 

@@ -36,10 +36,10 @@
 #ifndef CPPSTRING_CPPSTRING_H_
 #define CPPSTRING_CPPSTRING_H_
 
-#define CPPSTRING_VERSION_MAJOR 6
-#define CPPSTRING_VERSION_MINOR 1
+#define CPPSTRING_VERSION_MAJOR 7
+#define CPPSTRING_VERSION_MINOR 0
 #define CPPSTRING_VERSION_PATCH 0
-#define CPPSTRING_VERSION "6.1.0"
+#define CPPSTRING_VERSION "7.0.0"
 
 // Export control. A static library (the vcpkg default) needs no decoration;
 // shared builds opt in with CPPSTRING_BUILD_SHARED / CPPSTRING_EXPORTS.
@@ -98,7 +98,7 @@ using String = std::basic_string<char, std::char_traits<char>, std::allocator<ch
 using wString = std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator<wchar_t>>;
 using String_view = std::basic_string_view<char, std::char_traits<char>>;
 
-namespace sp
+namespace cppstr
 {
     class [[nodiscard]] CPPSTRING_EXPORT String_Error : public std::exception
     {
@@ -112,42 +112,42 @@ namespace sp
         [[nodiscard]] const char* what() const noexcept override;
     };
 
-    class [[nodiscard]] CPPSTRING_EXPORT Index_Out_Of_Range : public sp::String_Error
+    class [[nodiscard]] CPPSTRING_EXPORT Index_Out_Of_Range : public cppstr::String_Error
     {
     public:
         explicit Index_Out_Of_Range(const String& msg);
         explicit Index_Out_Of_Range(const char* msg);
     };
 
-    class [[nodiscard]] CPPSTRING_EXPORT Empty_String : public sp::String_Error
+    class [[nodiscard]] CPPSTRING_EXPORT Empty_String : public cppstr::String_Error
     {
     public:
         explicit Empty_String(const String& msg);
         explicit Empty_String(const char* msg);
     };
 
-	class [[nodiscard]] CPPSTRING_EXPORT Invalid_Operation : public sp::String_Error
+	class [[nodiscard]] CPPSTRING_EXPORT Invalid_Operation : public cppstr::String_Error
     {
     public:
         explicit Invalid_Operation(const String& msg);
         explicit Invalid_Operation(const char* msg);
 	};
 
-    class [[nodiscard]] CPPSTRING_EXPORT Invalid_Conversion : public sp::String_Error
+    class [[nodiscard]] CPPSTRING_EXPORT Invalid_Conversion : public cppstr::String_Error
     {
     public:
         explicit Invalid_Conversion(const String& msg);
         explicit Invalid_Conversion(const char* msg);
     };
 
-	class [[nodiscard]] CPPSTRING_EXPORT Invalid_Argument : public sp::String_Error
+	class [[nodiscard]] CPPSTRING_EXPORT Invalid_Argument : public cppstr::String_Error
     {
     public:
 		explicit Invalid_Argument(const String& msg);
 		explicit Invalid_Argument(const char* msg);
 	};
 
-    class [[nodiscard]] CPPSTRING_EXPORT Invalid_Format : public sp::String_Error
+    class [[nodiscard]] CPPSTRING_EXPORT Invalid_Format : public cppstr::String_Error
     {
     public:
         explicit Invalid_Format(const String & msg);
@@ -522,7 +522,7 @@ namespace sp
         {
             return std::invoke(
                 std::forward<Func>(func),
-                std::forward<sp::cppString>(*this)
+                std::forward<cppstr::cppString>(*this)
             );
         }
 
@@ -576,7 +576,7 @@ namespace sp
     T cppString::toNumber() const
     {
         if (m_data.empty()) {
-            throw sp::Invalid_Conversion("Cannot convert empty string to number.");
+            throw cppstr::Invalid_Conversion("Cannot convert empty string to number.");
         }
 
         if constexpr (std::is_integral_v<T>) {
@@ -588,7 +588,7 @@ namespace sp
             auto [position, error] = std::from_chars(begin, end, value);
 
             if (error != std::errc{} || position != end) {
-                throw sp::Invalid_Conversion("Invalid conversion from string to number.");
+                throw cppstr::Invalid_Conversion("Invalid conversion from string to number.");
             }
 
             return value;
@@ -602,17 +602,17 @@ namespace sp
             long double value = std::strtold(buffer.c_str(), &end);
 
             if (end == buffer.c_str() || *end != '\0') {
-                throw sp::Invalid_Conversion("Invalid conversion from string to number.");
+                throw cppstr::Invalid_Conversion("Invalid conversion from string to number.");
             }
 
             if (errno == ERANGE) {
-                throw sp::Invalid_Conversion("Conversion from string to number is out of range.");
+                throw cppstr::Invalid_Conversion("Conversion from string to number is out of range.");
             }
 
             // check target type range
             if (value > std::numeric_limits<T>::max() ||
                 value < std::numeric_limits<T>::lowest()) {
-                throw sp::Invalid_Conversion("Conversion from string to number is out of range for the target type.");
+                throw cppstr::Invalid_Conversion("Conversion from string to number is out of range for the target type.");
             }
 
             return static_cast<T>(value);
@@ -630,7 +630,7 @@ namespace sp
         );
 
         if (formattedSize < 0) {
-            throw sp::Invalid_Format("Error during formatting.");
+            throw cppstr::Invalid_Format("Error during formatting.");
         }
 
         const std::size_t bufferSize =
@@ -646,7 +646,7 @@ namespace sp
         );
 
         if (written < 0 || written != formattedSize) {
-            throw sp::Invalid_Format("Error during formatting.");
+            throw cppstr::Invalid_Format("Error during formatting.");
         }
 
         m_data.assign(buffer.get(), static_cast<std::size_t>(written));
@@ -670,10 +670,10 @@ namespace sp
             prefix_str = prefix.s_str();
 
         if (prefix_str.size() > m_data.size())
-            throw sp::Invalid_Argument("Prefix is longer than the string in remove_prefix.");
+            throw cppstr::Invalid_Argument("Prefix is longer than the string in remove_prefix.");
 
         if (!startsWith(prefix_str))
-            throw sp::Invalid_Argument("String does not start with the specified prefix in remove_prefix.");
+            throw cppstr::Invalid_Argument("String does not start with the specified prefix in remove_prefix.");
 
         m_data.erase(0, prefix_str.size());
     }
@@ -688,10 +688,10 @@ namespace sp
             suffix_str = suffix.s_str();
 
         if (suffix_str.size() > m_data.size())
-            throw sp::Invalid_Argument("Suffix is longer than the string in remove_suffix.");
+            throw cppstr::Invalid_Argument("Suffix is longer than the string in remove_suffix.");
 
         if (!endsWith(suffix_str))
-            throw sp::Invalid_Argument("String does not end with the specified suffix in remove_suffix.");
+            throw cppstr::Invalid_Argument("String does not end with the specified suffix in remove_suffix.");
 
         m_data.erase(m_data.size() - suffix_str.size(), suffix_str.size());
     }
@@ -706,13 +706,13 @@ namespace sp
 
 using std::istream, std::ostream;
 
-istream& operator>>(istream& is, sp::cppString& str);
-ostream& operator<<(ostream& os, const sp::cppString& str);
+istream& operator>>(istream& is, cppstr::cppString& str);
+ostream& operator<<(ostream& os, const cppstr::cppString& str);
 
 namespace std
 {
     template<>
-    struct std::formatter<sp::cppString, char>
+    struct std::formatter<cppstr::cppString, char>
         : std::formatter<String_view, char>
     {
         constexpr auto parse(std::format_parse_context& ctx)
@@ -720,7 +720,7 @@ namespace std
             return std::formatter<String_view, char>::parse(ctx);
         }
 
-        auto format(const sp::cppString& value,
+        auto format(const cppstr::cppString& value,
             std::format_context& ctx) const
         {
             return std::formatter<String_view, char>::format(
@@ -733,8 +733,8 @@ namespace std
 
 namespace std {
     template<>
-    struct hash<sp::cppString> {
-        size_t operator()(const sp::cppString& s) const noexcept {
+    struct hash<cppstr::cppString> {
+        size_t operator()(const cppstr::cppString& s) const noexcept {
             return std::hash<std::string_view>{}(std::string_view(s.c_str(), s.size()));
         }
     };

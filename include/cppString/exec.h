@@ -26,7 +26,7 @@
 #include <chrono>
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
 	// Run external commands (cmd.exe, PowerShell/pwsh, sh/bash) and capture
 	// their output. No third-party dependencies: Windows uses CreateProcessW

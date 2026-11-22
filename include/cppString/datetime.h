@@ -26,7 +26,7 @@
 #include <cstdint>
 #include <optional>
 
-namespace sp
+namespace cppstr
 {
 	// Timezone-aware date/time helpers on the proleptic Gregorian calendar.
 	// No <chrono> time-zone database dependency: conversions use the classic

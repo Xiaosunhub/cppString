@@ -24,7 +24,7 @@
 #include <string>
 #include <utility>
 
-namespace sp
+namespace cppstr
 {
 	namespace regex
 	{
@@ -47,7 +47,7 @@ namespace sp
 				}
 				catch (const std::regex_error& e)
 				{
-					throw sp::Invalid_Argument(String{ "sp::regex: invalid pattern: " } + e.what());
+					throw cppstr::Invalid_Argument(String{ "cppstr::regex: invalid pattern: " } + e.what());
 				}
 			}
 
@@ -72,7 +72,7 @@ namespace sp
 				auto append_group = [&](std::size_t index)
 				{
 					if (index > m.count())
-						throw sp::Invalid_Format("sp::regex: replacement references a missing capture group");
+						throw cppstr::Invalid_Format("cppstr::regex: replacement references a missing capture group");
 					out += m.group(index).s_str();
 				};
 
@@ -136,7 +136,7 @@ namespace sp
 			if (index == 0)
 				return value;
 			if (index > groups.size())
-				throw sp::Index_Out_Of_Range("sp::regex::Match::group: index out of range");
+				throw cppstr::Index_Out_Of_Range("cppstr::regex::Match::group: index out of range");
 			return groups[index - 1];
 		}
 

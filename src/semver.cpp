@@ -166,21 +166,21 @@ namespace
 	}
 }
 
-bool sp::semver::is_valid(const cppString& s) noexcept
+bool cppstr::semver::is_valid(const cppString& s) noexcept
 {
 	Version version{};
 	return parse(s.s_str(), version);
 }
 
-int sp::semver::compare(const cppString& a, const cppString& b)
+int cppstr::semver::compare(const cppString& a, const cppString& b)
 {
 	Version lhs{}, rhs{};
 
 	if (!parse(a.s_str(), lhs))
-		throw sp::Invalid_Format("Left operand is not valid semver: " + a.s_str());
+		throw cppstr::Invalid_Format("Left operand is not valid semver: " + a.s_str());
 
 	if (!parse(b.s_str(), rhs))
-		throw sp::Invalid_Format("Right operand is not valid semver: " + b.s_str());
+		throw cppstr::Invalid_Format("Right operand is not valid semver: " + b.s_str());
 
 	if (lhs.major != rhs.major) return lhs.major < rhs.major ? -1 : 1;
 	if (lhs.minor != rhs.minor) return lhs.minor < rhs.minor ? -1 : 1;
@@ -208,12 +208,12 @@ int sp::semver::compare(const cppString& a, const cppString& b)
 
 namespace
 {
-	sp::cppString bump(const sp::cppString& s, int component)
+	cppstr::cppString bump(const cppstr::cppString& s, int component)
 	{
 		Version v{};
 
 		if (!parse(s.s_str(), v))
-			throw sp::Invalid_Format("Not valid semver in bump: " + s.s_str());
+			throw cppstr::Invalid_Format("Not valid semver in bump: " + s.s_str());
 
 		// Parsed components are capped at LLONG_MAX by std::stoll; bumping
 		// that value would be a signed overflow (undefined behaviour).
@@ -222,7 +222,7 @@ namespace
 			|| (component == 1 && v.minor == limit)
 			|| (component == 2 && v.patch == limit))
 		{
-			throw sp::Invalid_Operation("Version component overflow in semver bump.");
+			throw cppstr::Invalid_Operation("Version component overflow in semver bump.");
 		}
 
 		switch (component)
@@ -232,22 +232,22 @@ namespace
 		default: ++v.patch; break;
 		}
 
-		return sp::cppString(std::to_string(v.major) + "."
+		return cppstr::cppString(std::to_string(v.major) + "."
 			+ std::to_string(v.minor) + "." + std::to_string(v.patch));
 	}
 }
 
-sp::cppString sp::semver::bump_major(const cppString& s)
+cppstr::cppString cppstr::semver::bump_major(const cppString& s)
 {
 	return bump(s, 0);
 }
 
-sp::cppString sp::semver::bump_minor(const cppString& s)
+cppstr::cppString cppstr::semver::bump_minor(const cppString& s)
 {
 	return bump(s, 1);
 }
 
-sp::cppString sp::semver::bump_patch(const cppString& s)
+cppstr::cppString cppstr::semver::bump_patch(const cppString& s)
 {
 	return bump(s, 2);
 }

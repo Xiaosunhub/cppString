@@ -55,12 +55,12 @@ namespace
 	}
 }
 
-bool sp::validate::is_ipv4(const cppString& s) noexcept
+bool cppstr::validate::is_ipv4(const cppString& s) noexcept
 {
 	return parse_ipv4(s.s_str());
 }
 
-bool sp::validate::is_ipv6(const cppString& s) noexcept
+bool cppstr::validate::is_ipv6(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -138,7 +138,7 @@ bool sp::validate::is_ipv6(const cppString& s) noexcept
 	return compressed ? groups.size() < 8 : groups.size() == 8;
 }
 
-bool sp::validate::is_email(const cppString& s) noexcept
+bool cppstr::validate::is_email(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 	const std::size_t at = src.find('@');
@@ -184,7 +184,7 @@ bool sp::validate::is_email(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_uuid(const cppString& s) noexcept
+bool cppstr::validate::is_uuid(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -209,7 +209,7 @@ bool sp::validate::is_uuid(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_url(const cppString& s) noexcept
+bool cppstr::validate::is_url(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 	const std::size_t scheme_end = src.find("://");
@@ -244,7 +244,7 @@ bool sp::validate::is_url(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_mac_address(const cppString& s) noexcept
+bool cppstr::validate::is_mac_address(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -272,7 +272,7 @@ bool sp::validate::is_mac_address(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_hex_color(const cppString& s) noexcept
+bool cppstr::validate::is_hex_color(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -293,7 +293,7 @@ bool sp::validate::is_hex_color(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_luhn(const cppString& s) noexcept
+bool cppstr::validate::is_luhn(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -330,7 +330,7 @@ bool sp::validate::is_luhn(const cppString& s) noexcept
 	return digits >= 2 && sum % 10 == 0;
 }
 
-bool sp::validate::is_ascii(const cppString& s) noexcept
+bool cppstr::validate::is_ascii(const cppString& s) noexcept
 {
 	for (const char c : s.s_str())
 	{
@@ -341,7 +341,7 @@ bool sp::validate::is_ascii(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_strong_password(const cppString& s) noexcept
+bool cppstr::validate::is_strong_password(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -411,7 +411,7 @@ namespace
 	}
 }
 
-bool sp::validate::is_iban(const cppString& s) noexcept
+bool cppstr::validate::is_iban(const cppString& s) noexcept
 {
 	String compact;
 	compact.reserve(s.s_str().size());
@@ -458,7 +458,7 @@ bool sp::validate::is_iban(const cppString& s) noexcept
 	return remainder == 1;
 }
 
-bool sp::validate::is_jwt(const cppString& s) noexcept
+bool cppstr::validate::is_jwt(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 	std::size_t segments = 0;
@@ -489,7 +489,7 @@ bool sp::validate::is_jwt(const cppString& s) noexcept
 	return segments == 3;
 }
 
-bool sp::validate::is_base64(const cppString& s) noexcept
+bool cppstr::validate::is_base64(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -524,7 +524,7 @@ bool sp::validate::is_base64(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_hostname(const cppString& s) noexcept
+bool cppstr::validate::is_hostname(const cppString& s) noexcept
 {
 	String text = s.s_str();
 
@@ -566,11 +566,11 @@ bool sp::validate::is_hostname(const cppString& s) noexcept
 	return true;
 }
 
-bool sp::validate::is_json(const cppString& s) noexcept
+bool cppstr::validate::is_json(const cppString& s) noexcept
 {
 	try
 	{
-		(void)sp::json::parse(s);
+		(void)cppstr::json::parse(s);
 		return true;
 	}
 	catch (...)
@@ -579,7 +579,7 @@ bool sp::validate::is_json(const cppString& s) noexcept
 	}
 }
 
-bool sp::validate::is_date(const cppString& s) noexcept
+bool cppstr::validate::is_date(const cppString& s) noexcept
 {
 	const String& src = s.s_str();
 
@@ -618,7 +618,7 @@ bool sp::validate::is_date(const cppString& s) noexcept
 }
 
 
-bool sp::validate::is_slug(const cppString& s) noexcept
+bool cppstr::validate::is_slug(const cppString& s) noexcept
 {
 	const String& v = s.s_str();
 	if (v.empty())
@@ -645,7 +645,7 @@ bool sp::validate::is_slug(const cppString& s) noexcept
 	return !hyphen;
 }
 
-bool sp::validate::is_ipv4_cidr(const cppString& s) noexcept
+bool cppstr::validate::is_ipv4_cidr(const cppString& s) noexcept
 {
 	const String& v = s.s_str();
 	const std::size_t slash = v.find('/');

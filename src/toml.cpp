@@ -33,9 +33,9 @@
 
 namespace
 {
-	using sp::cppString;
-	using sp::json::Type;
-	using sp::json::Value;
+	using cppstr::cppString;
+	using cppstr::json::Type;
+	using cppstr::json::Value;
 	using object_t = Value::object_t;
 	using array_t = Value::array_t;
 
@@ -127,7 +127,7 @@ namespace
 
 		[[noreturn]] void fail(const std::string& message) const
 		{
-			throw sp::Invalid_Format("toml: " + message + " at line " +
+			throw cppstr::Invalid_Format("toml: " + message + " at line " +
 				std::to_string(line) + ", byte " + std::to_string(p));
 		}
 
@@ -572,7 +572,7 @@ namespace
 
 		[[noreturn]] void fail_number_range() const
 		{
-			throw sp::Invalid_Conversion(
+			throw cppstr::Invalid_Conversion(
 				"toml: number is outside the exactly representable double range");
 		}
 
@@ -797,7 +797,7 @@ namespace
 		switch (val.type())
 		{
 		case Type::Null:
-			throw sp::Invalid_Conversion("toml: null has no TOML representation");
+			throw cppstr::Invalid_Conversion("toml: null has no TOML representation");
 		case Type::Bool:
 			return val.as_bool() ? "true" : "false";
 		case Type::Number:
@@ -833,7 +833,7 @@ namespace
 			return out;
 		}
 		}
-		throw sp::Invalid_Conversion("toml: unsupported value type");
+		throw cppstr::Invalid_Conversion("toml: unsupported value type");
 	}
 
 	// At document level, only a table that contains another table needs its
@@ -885,7 +885,7 @@ namespace
 	}
 }
 
-namespace sp
+namespace cppstr
 {
 	namespace toml
 	{
@@ -898,7 +898,7 @@ namespace sp
 		cppString dump(const json::Value& root)
 		{
 			if (!root.is_object())
-				throw sp::Invalid_Conversion("toml::dump requires a table as the root");
+				throw cppstr::Invalid_Conversion("toml::dump requires a table as the root");
 
 			std::string out;
 			for (const auto& kv : root.as_object())

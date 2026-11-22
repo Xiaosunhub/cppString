@@ -45,7 +45,7 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::toBase64(const cppString& data)
+cppstr::cppString cppstr::coding::toBase64(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -94,7 +94,7 @@ sp::cppString sp::coding::toBase64(const cppString& data)
 	return result;
 }
 
-sp::cppString sp::coding::fromBase64(const cppString& text)
+cppstr::cppString cppstr::coding::fromBase64(const cppString& text)
 {
 	const String& src = text.s_str();
 
@@ -116,7 +116,7 @@ sp::cppString sp::coding::fromBase64(const cppString& text)
 
 		const int value = base64_value(c);
 		if (value < 0)
-			throw sp::Invalid_Conversion("Invalid base64 character in fromBase64.");
+			throw cppstr::Invalid_Conversion("Invalid base64 character in fromBase64.");
 
 		accumulator = (accumulator << 6) | static_cast<unsigned int>(value);
 		bits += 6;
@@ -131,7 +131,7 @@ sp::cppString sp::coding::fromBase64(const cppString& text)
 	return cppString(bytes);
 }
 
-sp::cppString sp::coding::toHex(const cppString& data, bool uppercase)
+cppstr::cppString cppstr::coding::toHex(const cppString& data, bool uppercase)
 {
 	const String& src = data.s_str();
 
@@ -148,7 +148,7 @@ sp::cppString sp::coding::toHex(const cppString& data, bool uppercase)
 	return result;
 }
 
-sp::cppString sp::coding::fromHex(const cppString& text)
+cppstr::cppString cppstr::coding::fromHex(const cppString& text)
 {
 	const String& src = text.s_str();
 
@@ -166,7 +166,7 @@ sp::cppString sp::coding::fromHex(const cppString& text)
 
 		const int value = hex_value(c);
 		if (value < 0)
-			throw sp::Invalid_Conversion("Invalid hex character in fromHex.");
+			throw cppstr::Invalid_Conversion("Invalid hex character in fromHex.");
 
 		if (high < 0)
 		{
@@ -180,12 +180,12 @@ sp::cppString sp::coding::fromHex(const cppString& text)
 	}
 
 	if (high >= 0)
-		throw sp::Invalid_Conversion("Odd number of hex digits in fromHex.");
+		throw cppstr::Invalid_Conversion("Odd number of hex digits in fromHex.");
 
 	return cppString(bytes);
 }
 
-sp::cppString sp::coding::urlEncode(const cppString& data)
+cppstr::cppString cppstr::coding::urlEncode(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -211,7 +211,7 @@ sp::cppString sp::coding::urlEncode(const cppString& data)
 	return result;
 }
 
-sp::cppString sp::coding::urlDecode(const cppString& text)
+cppstr::cppString cppstr::coding::urlDecode(const cppString& text)
 {
 	const String& src = text.s_str();
 
@@ -229,13 +229,13 @@ sp::cppString sp::coding::urlDecode(const cppString& text)
 		else if (c == '%')
 		{
 			if (i + 2 >= src.size())
-				throw sp::Invalid_Conversion("Truncated percent sequence in urlDecode.");
+				throw cppstr::Invalid_Conversion("Truncated percent sequence in urlDecode.");
 
 			const int high = hex_value(static_cast<unsigned char>(src[i + 1]));
 			const int low = hex_value(static_cast<unsigned char>(src[i + 2]));
 
 			if (high < 0 || low < 0)
-				throw sp::Invalid_Conversion("Invalid percent sequence in urlDecode.");
+				throw cppstr::Invalid_Conversion("Invalid percent sequence in urlDecode.");
 
 			bytes += static_cast<char>((high << 4) | low);
 			i += 2;
@@ -257,12 +257,12 @@ namespace
 	}
 }
 
-bool sp::coding::is_binary(const cppString& text) noexcept
+bool cppstr::coding::is_binary(const cppString& text) noexcept
 {
 	return all_digits_in(text.s_str(), "01");
 }
 
-sp::cppString sp::coding::toBinary(const cppString& data)
+cppstr::cppString cppstr::coding::toBinary(const cppString& data)
 {
 	String bits;
 	bits.reserve(data.size() * 8);
@@ -278,17 +278,17 @@ sp::cppString sp::coding::toBinary(const cppString& data)
 	return cppString(std::move(bits));
 }
 
-sp::cppString sp::coding::fromBinary(const cppString& text)
+cppstr::cppString cppstr::coding::fromBinary(const cppString& text)
 {
 	const String& src = text.s_str();
 
 	if (src.size() % 8 != 0)
-		throw sp::Invalid_Conversion("Binary text length must be a multiple of 8 in fromBinary.");
+		throw cppstr::Invalid_Conversion("Binary text length must be a multiple of 8 in fromBinary.");
 
 	// An empty text is a valid empty payload (0 bytes), so the digit check
 	// applies only when there is at least one digit to validate.
 	if (!src.empty() && !all_digits_in(src, "01"))
-		throw sp::Invalid_Conversion("Binary text may only contain '0' and '1' in fromBinary.");
+		throw cppstr::Invalid_Conversion("Binary text may only contain '0' and '1' in fromBinary.");
 
 	String bytes;
 	bytes.reserve(src.size() / 8);
@@ -306,12 +306,12 @@ sp::cppString sp::coding::fromBinary(const cppString& text)
 	return cppString(std::move(bytes));
 }
 
-bool sp::coding::is_octal(const cppString& text) noexcept
+bool cppstr::coding::is_octal(const cppString& text) noexcept
 {
 	return all_digits_in(text.s_str(), "01234567");
 }
 
-sp::cppString sp::coding::toOctal(const cppString& data)
+cppstr::cppString cppstr::coding::toOctal(const cppString& data)
 {
 	String digits;
 	digits.reserve(data.size() * 3);
@@ -328,17 +328,17 @@ sp::cppString sp::coding::toOctal(const cppString& data)
 	return cppString(std::move(digits));
 }
 
-sp::cppString sp::coding::fromOctal(const cppString& text)
+cppstr::cppString cppstr::coding::fromOctal(const cppString& text)
 {
 	const String& src = text.s_str();
 
 	if (src.size() % 3 != 0)
-		throw sp::Invalid_Conversion("Octal text length must be a multiple of 3 in fromOctal.");
+		throw cppstr::Invalid_Conversion("Octal text length must be a multiple of 3 in fromOctal.");
 
 	// An empty text is a valid empty payload (0 bytes), so the digit check
 	// applies only when there is at least one digit to validate.
 	if (!src.empty() && !all_digits_in(src, "01234567"))
-		throw sp::Invalid_Conversion("Octal text may only contain digits 0-7 in fromOctal.");
+		throw cppstr::Invalid_Conversion("Octal text may only contain digits 0-7 in fromOctal.");
 
 	String bytes;
 	bytes.reserve(src.size() / 3);
@@ -354,10 +354,10 @@ sp::cppString sp::coding::fromOctal(const cppString& text)
 	return cppString(std::move(bytes));
 }
 
-sp::cppString sp::coding::toBase(unsigned long long value, unsigned base)
+cppstr::cppString cppstr::coding::toBase(unsigned long long value, unsigned base)
 {
 	if (base < 2 || base > 36)
-		throw sp::Invalid_Argument("Base must be between 2 and 36 in toBase.");
+		throw cppstr::Invalid_Argument("Base must be between 2 and 36 in toBase.");
 
 	if (value == 0)
 		return cppString{ "0" };
@@ -377,15 +377,15 @@ sp::cppString sp::coding::toBase(unsigned long long value, unsigned base)
 	return cppString(std::move(result));
 }
 
-long long sp::coding::fromBase(const cppString& text, unsigned base)
+long long cppstr::coding::fromBase(const cppString& text, unsigned base)
 {
 	if (base < 2 || base > 36)
-		throw sp::Invalid_Argument("Base must be between 2 and 36 in fromBase.");
+		throw cppstr::Invalid_Argument("Base must be between 2 and 36 in fromBase.");
 
 	String src = text.s_str();
 
 	if (src.empty())
-		throw sp::Invalid_Conversion("Cannot convert empty string in fromBase.");
+		throw cppstr::Invalid_Conversion("Cannot convert empty string in fromBase.");
 
 	bool negative = false;
 	std::size_t i = 0;
@@ -396,7 +396,7 @@ long long sp::coding::fromBase(const cppString& text, unsigned base)
 		i = 1;
 
 		if (src.size() == 1)
-			throw sp::Invalid_Conversion("Sign-only string in fromBase.");
+			throw cppstr::Invalid_Conversion("Sign-only string in fromBase.");
 	}
 
 	unsigned long long value = 0;
@@ -410,15 +410,15 @@ long long sp::coding::fromBase(const cppString& text, unsigned base)
 		else if (c >= 'a' && c <= 'z') digit = static_cast<unsigned>(c - 'a' + 10);
 		else if (c >= 'A' && c <= 'Z') digit = static_cast<unsigned>(c - 'A' + 10);
 		else
-			throw sp::Invalid_Conversion("Invalid character in fromBase.");
+			throw cppstr::Invalid_Conversion("Invalid character in fromBase.");
 
 		if (digit >= base)
-			throw sp::Invalid_Conversion("Digit out of range for the given base in fromBase.");
+			throw cppstr::Invalid_Conversion("Digit out of range for the given base in fromBase.");
 
 		const unsigned long long next = value * base + digit;
 
 		if (next / base != value || next < value)
-			throw sp::Invalid_Conversion("Overflow in fromBase.");
+			throw cppstr::Invalid_Conversion("Overflow in fromBase.");
 
 		value = next;
 	}
@@ -427,7 +427,7 @@ long long sp::coding::fromBase(const cppString& text, unsigned base)
 		static_cast<unsigned long long>(std::numeric_limits<long long>::max());
 
 	if (value > (negative ? ULL_MAX_AS_LL + 1ULL : ULL_MAX_AS_LL))
-		throw sp::Invalid_Conversion("Overflow in fromBase.");
+		throw cppstr::Invalid_Conversion("Overflow in fromBase.");
 
 	if (negative)
 		return static_cast<long long>(0ULL - value);
@@ -448,7 +448,7 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::toBase32(const cppString& data)
+cppstr::cppString cppstr::coding::toBase32(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -479,7 +479,7 @@ sp::cppString sp::coding::toBase32(const cppString& data)
 	return cppString(std::move(result));
 }
 
-sp::cppString sp::coding::fromBase32(const cppString& text)
+cppstr::cppString cppstr::coding::fromBase32(const cppString& text)
 {
 	const String& src = text.s_str();
 
@@ -499,12 +499,12 @@ sp::cppString sp::coding::fromBase32(const cppString& text)
 		}
 
 		if (padded)
-			throw sp::Invalid_Conversion("Data after '=' padding in fromBase32.");
+			throw cppstr::Invalid_Conversion("Data after '=' padding in fromBase32.");
 
 		const int value = base32_value(static_cast<unsigned char>(ch));
 
 		if (value < 0)
-			throw sp::Invalid_Conversion("Invalid base32 character in fromBase32.");
+			throw cppstr::Invalid_Conversion("Invalid base32 character in fromBase32.");
 
 		acc = (acc << 5) | static_cast<std::uint32_t>(value);
 		bits += 5;
@@ -535,7 +535,7 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::toBase64Url(const cppString& data)
+cppstr::cppString cppstr::coding::toBase64Url(const cppString& data)
 {
 	const String& src = data.s_str();
 
@@ -581,7 +581,7 @@ sp::cppString sp::coding::toBase64Url(const cppString& data)
 	return result;
 }
 
-sp::cppString sp::coding::fromBase64Url(const cppString& text)
+cppstr::cppString cppstr::coding::fromBase64Url(const cppString& text)
 {
 	String src = text.s_str();
 
@@ -590,7 +590,7 @@ sp::cppString sp::coding::fromBase64Url(const cppString& text)
 		src.pop_back();
 
 	if (src.size() % 4 == 1)
-		throw sp::Invalid_Conversion("Invalid base64url length in fromBase64Url.");
+		throw cppstr::Invalid_Conversion("Invalid base64url length in fromBase64Url.");
 
 	cppString result;
 	result.reserve((src.size() * 6) / 8);
@@ -603,7 +603,7 @@ sp::cppString sp::coding::fromBase64Url(const cppString& text)
 		const int value = base64url_value(static_cast<unsigned char>(ch));
 
 		if (value < 0)
-			throw sp::Invalid_Conversion("Invalid character in base64url text in fromBase64Url.");
+			throw cppstr::Invalid_Conversion("Invalid character in base64url text in fromBase64Url.");
 
 		accumulator = (accumulator << 6) | static_cast<unsigned>(value);
 		bits += 6;
@@ -636,12 +636,12 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::rot13(const cppString& text)
+cppstr::cppString cppstr::coding::rot13(const cppString& text)
 {
 	return caesar(text, 13);
 }
 
-sp::cppString sp::coding::caesar(const cppString& text, int shift)
+cppstr::cppString cppstr::coding::caesar(const cppString& text, int shift)
 {
 	String result = text.s_str();
 
@@ -702,7 +702,7 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::toMorse(const cppString& text)
+cppstr::cppString cppstr::coding::toMorse(const cppString& text)
 {
 	String result;
 	bool first_letter_of_word = true;
@@ -722,7 +722,7 @@ sp::cppString sp::coding::toMorse(const cppString& text)
 		const char* code = morse_of(c);
 
 		if (code == nullptr)
-			throw sp::Invalid_Conversion("Character has no Morse equivalent in toMorse.");
+			throw cppstr::Invalid_Conversion("Character has no Morse equivalent in toMorse.");
 
 		if (!first_letter_of_word)
 			result += ' ';
@@ -738,7 +738,7 @@ sp::cppString sp::coding::toMorse(const cppString& text)
 	return cppString(std::move(result));
 }
 
-sp::cppString sp::coding::fromMorse(const cppString& text)
+cppstr::cppString cppstr::coding::fromMorse(const cppString& text)
 {
 	String result;
 
@@ -758,7 +758,7 @@ sp::cppString sp::coding::fromMorse(const cppString& text)
 		const char decoded = morse_to_char(group);
 
 		if (decoded == '\0')
-			throw sp::Invalid_Conversion("Unknown Morse group in fromMorse.");
+			throw cppstr::Invalid_Conversion("Unknown Morse group in fromMorse.");
 
 		result += decoded;
 	}
@@ -783,7 +783,7 @@ namespace
 	}
 }
 
-sp::cppString sp::coding::toBase58(const cppString& data)
+cppstr::cppString cppstr::coding::toBase58(const cppString& data)
 {
 	String work = data.s_str(); // mutable copy: divided in place below
 
@@ -823,7 +823,7 @@ sp::cppString sp::coding::toBase58(const cppString& data)
 	return cppString(std::move(result));
 }
 
-sp::cppString sp::coding::fromBase58(const cppString& text)
+cppstr::cppString cppstr::coding::fromBase58(const cppString& text)
 {
 	const String& src = text.s_str();
 
@@ -842,7 +842,7 @@ sp::cppString sp::coding::fromBase58(const cppString& text)
 		const int d = base58_value(static_cast<unsigned char>(src[i]));
 
 		if (d < 0)
-			throw sp::Invalid_Conversion("Invalid base58 character in fromBase58.");
+			throw cppstr::Invalid_Conversion("Invalid base58 character in fromBase58.");
 
 		digits += static_cast<char>(d);
 	}

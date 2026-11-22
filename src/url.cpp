@@ -44,7 +44,7 @@ namespace
 		return true;
 	}
 
-	void split_host_port(const String& authority, sp::cppString& host, sp::cppString& port)
+	void split_host_port(const String& authority, cppstr::cppString& host, cppstr::cppString& port)
 	{
 		if (!authority.empty() && authority.front() == '[')
 		{
@@ -52,14 +52,14 @@ namespace
 
 			if (close == String::npos)
 			{
-				host = sp::cppString{ authority };
+				host = cppstr::cppString{ authority };
 				return;
 			}
 
-			host = sp::cppString{ authority.substr(0, close + 1) };
+			host = cppstr::cppString{ authority.substr(0, close + 1) };
 
 			if (close + 1 < authority.size() && authority[close + 1] == ':')
-				port = sp::cppString{ authority.substr(close + 2) };
+				port = cppstr::cppString{ authority.substr(close + 2) };
 
 			return;
 		}
@@ -68,12 +68,12 @@ namespace
 
 		if (colon != String::npos && all_digits(authority.substr(colon + 1)))
 		{
-			host = sp::cppString{ authority.substr(0, colon) };
-			port = sp::cppString{ authority.substr(colon + 1) };
+			host = cppstr::cppString{ authority.substr(0, colon) };
+			port = cppstr::cppString{ authority.substr(colon + 1) };
 		}
 		else
 		{
-			host = sp::cppString{ authority };
+			host = cppstr::cppString{ authority };
 		}
 	}
 
@@ -152,7 +152,7 @@ namespace
 	}
 }
 
-sp::url::Url::Url(const cppString& text)
+cppstr::url::Url::Url(const cppString& text)
 {
 	String rest = text.s_str();
 
@@ -203,7 +203,7 @@ sp::url::Url::Url(const cppString& text)
 	m_path = cppString{ rest };
 }
 
-std::vector<std::pair<sp::cppString, sp::cppString>> sp::url::Url::query_params() const
+std::vector<std::pair<cppstr::cppString, cppstr::cppString>> cppstr::url::Url::query_params() const
 {
 	std::vector<std::pair<cppString, cppString>> result;
 	const String& src = m_query.s_str();
@@ -231,7 +231,7 @@ std::vector<std::pair<sp::cppString, sp::cppString>> sp::url::Url::query_params(
 	return result;
 }
 
-void sp::url::Url::set_query_params(
+void cppstr::url::Url::set_query_params(
 	const std::vector<std::pair<cppString, cppString>>& params)
 {
 	String out;
@@ -250,7 +250,7 @@ void sp::url::Url::set_query_params(
 	m_has_query = true;
 }
 
-sp::cppString sp::url::Url::query_param(const cppString& key, const cppString& fallback) const
+cppstr::cppString cppstr::url::Url::query_param(const cppString& key, const cppString& fallback) const
 {
 	for (const auto& param : query_params())
 	{
@@ -261,7 +261,7 @@ sp::cppString sp::url::Url::query_param(const cppString& key, const cppString& f
 	return fallback;
 }
 
-bool sp::url::Url::has_query_param(const cppString& key) const
+bool cppstr::url::Url::has_query_param(const cppString& key) const
 {
 	for (const auto& param : query_params())
 	{
@@ -272,7 +272,7 @@ bool sp::url::Url::has_query_param(const cppString& key) const
 	return false;
 }
 
-void sp::url::Url::set_query_param(const cppString& key, const cppString& value)
+void cppstr::url::Url::set_query_param(const cppString& key, const cppString& value)
 {
 	const auto params = query_params();
 	std::vector<std::pair<cppString, cppString>> updated;
@@ -304,7 +304,7 @@ void sp::url::Url::set_query_param(const cppString& key, const cppString& value)
 	set_query_params(updated);
 }
 
-sp::cppString sp::url::Url::str() const
+cppstr::cppString cppstr::url::Url::str() const
 {
 	String out;
 
@@ -350,7 +350,7 @@ sp::cppString sp::url::Url::str() const
 	return cppString(std::move(out));
 }
 
-sp::url::Url sp::url::Url::resolve(const cppString& reference) const
+cppstr::url::Url cppstr::url::Url::resolve(const cppString& reference) const
 {
 	Url ref{ reference };
 	Url result;
@@ -418,17 +418,17 @@ sp::url::Url sp::url::Url::resolve(const cppString& reference) const
 	return result;
 }
 
-sp::url::Url sp::url::parse(const cppString& text)
+cppstr::url::Url cppstr::url::parse(const cppString& text)
 {
 	return Url{ text };
 }
 
-sp::cppString sp::url::encode(const cppString& text)
+cppstr::cppString cppstr::url::encode(const cppString& text)
 {
 	return coding::urlEncode(text);
 }
 
-sp::cppString sp::url::decode(const cppString& text)
+cppstr::cppString cppstr::url::decode(const cppString& text)
 {
 	return coding::urlDecode(text);
 }

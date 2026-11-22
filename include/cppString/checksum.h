@@ -25,7 +25,7 @@
 #include "cppString.h"
 #include <cstdint>
 
-namespace sp
+namespace cppstr
 {
 	// Non-cryptographic checksums for integrity checks and cache keys.
 	// None of these is a substitute for a cryptographic hash.

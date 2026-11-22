@@ -187,14 +187,24 @@ collection was copied or adapted. The version macros are shared with
 The 6.1.0 release adds two files, `csurl.h` and `csurl.cpp`: a small
 synchronous HTTP client written against the WinHTTP system API on Windows and
 POSIX sockets elsewhere. No curl, libcurl, or any third-party HTTP code was
-used or copied. URL parsing reuses this project's own `sp::url` module. Only
+used or copied. URL parsing reuses this project's own `cppstr::url` module. Only
 publicly documented WinHTTP / BSD socket APIs were consulted. All 49 published
 files keep the same SPDX header and copyright notice.
 
 6.1.0 新增 `csurl.h` 与 `csurl.cpp` 两个文件：基于 Windows 系统 WinHTTP API
 与 POSIX socket 独立编写的轻量同步 HTTP 客户端，未使用或复制 curl、libcurl
-或任何第三方 HTTP 代码，URL 解析复用本项目自有 `sp::url` 模块。仅参考公开的
+或任何第三方 HTTP 代码，URL 解析复用本项目自有 `cppstr::url` 模块。仅参考公开的
 WinHTTP / BSD socket 文档。全部 49 个发布文件保持统一的 SPDX 头与版权声明。
+
+The 7.0.0 release is a namespace-only migration: all 49 published source
+files (25 headers and 24 implementations) now use `cppstr` as their single
+public namespace. No source file was added or removed, no third-party code was
+consulted, and every SPDX header and copyright notice is unchanged. The test
+harness was updated in lockstep but remains outside the published repository.
+
+7.0.0 仅做命名空间迁移：全部 49 个发布源文件（25 个头文件、24 个实现文件）
+统一使用 `cppstr` 作为唯一公开命名空间。没有增删源文件，未参考或引入任何
+第三方代码，所有 SPDX 头与版权声明保持不变。测试文件同步更新但仍不入库。
 
 ## Public standards, not copied code / 依据的公开标准
 

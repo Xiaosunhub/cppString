@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
 	// Small, type-safe text formatter. It intentionally does not attempt to
 	// be std::format: the grammar is compact and every argument is rendered

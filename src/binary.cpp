@@ -36,8 +36,8 @@ namespace
 
 	// Narrow std::string paths are interpreted in the active ANSI code page on
 	// Windows, which breaks non-ASCII file names. Build a wide UTF-8 aware
-	// filesystem path instead (same convention as sp::file).
-	std::filesystem::path to_path(const sp::cppString& value)
+	// filesystem path instead (same convention as cppstr::file).
+	std::filesystem::path to_path(const cppstr::cppString& value)
 	{
 		const ::String& text = value.s_str();
 		return std::filesystem::path{ std::u8string_view{
@@ -94,7 +94,7 @@ namespace
 	::String bit_op(const ::String& lhs, const ::String& rhs, char op)
 	{
 		if (lhs.size() != rhs.size())
-			throw sp::Invalid_Argument("binary: bit operands must have equal length");
+			throw cppstr::Invalid_Argument("binary: bit operands must have equal length");
 
 		::String out(lhs.size(), '\0');
 
@@ -118,7 +118,7 @@ namespace
 	}
 }
 
-namespace sp
+namespace cppstr
 {
 	namespace binary
 	{
@@ -169,12 +169,12 @@ namespace sp
 
 				const int v = hex_value(c);
 				if (v < 0)
-					throw sp::Invalid_Conversion("binary::from_hex: invalid hexadecimal character");
+					throw cppstr::Invalid_Conversion("binary::from_hex: invalid hexadecimal character");
 				digits.push_back(static_cast<unsigned char>(v));
 			}
 
 			if (digits.size() % 2 != 0)
-				throw sp::Invalid_Conversion("binary::from_hex: odd number of hexadecimal digits");
+				throw cppstr::Invalid_Conversion("binary::from_hex: odd number of hexadecimal digits");
 
 			String out(digits.size() / 2, '\0');
 			for (std::size_t i = 0; i < out.size(); ++i)
@@ -212,12 +212,12 @@ namespace sp
 				if (is_bit_separator(c))
 					continue;
 				if (c != '0' && c != '1')
-					throw sp::Invalid_Conversion("binary::from_bits: only 0 and 1 are allowed");
+					throw cppstr::Invalid_Conversion("binary::from_bits: only 0 and 1 are allowed");
 				bits.push_back(static_cast<unsigned char>(c - '0'));
 			}
 
 			if (bits.size() % 8 != 0)
-				throw sp::Invalid_Conversion("binary::from_bits: bit count is not a multiple of 8");
+				throw cppstr::Invalid_Conversion("binary::from_bits: bit count is not a multiple of 8");
 
 			String out(bits.size() / 8, '\0');
 			for (std::size_t i = 0; i < out.size(); ++i)
@@ -234,7 +234,7 @@ namespace sp
 		cppString hex_dump(const String& bytes, std::size_t bytes_per_line, bool show_ascii)
 		{
 			if (bytes_per_line == 0)
-				throw sp::Invalid_Argument("binary::hex_dump: bytes_per_line must be positive");
+				throw cppstr::Invalid_Argument("binary::hex_dump: bytes_per_line must be positive");
 
 			std::ostringstream oss;
 
@@ -308,7 +308,7 @@ namespace sp
 		{
 			const std::size_t index = bit_index / 8;
 			if (index >= bytes.size())
-				throw sp::Index_Out_Of_Range("binary::get_bit: bit index out of range");
+				throw cppstr::Index_Out_Of_Range("binary::get_bit: bit index out of range");
 			return ((byte_at(bytes, index) >> (bit_index % 8)) & 1u) != 0;
 		}
 
@@ -316,7 +316,7 @@ namespace sp
 		{
 			const std::size_t index = bit_index / 8;
 			if (index >= bytes.size())
-				throw sp::Index_Out_Of_Range("binary::set_bit: bit index out of range");
+				throw cppstr::Index_Out_Of_Range("binary::set_bit: bit index out of range");
 
 			const unsigned char mask = static_cast<unsigned char>(1u << (bit_index % 8));
 			auto b = byte_at(bytes, index);
@@ -396,7 +396,7 @@ namespace sp
 		std::vector<std::size_t> find_all(const String& data, const String& pattern)
 		{
 			if (pattern.empty())
-				throw sp::Invalid_Argument("binary::find_all: pattern must not be empty");
+				throw cppstr::Invalid_Argument("binary::find_all: pattern must not be empty");
 
 			std::vector<std::size_t> hits;
 			std::size_t cursor = 0;
@@ -413,7 +413,7 @@ namespace sp
 		std::vector<String> split(const String& data, const String& delimiter)
 		{
 			if (delimiter.empty())
-				throw sp::Invalid_Argument("binary::split: delimiter must not be empty");
+				throw cppstr::Invalid_Argument("binary::split: delimiter must not be empty");
 
 			std::vector<String> parts;
 			std::size_t cursor = 0;
@@ -434,12 +434,12 @@ namespace sp
 		String slice(const String& data, std::size_t offset, std::size_t length)
 		{
 			if (offset > data.size())
-				throw sp::Index_Out_Of_Range("binary::slice: offset out of range");
+				throw cppstr::Index_Out_Of_Range("binary::slice: offset out of range");
 
 			const std::size_t available = data.size() - offset;
 			const std::size_t count = length == String::npos ? available : length;
 			if (count > available)
-				throw sp::Index_Out_Of_Range("binary::slice: length out of range");
+				throw cppstr::Index_Out_Of_Range("binary::slice: length out of range");
 			return data.substr(offset, count);
 		}
 
@@ -449,11 +449,11 @@ namespace sp
 		{
 			std::ifstream input{ to_path(path), std::ios::binary };
 			if (!input)
-				throw sp::Invalid_Operation("binary::load_file: cannot open file for reading");
+				throw cppstr::Invalid_Operation("binary::load_file: cannot open file for reading");
 
 			String bytes{ std::istreambuf_iterator<char>{ input }, std::istreambuf_iterator<char>{} };
 			if (input.bad())
-				throw sp::Invalid_Operation("binary::load_file: read failed");
+				throw cppstr::Invalid_Operation("binary::load_file: read failed");
 			return bytes;
 		}
 
@@ -461,14 +461,14 @@ namespace sp
 		{
 			std::ofstream output{ to_path(path), std::ios::binary | std::ios::trunc };
 			if (!output)
-				throw sp::Invalid_Operation("binary::save_file: cannot open file for writing");
+				throw cppstr::Invalid_Operation("binary::save_file: cannot open file for writing");
 
 			if (!bytes.empty())
 				output.write(bytes.data(), static_cast<std::streamsize>(bytes.size()));
 			output.flush();
 
 			if (!output)
-				throw sp::Invalid_Operation("binary::save_file: write failed");
+				throw cppstr::Invalid_Operation("binary::save_file: write failed");
 		}
 
 		// ---- Reader ----------------------------------------------------------
@@ -485,7 +485,7 @@ namespace sp
 
 		Reader Reader::from_hex(const cppString& text, Endian order)
 		{
-			return Reader{ sp::binary::from_hex(text), order };
+			return Reader{ cppstr::binary::from_hex(text), order };
 		}
 
 		const String& Reader::data() const noexcept { return m_data; }
@@ -500,7 +500,7 @@ namespace sp
 		void Reader::require(std::size_t count) const
 		{
 			if (count > remaining())
-				throw sp::Index_Out_Of_Range("binary::Reader: read past end of buffer");
+				throw cppstr::Index_Out_Of_Range("binary::Reader: read past end of buffer");
 		}
 
 		Endian Reader::effective(std::optional<Endian> order) const noexcept
@@ -511,7 +511,7 @@ namespace sp
 		void Reader::seek(std::size_t position)
 		{
 			if (position > m_data.size())
-				throw sp::Index_Out_Of_Range("binary::Reader::seek: position out of range");
+				throw cppstr::Index_Out_Of_Range("binary::Reader::seek: position out of range");
 			m_pos = position;
 		}
 
@@ -524,7 +524,7 @@ namespace sp
 		void Reader::align(std::size_t boundary)
 		{
 			if (boundary == 0)
-				throw sp::Invalid_Argument("binary::Reader::align: boundary must be positive");
+				throw cppstr::Invalid_Argument("binary::Reader::align: boundary must be positive");
 			const std::size_t padding = (boundary - (m_pos % boundary)) % boundary;
 			require(padding);
 			m_pos += padding;
@@ -635,7 +635,7 @@ namespace sp
 		{
 			const std::size_t hit = m_data.find('\0', m_pos);
 			if (hit == String::npos)
-				throw sp::Invalid_Conversion("binary::Reader::cstring: missing NUL terminator");
+				throw cppstr::Invalid_Conversion("binary::Reader::cstring: missing NUL terminator");
 
 			String out = m_data.substr(m_pos, hit - m_pos);
 			m_pos = hit + 1;
@@ -663,12 +663,12 @@ namespace sp
 				if (shift >= 64)
 				{
 					if (payload != 0)
-						throw sp::Invalid_Conversion("binary::Reader::varint: value overflows 64 bits");
+						throw cppstr::Invalid_Conversion("binary::Reader::varint: value overflows 64 bits");
 				}
 				else
 				{
 					if (shift == 63 && payload > 1)
-						throw sp::Invalid_Conversion("binary::Reader::varint: value overflows 64 bits");
+						throw cppstr::Invalid_Conversion("binary::Reader::varint: value overflows 64 bits");
 					result |= payload << shift;
 				}
 
@@ -677,7 +677,7 @@ namespace sp
 				shift += 7;
 			}
 
-			throw sp::Invalid_Conversion("binary::Reader::varint: malformed or overlong encoding");
+			throw cppstr::Invalid_Conversion("binary::Reader::varint: malformed or overlong encoding");
 		}
 
 		std::int64_t Reader::svarint()
@@ -701,7 +701,7 @@ namespace sp
 		bool Reader::skip_to(const String& signature, bool consume)
 		{
 			if (signature.empty())
-				throw sp::Invalid_Argument("binary::Reader::skip_to: signature must not be empty");
+				throw cppstr::Invalid_Argument("binary::Reader::skip_to: signature must not be empty");
 
 			const std::size_t hit = m_data.find(signature, m_pos);
 			if (hit == String::npos)
@@ -737,7 +737,7 @@ namespace sp
 
 		cppString Writer::to_hex() const
 		{
-			return sp::binary::to_hex(m_data);
+			return cppstr::binary::to_hex(m_data);
 		}
 
 		Endian Writer::effective(std::optional<Endian> order) const noexcept
@@ -762,7 +762,7 @@ namespace sp
 		void Writer::align(std::size_t boundary, std::uint8_t fill)
 		{
 			if (boundary == 0)
-				throw sp::Invalid_Argument("binary::Writer::align: boundary must be positive");
+				throw cppstr::Invalid_Argument("binary::Writer::align: boundary must be positive");
 			const std::size_t padding = (boundary - (m_data.size() % boundary)) % boundary;
 			pad(padding, fill);
 		}
@@ -830,7 +830,7 @@ namespace sp
 		Writer& Writer::raw(const void* value, std::size_t count)
 		{
 			if (count != 0 && value == nullptr)
-				throw sp::Invalid_Argument("binary::Writer::raw: null buffer with non-zero size");
+				throw cppstr::Invalid_Argument("binary::Writer::raw: null buffer with non-zero size");
 			if (count != 0)
 				m_data.append(static_cast<const char*>(value), count);
 			return *this;

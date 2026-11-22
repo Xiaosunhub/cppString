@@ -27,7 +27,7 @@
 #include <functional>
 #include <vector>
 
-namespace sp
+namespace cppstr
 {
 	// Filesystem operations built on std::filesystem. Paths are UTF-8 strings.
 	// This module is deliberately broader than the small read_file/write_file
@@ -36,7 +36,7 @@ namespace sp
 	// lifecycle operations, streaming-friendly reads and file hashing.
 	//
 	// Query functions never throw. Operations that can fail on the filesystem
-	// report failure with a typed sp::Invalid_Operation (or return false for
+	// report failure with a typed cppstr::Invalid_Operation (or return false for
 	// the bool-returning lifecycle helpers). Bad offsets throw
 	// Index_Out_Of_Range and unknown algorithms throw Invalid_Argument.
 	namespace file

@@ -1,33 +1,43 @@
 # cppString
 
 A modern C++23 string utility library — a `std::string`-compatible core class
-(`sp::cppString`) plus a collection of focused helper modules for UTF-8,
+(`cppstr::cppString`) plus a collection of focused helper modules for UTF-8,
 encoding, data exchange (JSON / CSV / INI / TOML / URI), HTTP web reading, internationalization,
 validation, paths, checksums, versioning, formatting, terminal output,
 binary parsing, file system operations, regular expressions, date/time,
 external command execution, and everyday text work.
 
-一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `sp::cppString`，
+一个现代 C++23 字符串工具库：与 `std::string` 对齐的核心类 `cppstr::cppString`，
 外加 UTF-8、编解码、数据交换（JSON / CSV / INI / TOML / URI）、网页读取、国际化处理、
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、文本处理等一系列独立模块。
 
-当前版本：`6.1.0`（新增网页读取模块）。
-Current release: **6.1.0** — adds a web page reader.
+当前版本：`7.0.0`（公开命名空间统一为 `cppstr`）。
+Current release: **7.0.0** — public API now lives in `cppstr`.
 
-> **6.1.0** — adds `csurl.h` / `csurl.cpp` (`sp::csurl`), a small synchronous
+> **7.0.0** — breaking API change: every public symbol now lives in `cppstr`;
+> the former short namespace and any compatibility alias are gone. Headers,
+> implementations, the test harness, examples and documentation were updated
+> consistently. Migrate by using `cppstr::cppString` and qualifying helpers as
+> `cppstr::*`. No files or assertions were added (1279 total).
+>
+> **7.0.0**：破坏性 API 变更：所有公开符号现统一位于 `cppstr`，旧短命名空间及
+> 兼容别名均已移除。头文件、实现、测试、示例与文档全部同步更新。升级时使用
+> `cppstr::cppString`，辅助模块以 `cppstr::*` 限定。未新增文件或断言（共 1279 项）。
+>
+> **6.1.0** — adds `csurl.h` / `csurl.cpp` (`cppstr::csurl`), a small synchronous
 > HTTP/HTTPS client for reading web pages and APIs. Windows uses the built-in
 > WinHTTP API (HTTP + HTTPS); other platforms use a compact POSIX socket client
 > over HTTP. There is no curl and no third-party dependency. URL parsing reuses
-> `sp::url`; `get()` returns a `Response` (status / body / content-type / final
+> `cppstr::url`; `get()` returns a `Response` (status / body / content-type / final
 > URL / error) and never throws on transport failure, while `fetch()` returns
 > the body on 2xx or throws. Redirects, timeouts, a body cap and a custom
 > user-agent are supported. 21 new assertions (1279 total).
 >
-> **6.1.0**：新增 `csurl.h` / `csurl.cpp`（`sp::csurl`），用于读取网页与调用 API
+> **6.1.0**：新增 `csurl.h` / `csurl.cpp`（`cppstr::csurl`），用于读取网页与调用 API
 > 的轻量同步 HTTP/HTTPS 客户端。Windows 使用系统内置 WinHTTP（HTTP + HTTPS），
 > 其他平台使用精简的 POSIX socket 客户端（HTTP）。不依赖 curl 或任何第三方库。
-> URL 解析复用 `sp::url`；`get()` 返回 `Response`（状态码 / 正文 / Content-Type /
+> URL 解析复用 `cppstr::url`；`get()` 返回 `Response`（状态码 / 正文 / Content-Type /
 > 最终 URL / 错误），传输失败不抛异常；`fetch()` 在 2xx 时返回正文，否则抛异常。
 > 支持重定向、超时、正文大小上限与自定义 User-Agent。新增 21 项断言（共 1279 项）。
 >
@@ -51,8 +61,8 @@ Current release: **6.1.0** — adds a web page reader.
 > 断言与辅助宏。所有宏自包含，无 `macro.cpp`、无额外链接依赖。新增 49 项断言
 > （共 1258 项）。
 >
-> **5.7.0** — adds `toml.h` / `toml.cpp` (`sp::toml`), a TOML 1.0 core-subset
-> reader and deterministic writer built on the existing `sp::json::Value` tree.
+> **5.7.0** — adds `toml.h` / `toml.cpp` (`cppstr::toml`), a TOML 1.0 core-subset
+> reader and deterministic writer built on the existing `cppstr::json::Value` tree.
 > It handles comments, bare / quoted / dotted keys, `[table]` headers, basic /
 > literal / multiline strings (including unicode escapes), decimal / hex /
 > octal / binary integers, floats, `inf` / `nan`, booleans, arrays and inline
@@ -60,7 +70,7 @@ Current release: **6.1.0** — adds a web page reader.
 > and integers beyond double precision are refused rather than silently rounded.
 > 57 new assertions (1209 total).
 >
-> **5.7.0**：新增 `toml.h` / `toml.cpp`（`sp::toml`），基于已有 `sp::json::Value`
+> **5.7.0**：新增 `toml.h` / `toml.cpp`（`cppstr::toml`），基于已有 `cppstr::json::Value`
 > 数据模型实现 TOML 1.0 核心子集的解析与确定性序列化。支持注释、裸键 /
 > 引号键 / 点分键、`[table]` 表头、基本 / 字面 / 多行字符串（含 unicode 转义）、
 > 十进制 / 十六进制 / 八进制 / 二进制整数、浮点数、`inf` / `nan`、布尔、
@@ -87,10 +97,10 @@ Current release: **6.1.0** — adds a web page reader.
 >
 > **5.6.7**：修复 5.6.6 遗留缺陷：`startsWith` / `endsWith` 在前缀或后缀长于原串时抛 `Invalid_Argument`（char 重载对空串也抛异常），与标准字符串语义相反，调用方极易误触发。 新增 8 项回归断言（共 1143 项）。
 >
-> **5.6.6** — fixes inherited from 5.6.5: `cppString::at` / `substr` leaked `std::out_of_range` from the underlying string while every other range-checked API in the library throws `sp::Index_Out_Of_Range`.
+> **5.6.6** — fixes inherited from 5.6.5: `cppString::at` / `substr` leaked `std::out_of_range` from the underlying string while every other range-checked API in the library throws `cppstr::Index_Out_Of_Range`.
 > 3 regression assertions were added (1135 total).
 >
-> **5.6.6**：修复 5.6.5 遗留缺陷：`cppString::at` / `substr` 把底层字符串的 `std::out_of_range` 直接抛给调用方，而库内其它越界接口统一抛 `sp::Index_Out_Of_Range`。 新增 3 项回归断言（共 1135 项）。
+> **5.6.6**：修复 5.6.5 遗留缺陷：`cppString::at` / `substr` 把底层字符串的 `std::out_of_range` 直接抛给调用方，而库内其它越界接口统一抛 `cppstr::Index_Out_Of_Range`。 新增 3 项回归断言（共 1135 项）。
 >
 > **5.6.5** — fixes inherited from 5.6.4: `utf8::sub(s, start, len)` tested `start + len > count`; an enormous length wrapped the addition, bypassed the bounds check and produced a wrong substring instead of the documented `Index_Out_Of_Range`.
 > 3 regression assertions were added (1132 total).
@@ -131,7 +141,7 @@ Current release: **6.1.0** — adds a web page reader.
 >
 > **5.6.0** — the published tree is split into `include/cppString/*.h`
 > (headers only — the only thing users include) and `src/*.cpp`
-> (implementations, never installed). `sp::exec` gains `execute(command)` /
+> (implementations, never installed). `cppstr::exec` gains `execute(command)` /
 > `execute(Actuator, command)`, returning a bool, and `getExecResult(command)` /
 > `getExecResult(Actuator, command)`, returning the merged execution transcript.
 > The default actuator is cmd.exe on Windows (/bin/sh on POSIX). C++ forbids a
@@ -139,13 +149,13 @@ Current release: **6.1.0** — adds a web page reader.
 > actuator-first calling style. 14 new assertions (1103 total).
 >
 > **5.6.0**：发布目录拆分为 `include/cppString/*.h`（只放头文件，用户只需包含它）
-> 与 `src/*.cpp`（实现文件，不安装）。`sp::exec` 新增 `execute(command)` /
+> 与 `src/*.cpp`（实现文件，不安装）。`cppstr::exec` 新增 `execute(command)` /
 > `execute(Actuator, command)` 返回 bool，以及 `getExecResult(command)` /
 > `getExecResult(Actuator, command)` 返回合并后的执行过程输出。默认执行器在
 > Windows 为 cmd.exe（POSIX 为 /bin/sh）；因 C++ 不允许默认参数位于非默认参数
 > 之前，改用两个重载保留「执行器在前」的调用方式。新增 14 项断言（共 1103 项）。
 >
-> **5.5.0** — adds `exec.h` / `exec.cpp` (`sp::exec`): execute external
+> **5.5.0** — adds `exec.h` / `exec.cpp` (`cppstr::exec`): execute external
 > commands and capture raw stdout, stderr and the exit code. `run` / `cmd` /
 > `powershell` go through a shell, `invoke(argv)` starts a program directly.
 > `Options` covers shell choice, working directory, timeout (on Windows a job
@@ -153,7 +163,7 @@ Current release: **6.1.0** — adds a web page reader.
 > `capture`, `exists`, `quote` and `build_command`. No third-party dependency,
 > 21 new assertions (1089 total).
 >
-> **5.5.0**：新增 `exec.h` / `exec.cpp`（`sp::exec`），用于执行 cmd / PowerShell /
+> **5.5.0**：新增 `exec.h` / `exec.cpp`（`cppstr::exec`），用于执行 cmd / PowerShell /
 > shell 命令并捕获原始 stdout、stderr 与退出码。`run` / `cmd` / `powershell` 经
 > shell 执行，`invoke(argv)` 不经 shell 直接启动程序；`Options` 支持选择 shell、
 > 工作目录、超时（Windows 用 Job Object 终止整棵进程树）与 stderr 合并，
@@ -189,7 +199,7 @@ Current release: **6.1.0** — adds a web page reader.
 
 ## Features
 
-### Core class — `sp::cppString` (`cppString.h`)
+### Core class — `cppstr::cppString` (`cppString.h`)
 
 - Full `std::string` parity interface: `append` / `insert` / `erase` / `assign` /
   `resize` / `compare` / `rfind` / `find_first_of` / `find_first_not_of` / `substr` …
@@ -201,20 +211,20 @@ Current release: **6.1.0** — adds a web page reader.
 - Typed exception hierarchy (`String_Error`, `Invalid_Argument`,
   `Index_Out_Of_Range`, `Empty_String`, `Invalid_Conversion`, `Invalid_Operation`)
 
-### `utf8.h` — `sp::utf8`
+### `utf8.h` — `cppstr::utf8`
 
 Strict validation (rejects truncation, overlongs, surrogates, > U+10FFFF),
 codepoint-length, char-indexed substring, per-character split, codepoint
 encode/decode, char-aware reverse, terminal `display_width` (CJK = 2 columns),
 plus `truncate_by_width` / `pad_by_width` that never split a character.
 
-### `coding.h` — `sp::coding`
+### `coding.h` — `cppstr::coding`
 
 Base64 / Base32 / Base58 (Bitcoin alphabet) / Base64URL (RFC 4648), hex,
 binary, octal, URL percent-encoding, integer radix 2–36, ROT13 / Caesar
 cipher, Morse code.
 
-### `json.h` — `sp::json`
+### `json.h` — `cppstr::json`
 
 Full JSON (RFC 8259): a `Value` variant type (null / bool / number / string /
 array / object, insertion-ordered objects), a strict recursive-descent
@@ -223,7 +233,7 @@ pretty-printed form. Round-trip safe: `parse(x.dump()) == x`.
 Also RFC 6901 JSON Pointer (`pointer` / `set_pointer`), RFC 7386 JSON
 Merge Patch (`merge`) and RFC 6902 JSON Patch (`patch`, all six operations).
 
-### `csv.h` — `sp::csv`
+### `csv.h` — `cppstr::csv`
 
 Full RFC 4180 documents: `Document` with an optional header row, named
 column access, `parse` (quoted separators, doubled quotes, embedded
@@ -232,21 +242,21 @@ auto-detection, and `write` with configurable quoting and line endings. Extends 
 `csv::escape` / `csv::split` helpers in `method.h`. `to_json` / `from_json`
 convert between documents and JSON object/array forms (lossless round trip).
 
-### `ini.h` — `sp::ini`
+### `ini.h` — `cppstr::ini`
 
 INI / configuration files: ordered sections and keys, `;` / `#` comments
 (including inline), quoted values with escapes, typed getters
 (`get_int` / `get_double` / `get_bool`), `set` / `erase` / `erase_section`,
 and a `dump` serializer. The unnamed global section uses `*_global` helpers.
 
-### `csurl.h` — `sp::csurl`
+### `csurl.h` — `cppstr::csurl`
 
 Small synchronous web reader with no curl and no third-party dependency.
 `get(url, options)` returns a `Response` with `status`, `body`, `content_type`,
 `final_url` and `error`; transport problems produce `status == 0` and a
 non-empty `error()` rather than an exception. `fetch(url, options)` returns
 the body for 2xx responses and throws `Invalid_Operation` otherwise. URLs are
-parsed with `sp::url`; only http/https are accepted, malformed URLs or options
+parsed with `cppstr::url`; only http/https are accepted, malformed URLs or options
 throw `Invalid_Argument`. Redirects, per-operation timeout, a body byte cap
 and a custom user-agent are configurable via `Options`. Windows uses the
 system WinHTTP API (HTTP + HTTPS, https detected by `supports_https()`);
@@ -266,9 +276,9 @@ and `CPPSTRING_VERSION_AT_LEAST` / `LESS_THAN` / `EQ` for `#if` and
 (`CPPSTRING_COUNT_OF`, `CPPSTRING_STATIC_ASSERT`, `CPPSTRING_ASSERT_ALWAYS`,
 `CPPSTRING_LIT`). No `macro.cpp` exists — include the header and go.
 
-### `toml.h` — `sp::toml`
+### `toml.h` — `cppstr::toml`
 
-TOML 1.0 core subset on top of `sp::json::Value`: `parse` reads comments,
+TOML 1.0 core subset on top of `cppstr::json::Value`: `parse` reads comments,
 bare / quoted / dotted keys, `[table]` headers, basic / literal / multiline
 strings, decimal / hex / octal / binary integers, floats, booleans, arrays
 and inline tables; `dump` emits a deterministic document that preserves key
@@ -276,14 +286,14 @@ insertion order across a round trip. Malformed input throws `Invalid_Format`
 with line and byte position, out-of-range numbers throw `Invalid_Conversion`.
 Date-time literals are preserved as strings and array-of-tables is rejected.
 
-### `url.h` — `sp::url`
+### `url.h` — `cppstr::url`
 
 RFC 3986 URI handling: `Url` parses and rebuilds scheme / userinfo / host /
 port / path / query / fragment (including IPv6 authorities), exposes decoded
 query parameters, and resolves relative references with `resolve()`
 (dot-segment removal included). `encode` / `decode` wrap percent-encoding.
 
-### `unicode.h` — `sp::unicode`
+### `unicode.h` — `cppstr::unicode`
 
 Code-point level internationalization: `fold_case` (ASCII, Latin-1,
 Latin Extended-A, Greek, Cyrillic), `to_fullwidth` / `to_halfwidth`,
@@ -291,7 +301,7 @@ Latin Extended-A, Greek, Cyrillic), `to_fullwidth` / `to_halfwidth`,
 and `decompose` / `compose` (NFD-like / NFC-like for precomposed Latin).
 Curated tables, not a full UCD implementation.
 
-### `fmt.h` — `sp::fmt`
+### `fmt.h` — `cppstr::fmt`
 
 Type-safe `format("{} / {1} / {{escaped}}", ...)` with positional and indexed
 arguments, alignment / fill / zero-padding, integer bases (`d`, `x`, `X`, `b`,
@@ -299,15 +309,15 @@ arguments, alignment / fill / zero-padding, integer bases (`d`, `x`, `X`, `b`,
 precision (UTF-8 aware). Bad syntax or a mismatched spec throws a typed
 exception. Argument conversion is header-only; parsing lives in the library.
 
-### `ansi.h` — `sp::ansi`
+### `ansi.h` — `cppstr::ansi`
 
 Terminal escape-sequence helpers: `strip`, `has_ansi`, `visible_width`
 (CJK-aware), width-based `truncate` / `pad` that preserve SGR codes, and
 `style` / `fg` / `rgb` / `bold` / `underline` / `inverse` / `reset` builders.
 
-### `binary.h` — `sp::binary`
+### `binary.h` — `cppstr::binary`
 
-Raw byte parsing built around `sp::String` buffers (embedded NUL bytes are
+Raw byte parsing built around `cppstr::String` buffers (embedded NUL bytes are
 safe). `to_hex` / `from_hex` (with `0x`, `:` and whitespace tolerant input),
 `to_bits` / `from_bits`, a classic `hex_dump` with ASCII sidebar, `printable`,
 bit-level helpers (`get_bit` / `set_bit` / `popcount` / `reverse_bits`,
@@ -321,13 +331,13 @@ either byte order (per-call override supported), `peek` / `bytes` / `rest`,
 Out-of-bounds reads throw `Index_Out_Of_Range`, malformed data throws
 `Invalid_Conversion`.
 
-原始字节解析，缓冲区用 `sp::String`（可含 `\0`）：hex / bit 文本互转、
+原始字节解析，缓冲区用 `cppstr::String`（可含 `\0`）：hex / bit 文本互转、
 `hex_dump`、可见化、位运算与字节序交换、模式查找与切片、二进制文件读写。
 `Reader` 提供大小端整数 / 浮点、varint / svarint、C 字符串、行读取、
 签名匹配、对齐与越界检查；`Writer` 可链式写回，`pack<T>()` 打包单个值。
 越界抛 `Index_Out_Of_Range`，格式错误抛 `Invalid_Conversion`。
 
-### `file.h` — `sp::file`
+### `file.h` — `cppstr::file`
 
 Full file-system layer on top of `std::filesystem` (UTF-8 paths survive the
 round trip). Queries: `exists` / `is_regular_file` / `is_directory` /
@@ -351,7 +361,7 @@ fnv1a64). Queries never throw; filesystem failures are reported as
 以及复用 checksum 模块的文件哈希。查询函数不抛异常；文件系统错误统一为
 `Invalid_Operation`（生命周期类函数返回 `false`）。
 
-### `regex.h` — `sp::regex`
+### `regex.h` — `cppstr::regex`
 
 `cppString`-friendly ECMAScript regular expressions (POSIX ERE grammar is
 available via `Option::extended`). `escape` quotes metacharacters;
@@ -360,7 +370,7 @@ available via `Option::extended`). `escape` quotes metacharacters;
 groups. `replace` / `replace_all` expand `$0..$9`, `${n}`, `$&`, `$$` and
 `\1`-style references, plus a callback overload; `split` preserves trailing
 empty fields. `Option::icase` enables case-insensitive matching. Use the fully
-qualified `sp::regex::` prefix if you also have `using namespace std;`.
+qualified `cppstr::regex::` prefix if you also have `using namespace std;`.
 Invalid patterns throw `Invalid_Argument`, a bad group reference throws
 `Invalid_Format`, and a bad group index throws `Index_Out_Of_Range`.
 
@@ -370,9 +380,9 @@ ERE 语法）：`escape` 转义元字符；`is_match` / `search` / `match` / `fi
 `replace_all` 支持 `$1`、`${1}`、`$&`、`$$`、`\1` 反向引用及回调重载；
 `split` 保留尾部空字段；`Option::icase` 忽略大小写。无效正则抛
 `Invalid_Argument`，无效组引用抛 `Invalid_Format`，组下标越界抛
-`Index_Out_Of_Range`。与 `std::regex` 同名，建议始终写 `sp::regex::` 全限定。
+`Index_Out_Of_Range`。与 `std::regex` 同名，建议始终写 `cppstr::regex::` 全限定。
 
-### `datetime.h` — `sp::datetime`
+### `datetime.h` — `cppstr::datetime`
 
 Timezone-aware date/time on the proleptic Gregorian calendar, with no
 time-zone database dependency. `DateTime` carries date, time, milliseconds
@@ -397,7 +407,7 @@ Unix 时间戳互转（支持 1970 年以前），另有闰年、月天数、星
 日期加减与差值、`utc_now` / `local_now` / `unix_now`、相对时间与时长格式化。
 无效日期抛 `Invalid_Conversion`，越界时区偏移抛 `Invalid_Argument`。
 
-### `exec.h` — `sp::exec`
+### `exec.h` — `cppstr::exec`
 
 Run external commands and capture raw stdout / stderr plus the exit code.
 `run` / `cmd` / `powershell` go through a shell (cmd.exe, PowerShell via
@@ -448,18 +458,18 @@ true）；`getExecResult(command)` 返回合并了 stderr 的完整执行过程�
 **安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
 捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
 
-### `table.h` — `sp::table`
+### `table.h` — `cppstr::table`
 
 ASCII table rendering with per-column alignment. Column widths use
 `utf8::display_width`, so CJK text stays aligned in a terminal.
 
-### `argparse.h` — `sp::ArgParser`
+### `argparse.h` — `cppstr::ArgParser`
 
 Small command-line parser: `--long` / `-s` options, `--key=value`, combined
 short flags (`-abc`), `--` terminator, positionals and an auto-generated
 `help()` text.
 
-### `method.h` — `sp::`
+### `method.h` — `cppstr::`
 
 Everyday text tools: `join`, `split_lines`, `split_by_any`, `pad_left/right`,
 `center`, `capitalize`, `title_case`, `swap_case`, `snake/kebab/camel/pascal
@@ -474,25 +484,25 @@ case-insensitive `icontains` / `istarts_with` / `iends_with`,
 `json::escape/unescape`, `csv::escape/split`, `html::escape/unescape`,
 plus simple file I/O (`read_file` / `read_lines` / `write_file`).
 
-### `path.h` — `sp::path`
+### `path.h` — `cppstr::path`
 
 Pure-string path handling (no filesystem access, normalized to `/`):
 `join`, `normalize` (drive letters, UNC, `.`, `..`), `filename`, `stem`,
 `extension`, `parent`, `is_absolute`, `relative`.
 
-### `checksum.h` — `sp::checksum`
+### `checksum.h` — `cppstr::checksum`
 
 CRC-32 (compile-time table), FNV-1a 64, Adler-32, MD5 (legacy, cache keys
 only), SHA-256 and HMAC-SHA-256 — raw bytes and hex forms.
 
-### `validate.h` — `sp::validate`
+### `validate.h` — `cppstr::validate`
 
 `is_ipv4`, `is_ipv6` (with `::` compression and embedded IPv4 tails),
 `is_email`, `is_uuid`, `is_url`, `is_mac_address`, `is_hex_color`,
 `is_luhn`, `is_ascii`, `is_strong_password`, `is_iban` (mod-97),
 `is_jwt`, `is_base64`, `is_hostname`, `is_json`, `is_date` (calendar-valid).
 
-### `semver.h` — `sp::semver`
+### `semver.h` — `cppstr::semver`
 
 Strict semver 2.0.0 validation and precedence comparison
 (numeric identifiers, prerelease rules, build metadata ignored),
@@ -518,7 +528,7 @@ plus `bump_major` / `bump_minor` / `bump_patch`.
 #include <cppString/macro.h>
 #include <cppString/csurl.h>
 
-using namespace sp;
+using namespace cppstr;
 
 cppString s = "hello world";
 s.toUpper();                       // "HELLO WORLD"
@@ -553,14 +563,14 @@ auto lines = file::read_lines("notes.txt");   // {"first", "second"}
 cppString digest = file::hash("notes.txt", "sha256");
 for (const auto& e : file::list(".")) { /* sorted entries with size/type */ }
 
-cppString swapped = sp::regex::replace_all("2024-02-29", R"((\d{4})-(\d{2})-(\d{2}))",
+cppString swapped = cppstr::regex::replace_all("2024-02-29", R"((\d{4})-(\d{2})-(\d{2}))",
                                             "${3}/${2}/${1}");   // "29/02/2024"
-auto fields = sp::regex::split("a, b ,  c", R"(\s*,\s*)");     // {"a", "b", "c"}
+auto fields = cppstr::regex::split("a, b ,  c", R"(\s*,\s*)");     // {"a", "b", "c"}
 
-auto stamp = sp::datetime::parse("2024-02-29T12:34:56+08:00");
-cppString shown = sp::datetime::format(*stamp, "%Y-%m-%d %H:%M %z");
-cppString when  = sp::datetime::relative(sp::datetime::to_unix(*stamp),
-                                         sp::datetime::unix_now());
+auto stamp = cppstr::datetime::parse("2024-02-29T12:34:56+08:00");
+cppString shown = cppstr::datetime::format(*stamp, "%Y-%m-%d %H:%M %z");
+cppString when  = cppstr::datetime::relative(cppstr::datetime::to_unix(*stamp),
+                                         cppstr::datetime::unix_now());
 ```
 
 ## Building
@@ -600,7 +610,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v6.1.0
+    REF v7.0.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")

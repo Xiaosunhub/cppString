@@ -25,7 +25,7 @@
 
 namespace
 {
-	sp::cppString escape_field(const sp::cppString& field, char delimiter, bool always)
+	cppstr::cppString escape_field(const cppstr::cppString& field, char delimiter, bool always)
 	{
 		const String& src = field.s_str();
 		bool quoted = always;
@@ -58,39 +58,39 @@ namespace
 		}
 
 		out += '"';
-		return sp::cppString(std::move(out));
+		return cppstr::cppString(std::move(out));
 	}
 }
 
-sp::csv::Document::Document(Row header)
+cppstr::csv::Document::Document(Row header)
 	: m_header(std::move(header)), m_has_header(true)
 {
 }
 
-const sp::csv::Document::Row& sp::csv::Document::header() const noexcept
+const cppstr::csv::Document::Row& cppstr::csv::Document::header() const noexcept
 {
 	static const Row empty{};
 	return m_has_header ? m_header : empty;
 }
 
-void sp::csv::Document::set_header(Row header)
+void cppstr::csv::Document::set_header(Row header)
 {
 	m_header = std::move(header);
 	m_has_header = true;
 }
 
-void sp::csv::Document::clear_header() noexcept
+void cppstr::csv::Document::clear_header() noexcept
 {
 	m_header.clear();
 	m_has_header = false;
 }
 
-void sp::csv::Document::add_row(Row row)
+void cppstr::csv::Document::add_row(Row row)
 {
 	m_rows.push_back(std::move(row));
 }
 
-std::size_t sp::csv::Document::column_count() const noexcept
+std::size_t cppstr::csv::Document::column_count() const noexcept
 {
 	std::size_t width = m_has_header ? m_header.size() : 0;
 
@@ -100,18 +100,18 @@ std::size_t sp::csv::Document::column_count() const noexcept
 	return width;
 }
 
-const sp::csv::Document::Row& sp::csv::Document::operator[](std::size_t row) const
+const cppstr::csv::Document::Row& cppstr::csv::Document::operator[](std::size_t row) const
 {
 	if (row >= m_rows.size())
-		throw sp::Index_Out_Of_Range("CSV row index out of range in Document::operator[].");
+		throw cppstr::Index_Out_Of_Range("CSV row index out of range in Document::operator[].");
 
 	return m_rows[row];
 }
 
-sp::cppString sp::csv::Document::at(std::size_t row, std::size_t column) const
+cppstr::cppString cppstr::csv::Document::at(std::size_t row, std::size_t column) const
 {
 	if (row >= m_rows.size())
-		throw sp::Index_Out_Of_Range("CSV row index out of range in Document::at.");
+		throw cppstr::Index_Out_Of_Range("CSV row index out of range in Document::at.");
 
 	if (column >= m_rows[row].size())
 		return cppString{};
@@ -119,7 +119,7 @@ sp::cppString sp::csv::Document::at(std::size_t row, std::size_t column) const
 	return m_rows[row][column];
 }
 
-std::size_t sp::csv::Document::column_index(const cppString& column) const noexcept
+std::size_t cppstr::csv::Document::column_index(const cppString& column) const noexcept
 {
 	if (!m_has_header)
 		return String::npos;
@@ -133,20 +133,20 @@ std::size_t sp::csv::Document::column_index(const cppString& column) const noexc
 	return String::npos;
 }
 
-sp::cppString sp::csv::Document::get(std::size_t row, const cppString& column) const
+cppstr::cppString cppstr::csv::Document::get(std::size_t row, const cppString& column) const
 {
 	if (!m_has_header)
-		throw sp::Invalid_Argument("CSV Document has no header in Document::get.");
+		throw cppstr::Invalid_Argument("CSV Document has no header in Document::get.");
 
 	const std::size_t index = column_index(column);
 
 	if (index == String::npos)
-		throw sp::Invalid_Argument("Unknown CSV column in Document::get: " + column.s_str());
+		throw cppstr::Invalid_Argument("Unknown CSV column in Document::get: " + column.s_str());
 
 	return at(row, index);
 }
 
-char sp::csv::sniff_delimiter(const cppString& text) noexcept
+char cppstr::csv::sniff_delimiter(const cppString& text) noexcept
 {
 	constexpr char candidates[] = { ',', ';', '\t', '|' };
 	const String& src = text.s_str();
@@ -194,7 +194,7 @@ char sp::csv::sniff_delimiter(const cppString& text) noexcept
 	return counts[best] == 0 ? ',' : candidates[best];
 }
 
-sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has_header)
+cppstr::csv::Document cppstr::csv::parse(const cppString& text, char delimiter, bool has_header)
 {
 	if (delimiter == '\0')
 		delimiter = sniff_delimiter(text);
@@ -247,7 +247,7 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 					{
 						const char next = src[i + 1];
 						if (next != delimiter && next != '\r' && next != '\n')
-							throw sp::Invalid_Conversion("Unexpected character after closing quote in csv::parse.");
+							throw cppstr::Invalid_Conversion("Unexpected character after closing quote in csv::parse.");
 					}
 				}
 			}
@@ -292,7 +292,7 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 	}
 
 	if (in_quotes)
-		throw sp::Invalid_Conversion("Unterminated quoted field in csv::parse.");
+		throw cppstr::Invalid_Conversion("Unterminated quoted field in csv::parse.");
 
 	// A trailing line break already closed the last record.
 	if (record_started)
@@ -310,7 +310,7 @@ sp::csv::Document sp::csv::parse(const cppString& text, char delimiter, bool has
 	return doc;
 }
 
-sp::cppString sp::csv::write(const Document& doc, char delimiter,
+cppstr::cppString cppstr::csv::write(const Document& doc, char delimiter,
 	bool always_quote, const cppString& line_ending)
 {
 	String out;
@@ -337,13 +337,13 @@ sp::cppString sp::csv::write(const Document& doc, char delimiter,
 	return cppString(std::move(out));
 }
 
-std::vector<sp::csv::Document::Row> sp::csv::parse_rows(const cppString& text, char delimiter)
+std::vector<cppstr::csv::Document::Row> cppstr::csv::parse_rows(const cppString& text, char delimiter)
 {
 	Document doc = parse(text, delimiter, false);
 	return std::move(doc.rows());
 }
 
-sp::cppString sp::csv::write_rows(const std::vector<Document::Row>& rows,
+cppstr::cppString cppstr::csv::write_rows(const std::vector<Document::Row>& rows,
 	char delimiter, const cppString& line_ending)
 {
 	Document doc;
@@ -355,10 +355,10 @@ sp::cppString sp::csv::write_rows(const std::vector<Document::Row>& rows,
 
 namespace
 {
-	sp::cppString cell_of(const sp::json::Value& value)
+	cppstr::cppString cell_of(const cppstr::json::Value& value)
 	{
 		if (value.is_null())
-			return sp::cppString{};
+			return cppstr::cppString{};
 
 		if (value.is_string())
 			return value.as_string();
@@ -367,22 +367,22 @@ namespace
 	}
 }
 
-sp::json::Value sp::csv::to_json(const Document& doc, bool named)
+cppstr::json::Value cppstr::csv::to_json(const Document& doc, bool named)
 {
-	sp::json::Value result;
+	cppstr::json::Value result;
 	auto& array = result.array_items();
 
 	if (named && doc.has_header())
 	{
 		for (const auto& row : doc.rows())
 		{
-			sp::json::Value record;
+			cppstr::json::Value record;
 			auto& object = record.object_items();
 
 			for (std::size_t i = 0; i < doc.header().size(); ++i)
 			{
 				const cppString cell = i < row.size() ? row[i] : cppString{};
-				object.emplace_back(doc.header()[i], sp::json::Value{ cell });
+				object.emplace_back(doc.header()[i], cppstr::json::Value{ cell });
 			}
 
 			array.push_back(std::move(record));
@@ -392,19 +392,19 @@ sp::json::Value sp::csv::to_json(const Document& doc, bool named)
 	}
 
 	if (doc.has_header())
-		array.push_back(sp::json::Value{ sp::json::Value::array_t{
+		array.push_back(cppstr::json::Value{ cppstr::json::Value::array_t{
 			doc.header().begin(), doc.header().end() } });
 
 	for (const auto& row : doc.rows())
-		array.push_back(sp::json::Value{ sp::json::Value::array_t{ row.begin(), row.end() } });
+		array.push_back(cppstr::json::Value{ cppstr::json::Value::array_t{ row.begin(), row.end() } });
 
 	return result;
 }
 
-sp::csv::Document sp::csv::from_json(const sp::json::Value& value, bool named)
+cppstr::csv::Document cppstr::csv::from_json(const cppstr::json::Value& value, bool named)
 {
 	if (!value.is_array())
-		throw sp::Invalid_Conversion("csv::from_json expects a JSON array.");
+		throw cppstr::Invalid_Conversion("csv::from_json expects a JSON array.");
 
 	Document doc;
 
@@ -416,7 +416,7 @@ sp::csv::Document sp::csv::from_json(const sp::json::Value& value, bool named)
 		for (const auto& record : value.as_array())
 		{
 			if (!record.is_object())
-				throw sp::Invalid_Conversion("csv::from_json(named) expects an array of objects.");
+				throw cppstr::Invalid_Conversion("csv::from_json(named) expects an array of objects.");
 
 			for (const auto& entry : record.as_object())
 			{
@@ -448,7 +448,7 @@ sp::csv::Document sp::csv::from_json(const sp::json::Value& value, bool named)
 	for (const auto& row_value : value.as_array())
 	{
 		if (!row_value.is_array())
-			throw sp::Invalid_Conversion("csv::from_json expects an array of arrays.");
+			throw cppstr::Invalid_Conversion("csv::from_json expects an array of arrays.");
 
 		Document::Row row;
 

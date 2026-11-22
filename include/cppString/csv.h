@@ -27,12 +27,12 @@
 #include <utility>
 #include <cstddef>
 
-namespace sp
+namespace cppstr
 {
 	namespace json { class Value; }
 
 	// Full RFC 4180 document support. This extends the single-line
-	// helpers sp::csv::escape / sp::csv::split declared in method.h.
+	// helpers cppstr::csv::escape / cppstr::csv::split declared in method.h.
 	namespace csv
 	{
 		class CPPSTRING_EXPORT Document

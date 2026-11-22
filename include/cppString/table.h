@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Plain-ASCII table rendering. Column widths are measured with
 	// utf8::display_width, so CJK text stays aligned in a terminal.

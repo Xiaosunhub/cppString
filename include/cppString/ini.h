@@ -27,7 +27,7 @@
 #include <utility>
 #include <cstddef>
 
-namespace sp
+namespace cppstr
 {
 	// INI / simple configuration files. Sections and keys preserve the order
 	// in which they first appeared. The unnamed (global) section is addressed

@@ -24,7 +24,7 @@
 
 #include "cppString.h"
 
-namespace sp
+namespace cppstr
 {
 	// Code-point level Unicode helpers. These are deliberately compact
 	// (a curated table for Latin-1, Latin Extended-A, Greek and Cyrillic),

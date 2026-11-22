@@ -21,8 +21,8 @@
 
 #include "argparse.h"
 
-using sp::ArgParser;
-using sp::cppString;
+using cppstr::ArgParser;
+using cppstr::cppString;
 
 ArgParser::ArgParser(cppString prog, cppString description)
 	: m_prog(std::move(prog)), m_description(std::move(description))
@@ -135,12 +135,12 @@ void ArgParser::parse(const std::vector<cppString>& args)
 			const Entry* e = find_long(name);
 
 			if (e == nullptr)
-				throw sp::Invalid_Argument("Unknown option: --" + name.s_str());
+				throw cppstr::Invalid_Argument("Unknown option: --" + name.s_str());
 
 			if (e->is_flag)
 			{
 				if (has_inline)
-					throw sp::Invalid_Argument(
+					throw cppstr::Invalid_Argument(
 						"Flag --" + name.s_str() + " does not take a value");
 
 				m_values[e->name] = "true";
@@ -154,7 +154,7 @@ void ArgParser::parse(const std::vector<cppString>& args)
 				else
 				{
 					if (i + 1 >= args.size())
-						throw sp::Invalid_Argument(
+						throw cppstr::Invalid_Argument(
 							"Option --" + name.s_str() + " needs a value");
 
 					m_values[e->name] = args[++i];
@@ -173,7 +173,7 @@ void ArgParser::parse(const std::vector<cppString>& args)
 				const Entry* e = find_short(c);
 
 				if (e == nullptr)
-					throw sp::Invalid_Argument(String("Unknown option: -") + c);
+					throw cppstr::Invalid_Argument(String("Unknown option: -") + c);
 
 				if (e->is_flag)
 				{
@@ -189,7 +189,7 @@ void ArgParser::parse(const std::vector<cppString>& args)
 				else
 				{
 					if (i + 1 >= args.size())
-						throw sp::Invalid_Argument(
+						throw cppstr::Invalid_Argument(
 							String("Option -") + c + " needs a value");
 
 					m_values[e->name] = args[++i];
@@ -219,7 +219,7 @@ void ArgParser::parse(const std::vector<cppString>& args)
 	}
 
 	if (m_positionals.size() > declared)
-		throw sp::Invalid_Argument(
+		throw cppstr::Invalid_Argument(
 			"Unexpected positional argument: " + m_positionals[declared].s_str());
 }
 
