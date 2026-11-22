@@ -12,9 +12,21 @@ external command execution, cross-language code execution, and everyday text wor
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、文本处理等一系列独立模块。
 
-当前版本：`7.1.1`（修正 `langcvt` 公开头文件目录布局）。
-Current release: **7.1.1** — fixes the public header layout of `langcvt`.
+当前版本：`7.2.0-snapshot`（7.2.0 开发快照，预发布版本）。
+Current release: **7.2.0-snapshot** — a pre-release snapshot of the 7.2.0 line.
 
+> **7.2.0-snapshot** — marks the start of the 7.2.0 development line. No
+> public API or source changes in this snapshot; `CPPSTRING_VERSION` becomes
+> the semver prerelease string `7.2.0-snapshot` (version code `70200`). The
+> CMake project version stays numeric `7.2.0` because CMake only accepts
+> numeric components. The local test suite gained one prerelease-aware
+> version assertion (1292 total).
+>
+> **7.2.0-snapshot**：标记 7.2.0 开发线的起点。本快照不含公开 API 或源码
+> 变更；`CPPSTRING_VERSION` 变为 semver 预发布串 `7.2.0-snapshot`
+> （版本码 `70200`）。CMake 工程版本保持数字 `7.2.0`（CMake 仅接受数字
+> 版本段）。本地测试套件新增 1 项预发布感知的版本断言（共 1292 项）。
+>
 > **7.1.1** — moves the four `langcvt` public headers from `include/langcvt/`
 > to `include/cppString/langcvt/`, so the standard include spelling is
 > `<cppString/langcvt/pycvt.h>` (and likewise for `langcvt.h`, `Javacvt.h` and
@@ -680,7 +692,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.1.1
+    REF v7.2.0-snapshot
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -695,7 +707,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1291 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1292 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -757,7 +769,7 @@ the same split.
 └── .gitignore
 ```
 
-The 1291-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1292-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可
