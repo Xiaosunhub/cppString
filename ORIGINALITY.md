@@ -208,17 +208,19 @@ harness was updated in lockstep but remains outside the published repository.
 统一使用 `cppstr` 作为唯一公开命名空间。没有增删源文件，未参考或引入任何
 第三方代码，所有 SPDX 头与版权声明保持不变。测试文件同步更新但仍不入库。
 
-The 7.2.0-snapshot release changes version metadata only: `CPPSTRING_VERSION`
-becomes the semver prerelease string `7.2.0-snapshot`, while CMake's project
-version stays numeric `7.2.0` (CMake only accepts numeric version components).
-No source file was added, removed or modified in this snapshot, and all SPDX
+The 7.2.0 release promotes the previous `7.2.0-snapshot` to an official
+release. It only finalizes version metadata: `CPPSTRING_VERSION` is the plain
+semver string `7.2.0`, matching CMake's numeric project version `7.2.0`.
+No source file was added, removed or modified in this line, and all SPDX
 headers and copyright notices remain unchanged. The unpublished test harness
-gained one prerelease-aware assertion for the new version string.
+gained one prerelease-aware assertion during the snapshot phase
+(1292 total).
 
-7.2.0-snapshot 仅变更版本元数据：`CPPSTRING_VERSION` 变为 semver 预发布串
-`7.2.0-snapshot`，CMake 工程版本保持数字 `7.2.0`（CMake 仅接受数字版本段）。
-本快照没有新增、删除或修改任何源码文件，所有 SPDX 头与版权声明保持不变。
-未入库的测试套件针对新版本串新增了 1 项预发布感知断言。
+7.2.0 正式版由 `7.2.0-snapshot` 转正而来，仅最终确定版本元数据：
+`CPPSTRING_VERSION` 为正式 semver 串 `7.2.0`，与 CMake 数字工程版本
+`7.2.0` 一致。本开发线没有新增、删除或修改任何源码文件，所有 SPDX 头与
+版权声明保持不变。未入库的测试套件在快照阶段新增了 1 项预发布感知断言
+（共 1292 项）。
 
 The 7.1.1 release only relocates the four `langcvt` public headers from
 `include/langcvt/` to `include/cppString/langcvt/` so that consumers use the

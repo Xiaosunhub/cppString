@@ -4,8 +4,6 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(cppString
-    # CMake requires numeric components, so the prerelease suffix of the
-    # current snapshot lives only in CPPSTRING_VERSION ("7.2.0-snapshot").
     VERSION 7.2.0
     DESCRIPTION "A modern C++23 string utility library"
     HOMEPAGE_URL "https://github.com/Xiaosunhub/cppString"

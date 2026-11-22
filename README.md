@@ -12,9 +12,18 @@ external command execution, cross-language code execution, and everyday text wor
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、文本处理等一系列独立模块。
 
-当前版本：`7.2.0-snapshot`（7.2.0 开发快照，预发布版本）。
-Current release: **7.2.0-snapshot** — a pre-release snapshot of the 7.2.0 line.
+当前版本：`7.2.0`（`langcvt` 多语言代码执行模块后的首个正式版）。
+Current release: **7.2.0** — the first official release of the 7.2.0 line.
 
+> **7.2.0** — promotes `7.2.0-snapshot` to the official release. The public
+> API is unchanged from the snapshot: no new modules or behavior changes
+> (1292 total assertions). `CPPSTRING_VERSION` is now the plain semver string
+> `7.2.0` (version code `70200`).
+>
+> **7.2.0**：`7.2.0-snapshot` 转正为正式版。公开 API 与快照一致：未新增模块，
+> 无行为变更（共 1292 项断言）。`CPPSTRING_VERSION` 现为正式 semver 串
+> `7.2.0`（版本码 `70200`）。
+>
 > **7.2.0-snapshot** — marks the start of the 7.2.0 development line. No
 > public API or source changes in this snapshot; `CPPSTRING_VERSION` becomes
 > the semver prerelease string `7.2.0-snapshot` (version code `70200`). The
@@ -692,7 +701,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.2.0-snapshot
+    REF v7.2.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
