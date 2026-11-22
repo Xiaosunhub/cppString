@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <langcvt/jscvt.h>
-#include <langcvt/langcvt.h>
+#include <cppString/langcvt/jscvt.h>
+#include <cppString/langcvt/langcvt.h>
 
 namespace cppstr::jscvt
 {

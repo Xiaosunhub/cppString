@@ -1,14 +1,14 @@
 # Originality / 原创性声明
 
 **cppString** is an independently written library. All 57 published source
-files — 25 public headers in `include/cppString/`, 4 in `include/langcvt/`
-and 28 implementations in `src/` — were authored for this project; every one
-of them carries an `SPDX-License-Identifier: MIT` line and the same copyright
-notice (`Copyright (c) 2025-2026 Ender_`). The project is distributed under the
-[MIT License](LICENSE).
+files — 25 public headers in `include/cppString/`, 4 more in
+`include/cppString/langcvt/` and 28 implementations in `src/` — were authored
+for this project; every one of them carries an `SPDX-License-Identifier: MIT`
+line and the same copyright notice (`Copyright (c) 2025-2026 Ender_`). The
+project is distributed under the [MIT License](LICENSE).
 
 本项目的 57 个文件（25 个公开头文件位于 `include/cppString/`，4 个位于
-`include/langcvt/`，28 个实现文件位于 `src/`）均为独立编写，统一带有 SPDX
+`include/cppString/langcvt/`，28 个实现文件位于 `src/`）均为独立编写，统一带有 SPDX
 标识与版权声明，采用 MIT 许可。其中 `macro.h` 是 header-only 模块，没有对应的
 实现文件。**没有复制、移植或改写任何第三方库的源代码**，也没有任何
 第三方运行时依赖：实现只使用 C++23 标准库与系统 API（Windows 下 `file` 模块通过
@@ -208,8 +208,20 @@ harness was updated in lockstep but remains outside the published repository.
 统一使用 `cppstr` 作为唯一公开命名空间。没有增删源文件，未参考或引入任何
 第三方代码，所有 SPDX 头与版权声明保持不变。测试文件同步更新但仍不入库。
 
-The 7.1.0 release adds eight files under the new `langcvt/` header group and
-the `src/` implementation tree: `langcvt.h`, `pycvt.h`, `Javacvt.h`, `jscvt.h`
+The 7.1.1 release only relocates the four `langcvt` public headers from
+`include/langcvt/` to `include/cppString/langcvt/` so that consumers use the
+same `<cppString/langcvt/...>` spelling as the rest of the library. No source
+file was added or removed, no implementation changed, and all SPDX headers and
+copyright notices remain intact. The test harness was updated for the new
+include paths but is still not published.
+
+7.1.1 仅将四个 `langcvt` 公开头文件从 `include/langcvt/` 移到
+`include/cppString/langcvt/`，让消费者与其他模块一样使用
+`<cppString/langcvt/...>` 写法。没有增删源文件，实现未改动，所有 SPDX 头与
+版权声明保持不变。测试文件同步更新包含路径但仍不入库。
+
+The 7.1.0 release adds eight files under the new `cppString/langcvt/` header
+group and the `src/` implementation tree: `langcvt.h`, `pycvt.h`, `Javacvt.h`, `jscvt.h`
 and their four `.cpp` counterparts. The adapters are written from scratch on
 top of this project's own `cppstr::exec::invoke()`; no Python, Java or
 Node.js source, runtime, wrapper library or bundled binary was copied. Python
@@ -218,7 +230,7 @@ Java source is written to a uniquely named temporary `.java` file and launched
 through the documented Java 11+ source-file mode. The published source total is
 now 57 files, all with the same SPDX header and copyright notice.
 
-7.1.0 新增 `langcvt/` 头文件组与对应实现共 8 个文件：`langcvt.h`、`pycvt.h`、
+7.1.0 新增 `cppString/langcvt/` 头文件组与对应实现共 8 个文件：`langcvt.h`、`pycvt.h`、
 `Javacvt.h`、`jscvt.h` 及四个同名 `.cpp`。适配器完全基于本项目自有的
 `cppstr::exec::invoke()` 编写，未复制 Python、Java 或 Node.js 的源码、运行时、
 封装库或二进制。Python 与 JavaScript 源码作为单个 argv 参数交给用户机器上的

@@ -22,7 +22,7 @@
 #ifndef CPPSTRING_LANGCVT_JS_CVT_H_
 #define CPPSTRING_LANGCVT_JS_CVT_H_
 
-#include <langcvt/langcvt.h>
+#include <cppString/langcvt/langcvt.h>
 
 namespace cppstr::jscvt
 {

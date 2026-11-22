@@ -4,7 +4,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(cppString
-    VERSION 7.1.0
+    VERSION 7.1.1
     DESCRIPTION "A modern C++23 string utility library"
     HOMEPAGE_URL "https://github.com/Xiaosunhub/cppString"
     LANGUAGES CXX)
@@ -12,15 +12,16 @@ project(cppString
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-# Public headers live in include/cppString/, implementations in src/.
-# Only the headers are installed, so consumers add just <prefix>/include to
-# their include path and write #include <cppString/xxx.h>.
+# Public headers live in include/cppString/ (including langcvt/),
+# implementations in src/. Only headers are installed, so consumers add just
+# <prefix>/include and write #include <cppString/xxx.h> or
+# #include <cppString/langcvt/pycvt.h>.
 file(GLOB CPPSTRING_SOURCES CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB CPPSTRING_HEADERS CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/include/cppString/*.h")
 file(GLOB CPPSTRING_LANGCVT_HEADERS CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/langcvt/*.h")
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/cppString/langcvt/*.h")
 
 if(NOT CPPSTRING_SOURCES)
     message(FATAL_ERROR "No cppString sources found in src/")
@@ -81,7 +82,7 @@ install(FILES ${CPPSTRING_HEADERS}
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cppString)
 
 install(FILES ${CPPSTRING_LANGCVT_HEADERS}
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/langcvt)
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cppString/langcvt)
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
     DESTINATION ${CMAKE_INSTALL_DATADIR}/cppString

@@ -19,8 +19,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <langcvt/Javacvt.h>
-#include <langcvt/langcvt.h>
+#include <cppString/langcvt/Javacvt.h>
+#include <cppString/langcvt/langcvt.h>
 #include <atomic>
 #include <chrono>
 #include <cctype>

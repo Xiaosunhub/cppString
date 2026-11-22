@@ -12,9 +12,19 @@ external command execution, cross-language code execution, and everyday text wor
 校验、路径、哈希、语义化版本、格式化、终端输出、二进制解析、
 文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、文本处理等一系列独立模块。
 
-当前版本：`7.1.0`（新增 `langcvt` 多语言代码执行模块）。
-Current release: **7.1.0** — adds the `langcvt` code-execution adapters.
+当前版本：`7.1.1`（修正 `langcvt` 公开头文件目录布局）。
+Current release: **7.1.1** — fixes the public header layout of `langcvt`.
 
+> **7.1.1** — moves the four `langcvt` public headers from `include/langcvt/`
+> to `include/cppString/langcvt/`, so the standard include spelling is
+> `<cppString/langcvt/pycvt.h>` (and likewise for `langcvt.h`, `Javacvt.h` and
+> `jscvt.h`). No API or behavior changes; the test count stays at 1291.
+>
+> **7.1.1**：将四个 `langcvt` 公开头文件从 `include/langcvt/` 移到
+> `include/cppString/langcvt/`，统一使用标准写法
+> `<cppString/langcvt/pycvt.h>`（`langcvt.h`、`Javacvt.h`、`jscvt.h` 同理）。
+> API 与行为不变，断言数仍为 1291 项。
+>
 > **7.1.0** — adds a new public header group `langcvt/` with `langcvt.h`,
 > `pycvt.h`, `Javacvt.h` and `jscvt.h`. `cppstr::pycvt`, `cppstr::javacvt` and
 > `cppstr::jscvt` execute Python, Java and JavaScript source code, returning a
@@ -473,10 +483,12 @@ true）；`getExecResult(command)` 返回合并了 stderr 的完整执行过程�
 **安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
 捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
 
-### `langcvt/` — `cppstr::pycvt` / `cppstr::javacvt` / `cppstr::jscvt`
+### `cppString/langcvt/` — `cppstr::pycvt` / `cppstr::javacvt` / `cppstr::jscvt`
 
-Public headers: `<langcvt/langcvt.h>`, `<langcvt/pycvt.h>`,
-`<langcvt/Javacvt.h>` and `<langcvt/jscvt.h>`. All adapters return
+Public headers: `<cppString/langcvt/langcvt.h>`, `<cppString/langcvt/pycvt.h>`,
+`<cppString/langcvt/Javacvt.h>` and `<cppString/langcvt/jscvt.h>`. They live under
+the same `cppString/` include root as every other header, so adding only
+`<prefix>/include` to the include path is enough. All adapters return
 `cppstr::langcvt::Result`, an alias of `cppstr::exec::Result`, so callers get
 `exit_code`, `out`, `err`, `started`, `timed_out`, `ok()` and `output()`.
 `eval()` is the throw-on-failure variant that returns stdout only.
@@ -494,7 +506,7 @@ interpolated into a shell command, so quotes and newlines survive unchanged.
 A missing interpreter is reported through `Result`, not by throwing.
 
 ```cpp
-#include <langcvt/pycvt.h>
+#include <cppString/langcvt/pycvt.h>
 
 cppstr::pycvt::Options options;
 options.timeout = std::chrono::seconds{ 5 };
@@ -503,8 +515,8 @@ if (result.ok())
     std::cout << result.out;
 ```
 
-公开头文件为 `<langcvt/langcvt.h>`、`<langcvt/pycvt.h>`、`<langcvt/Javacvt.h>`
-与 `<langcvt/jscvt.h>`。适配器统一返回 `cppstr::langcvt::Result`（即
+公开头文件为 `<cppString/langcvt/langcvt.h>`、`<cppString/langcvt/pycvt.h>`、`<cppString/langcvt/Javacvt.h>`
+与 `<cppString/langcvt/jscvt.h>`。适配器统一返回 `cppstr::langcvt::Result`（即
 `cppstr::exec::Result` 的别名），可读取退出码、stdout、stderr、`started`、
 `timed_out`，并调用 `ok()` / `output()`；`eval()` 只返回 stdout，失败时抛异常。
 
@@ -668,7 +680,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.1.0
+    REF v7.1.1
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -707,7 +719,7 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (25 × .h)
+├── include/cppString/             # public headers only (29 × .h, 4 in langcvt/)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
 │   ├── coding.h                   # base64/base32/base58/hex/radix, ciphers, morse
@@ -732,12 +744,12 @@ the same split.
 │   ├── exec.h                     # external command execution, output capture
 │   ├── toml.h                     # TOML 1.0 core subset reader/writer
 │   ├── macro.h                    # header-only compile-time macro layer
-│   └── csurl.h                    # HTTP/HTTPS web page reader (WinHTTP / POSIX)
-├── include/langcvt/               # public headers only (4 × .h)
-│   ├── langcvt.h                  # shared Result / Options / argv runner
-│   ├── pycvt.h                    # Python code execution
-│   ├── Javacvt.h                  # Java single-file source execution
-│   └── jscvt.h                    # JavaScript (Node.js) code execution
+│   ├── csurl.h                    # HTTP/HTTPS web page reader (WinHTTP / POSIX)
+│   └── langcvt/                   # langcvt public headers (4 × .h)
+│       ├── langcvt.h              # shared Result / Options / argv runner
+│       ├── pycvt.h                # Python code execution
+│       ├── Javacvt.h              # Java single-file source execution
+│       └── jscvt.h                # JavaScript (Node.js) code execution
 ├── src/                           # 28 implementation files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
