@@ -14,10 +14,30 @@ algorithms, and everyday text work.
 文件系统操作、正则表达式、日期时间、外部命令执行、跨语言代码执行、
 经典字符串算法、文本处理等一系列独立模块。
 
-当前版本：`7.3.0`（新增 `algorithm` 经典算法模块）。
-Current release: **7.3.0** — adds the `algorithm` module of classic
-string/sequence algorithms.
+当前版本：`7.4.0`（`langcvt` 新增 C / C++ / Rust / C# 编译型语言适配器）。
+Current release: **7.4.0** — `langcvt` gains compiled-language adapters for
+C, C++, Rust and C#.
 
+> **7.4.0** — adds `<cppString/langcvt/ccvt.h>`, `<cppString/langcvt/cppcvt.h>`,
+> `<cppString/langcvt/rustcvt.h>` and `<cppString/langcvt/c#cvt.h>`
+> (`cppstr::ccvt`, `cppstr::cppcvt`, `cppstr::rustcvt`, `cppstr::csharpcvt`).
+> Each adapter writes the source to a unique temporary file, compiles it with
+> the first available driver (cc / gcc / clang / cl, c++ / g++ / clang++ / cl,
+> rustc, csc / mcs — including the .NET Framework install path on Windows) and
+> runs the produced binary; a failing compilation is reported through the
+> returned `Result` with the diagnostics. `langcvt` also exposes the shared
+> pipeline (`temp_workspace`, `is_msvc_driver`, `compile_and_run`). 17 new
+> assertions (1356 total).
+>
+> **7.4.0**：新增 `<cppString/langcvt/ccvt.h>`、`<cppString/langcvt/cppcvt.h>`、
+> `<cppString/langcvt/rustcvt.h>` 与 `<cppString/langcvt/c#cvt.h>`
+> （`cppstr::ccvt`、`cppstr::cppcvt`、`cppstr::rustcvt`、`cppstr::csharpcvt`）。
+> 每个适配器把源码写入唯一临时文件，用首个可用的编译器驱动（cc / gcc / clang / cl、
+> c++ / g++ / clang++ / cl、rustc、csc / mcs——Windows 上额外探测 .NET Framework
+> 安装路径）编译并运行产物；编译失败通过返回的 `Result` 携带诊断信息。`langcvt`
+> 同时公开共享管线（`temp_workspace`、`is_msvc_driver`、`compile_and_run`）。
+> 新增 17 项断言（共 1356 项）。
+>
 > **7.3.0** — adds `algorithm.h` / `algorithm.cpp` (`cppstr::algorithm`):
 > Knuth-Morris-Pratt and Rabin-Karp substring search, std-style
 > next/prev permutation and anagram test, UTF-8-aware longest common
@@ -521,10 +541,12 @@ true）；`getExecResult(command)` 返回合并了 stderr 的完整执行过程�
 **安全提示**：不要把不可信输入拼进 shell 命令，应改用 `invoke()` 传 argv。
 捕获内容是原始字节：Windows 控制台程序通常输出系统 OEM 代码页而非 UTF-8。
 
-### `cppString/langcvt/` — `cppstr::pycvt` / `cppstr::javacvt` / `cppstr::jscvt`
+### `cppString/langcvt/` — `cppstr::pycvt` / `cppstr::javacvt` / `cppstr::jscvt` and friends
 
 Public headers: `<cppString/langcvt/langcvt.h>`, `<cppString/langcvt/pycvt.h>`,
-`<cppString/langcvt/Javacvt.h>` and `<cppString/langcvt/jscvt.h>`. They live under
+`<cppString/langcvt/Javacvt.h>`, `<cppString/langcvt/jscvt.h>`,
+`<cppString/langcvt/ccvt.h>`, `<cppString/langcvt/cppcvt.h>`,
+`<cppString/langcvt/rustcvt.h>` and `<cppString/langcvt/c#cvt.h>`. They live under
 the same `cppString/` include root as every other header, so adding only
 `<prefix>/include` to the include path is enough. All adapters return
 `cppstr::langcvt::Result`, an alias of `cppstr::exec::Result`, so callers get
@@ -538,6 +560,20 @@ the same `cppString/` include root as every other header, so adding only
   the Java 11+ single-file source launcher (`java File.java`). The class name
   is detected from the `class` declaration or supplied via `Options::class_name`;
   the temporary directory is removed before returning.
+- `ccvt` / `cppcvt`: compile the source (`.c` / `.cpp`) with the first available
+  driver — cc / gcc / clang / cl and c++ / g++ / clang++ / cl respectively,
+  MSVC drivers addressed with `/Fe`, GNU-style drivers with `-o` — and run the
+  produced executable.
+- `rustcvt`: compiles `.rs` with `rustc -o` and runs the binary.
+- `csharpcvt` (header `c#cvt.h`): compiles `.cs` with `csc` (the well-known
+  .NET Framework install paths are probed on Windows) or `mcs`, then runs the
+  assembly; set `Options::runner` (e.g. `mono`) on platforms where the
+  assembly is not a native executable.
+- For all compiled adapters a failing compilation is reported through the
+  returned `Result` (`ok()` is false, diagnostics in `out` / `err`) and the
+  binary is never started. The shared pipeline lives in `langcvt`:
+  `temp_workspace` (unique temporary directory with RAII cleanup),
+  `is_msvc_driver` and `compile_and_run`.
 
 Source text is always passed as an argv element through `exec::invoke()`, never
 interpolated into a shell command, so quotes and newlines survive unchanged.
@@ -553,8 +589,9 @@ if (result.ok())
     std::cout << result.out;
 ```
 
-公开头文件为 `<cppString/langcvt/langcvt.h>`、`<cppString/langcvt/pycvt.h>`、`<cppString/langcvt/Javacvt.h>`
-与 `<cppString/langcvt/jscvt.h>`。适配器统一返回 `cppstr::langcvt::Result`（即
+公开头文件为 `<cppString/langcvt/langcvt.h>`、`<cppString/langcvt/pycvt.h>`、`<cppString/langcvt/Javacvt.h>`、
+`<cppString/langcvt/jscvt.h>`、`<cppString/langcvt/ccvt.h>`、`<cppString/langcvt/cppcvt.h>`、
+`<cppString/langcvt/rustcvt.h>` 与 `<cppString/langcvt/c#cvt.h>`。适配器统一返回 `cppstr::langcvt::Result`（即
 `cppstr::exec::Result` 的别名），可读取退出码、stdout、stderr、`started`、
 `timed_out`，并调用 `ok()` / `output()`；`eval()` 只返回 stdout，失败时抛异常。
 
@@ -562,6 +599,16 @@ if (result.ok())
 - `jscvt`：执行 `node -e <code>`（或 `nodejs`）。
 - `javacvt`：把源码写入唯一临时 `.java` 文件，调用 Java 11+ 单文件源码启动器
   （`java File.java`）；类名自动识别，也可用 `Options::class_name` 指定；返回前删除临时目录。
+- `ccvt` / `cppcvt`：把源码（`.c` / `.cpp`）交给首个可用的驱动编译——分别为
+  cc / gcc / clang / cl 与 c++ / g++ / clang++ / cl，MSVC 系用 `/Fe`、GNU 系用
+  `-o` 指定产物——然后运行生成的可执行文件。
+- `rustcvt`：用 `rustc -o` 编译 `.rs` 并运行产物。
+- `csharpcvt`（头文件 `c#cvt.h`）：用 `csc`（Windows 上额外探测 .NET Framework
+  安装路径）或 `mcs` 编译 `.cs` 并运行程序集；程序集不是原生可执行文件的平台请
+  设置 `Options::runner`（如 `mono`）。
+- 编译型适配器编译失败时通过返回的 `Result` 报告（`ok()` 为 false，诊断在
+  `out` / `err` 中），不会启动产物。共享管线位于 `langcvt`：`temp_workspace`
+  （唯一临时目录 + RAII 清理）、`is_msvc_driver` 与 `compile_and_run`。
 
 源码始终作为 argv 参数经 `exec::invoke()` 传递，不拼接进 shell 命令，引号与换行
 不会被破坏。解释器缺失通过 `Result` 报告，不抛异常。
@@ -742,7 +789,7 @@ An overlay / upstream port can use `vcpkg_cmake_config_fixup`:
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Xiaosunhub/cppString
-    REF v7.3.0
+    REF v7.4.0
     SHA512 <sha512 of the release tarball>
 )
 vcpkg_cmake_configure(SOURCE_PATH "${SOURCE_PATH}")
@@ -757,7 +804,7 @@ about licensing and provenance — see [ORIGINALITY.md](ORIGINALITY.md).
 
 构建需要 C++23 编译器与 CMake 3.20+，无第三方依赖；安装后用
 `#include <cppString/xxx.h>`，链接 `cppString::cppString`。
-1339 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
+1356 项断言的本地测试套件 `testCppString.cpp` 位于 `Project1/Project1/`
 （不入库），由本地 `release.bat` 门禁脚本在每次发布前编译运行。
 
 ## Repository layout
@@ -781,7 +828,7 @@ the same split.
 ├── CMakeLists.txt                  # build, install, package export
 ├── cmake/
 │   └── cppStringConfig.cmake.in
-├── include/cppString/             # public headers only (30 × .h, 4 in langcvt/)
+├── include/cppString/             # public headers only (34 × .h, 8 in langcvt/)
 │   ├── cppString.h                # core class, version macros, exceptions
 │   ├── utf8.h                     # UTF-8, display width, BOM helpers
 │   ├── algorithm.h                # KMP/Rabin-Karp search, LCS, permutations, RLE
@@ -808,19 +855,23 @@ the same split.
 │   ├── toml.h                     # TOML 1.0 core subset reader/writer
 │   ├── macro.h                    # header-only compile-time macro layer
 │   ├── csurl.h                    # HTTP/HTTPS web page reader (WinHTTP / POSIX)
-│   └── langcvt/                   # langcvt public headers (4 × .h)
-│       ├── langcvt.h              # shared Result / Options / argv runner
+│   └── langcvt/                   # langcvt public headers (8 × .h)
+│       ├── langcvt.h              # shared Result / Options / argv runner + compile pipeline
 │       ├── pycvt.h                # Python code execution
 │       ├── Javacvt.h              # Java single-file source execution
-│       └── jscvt.h                # JavaScript (Node.js) code execution
-├── src/                           # 28 implementation files (never installed)
+│       ├── jscvt.h                # JavaScript (Node.js) code execution
+│       ├── ccvt.h                 # C compile-and-run
+│       ├── cppcvt.h               # C++ compile-and-run
+│       ├── rustcvt.h              # Rust compile-and-run
+│       └── c#cvt.h                # C# compile-and-run (namespace cppstr::csharpcvt)
+├── src/                           # 33 implementation files (never installed)
 ├── ORIGINALITY.md                 # source provenance / 原创性声明
 ├── README.md
 ├── LICENSE
 └── .gitignore
 ```
 
-The 1339-assertion test suite (`testCppString.cpp`) is used by the local build
+The 1356-assertion test suite (`testCppString.cpp`) is used by the local build
 gate but is intentionally kept out of the published repository.
 
 ## License / 许可

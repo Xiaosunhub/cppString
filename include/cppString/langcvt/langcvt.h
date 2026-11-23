@@ -25,6 +25,8 @@
 #include <cppString/cppString.h>
 #include <cppString/exec.h>
 #include <chrono>
+#include <filesystem>
+#include <functional>
 #include <vector>
 
 namespace cppstr
@@ -49,6 +51,53 @@ namespace cppstr
 		[[nodiscard]] Result run_argv(const std::vector<cppString>& argv,
 			const CommonOptions& options = {});
 		[[nodiscard]] cppString eval_result(const Result& result, const char* action);
+
+		// Unique temporary workspace for the compiled-language adapters
+		// (ccvt / cppcvt / rustcvt / csharpcvt). The directory is created in
+		// the constructor and removed when the workspace is destroyed.
+		struct CPPSTRING_EXPORT temp_workspace
+		{
+			std::filesystem::path directory;
+
+			temp_workspace();
+			~temp_workspace();
+			temp_workspace(const temp_workspace&) = delete;
+			temp_workspace& operator=(const temp_workspace&) = delete;
+		};
+
+		// True when the driver speaks MSVC syntax (cl, clang-cl), which takes
+		// "/Fe<exe>" instead of "-o <exe>".
+		[[nodiscard]] bool is_msvc_driver(const cppString& driver);
+
+		// The path in its native (preferred-separator) form. Windows-native
+		// tools such as csc treat "/"-prefixed components as options, so the
+		// compiled-language adapters pass native paths to the compiler and to
+		// the produced binary.
+		[[nodiscard]] cppString native_path(const std::filesystem::path& path);
+
+		// Shared compile-and-run pipeline for compiled languages. Creates a
+		// temporary workspace, writes `source` into it as `source_name`, asks
+		// `plan` for the compiler argv (given the source and executable paths),
+		// compiles, and on success executes the produced binary with
+		// `run_arguments` (optionally through `runner`, e.g. "mono", prepended
+		// before the executable path).
+		//
+		// If compilation fails or times out, the returned Result describes the
+		// compiler invocation: ok() is false and the diagnostics are in
+		// out / err; the executable is never started. `options` applies to
+		// each step independently (working directory, timeout, stderr merge).
+		// Throws Invalid_Argument for empty source / empty compiler argv and
+		// Invalid_Operation when the workspace cannot be created.
+		[[nodiscard]] Result compile_and_run(
+			const cppString& source,
+			const cppString& source_name,
+			const std::function<std::vector<cppString>(
+				const std::filesystem::path& source_path,
+				const std::filesystem::path& executable_path)>& plan,
+			const std::vector<cppString>& run_arguments,
+			const CommonOptions& options,
+			const char* module_name,
+			const cppString& runner = {});
 	}
 }
 
